@@ -279,6 +279,21 @@ minetest.register_node("default:dirt_with_snow", {
 	}),
 })
 
+-- Dry Dirt
+minetest.register_node("default:dry_dirt", {
+description = "Dried Dirt",
+tiles = {"ethereal_dry_dirt.png"},
+is_ground_content = false,
+groups = {crumbly=3},
+sounds = default.node_sound_dirt_defaults()
+})
+
+minetest.register_craft({
+type = "cooking",
+output = "default:dry_dirt",
+recipe = "default:dirt",
+cooktime = 3,
+})
 
 
 minetest.register_node("default:sand", {

@@ -1,6 +1,69 @@
 -- mods/default/mapgen.lua
 
--- 
+---
+--- constants
+---
+--this is the distance from spawn where ore will be at max density
+--anything past that will still be at max density.  it's best to have
+--the max density of ore back from the edge of the world a bit.
+---local frac_oremaxdist=30000   
+
+local frac_riftwidth=20                 --how wide the rift will be
+local frac_riftdepth_air=20             --how deep before the water
+local frac_riftdepth_water=20           --how deep the water will be
+local frac_rifttop=100                  --max height to scan for land to remove
+local frac_riftbottomsmooth=0.995       --odds of bottom being smooth
+local frac_riftwaterfallchance=0.997    --odds of NOT having a waterfall hole in wall
+
+local frac_blastradius=100              --how wide should the blast radius be around 0,0
+--this percentage of the outer edge of the blast radius will be scattered with dry 
+--dirt instead of all dry dirt.  so a scatter of 0.25 means the last 25% of the blast 
+--radius will gradually become less and less dried dirt
+local frac_blastscatter=0.25            
+
+local frac_spawn={x=25,y=5,z=0}  --must be in sync with mintest.conf
+local frac_spawnradius=5
+local frac_spawnsteps=10
+
+--calculated constants
+frac_spawn.y=frac_spawn.y-1   --surface should be BELOW where player spawns
+local frac_rifthalf=frac_riftwidth/2
+local frac_riftedge=frac_rifthalf+1
+local frac_riftdepth=-(frac_riftdepth_air+frac_riftdepth_water)
+local frac_riftwaterstart=-(frac_riftdepth_air+1)
+local frac_blastnoscatter=1-frac_blastscatter
+local frac_spawnmin={x=frac_spawn.x-frac_spawnradius,
+                     y=frac_spawn.y-frac_spawnsteps,
+                     z=frac_spawn.z-frac_spawnradius}
+local frac_spawnmax={x=frac_spawn.x+frac_spawnradius,
+                     y=frac_spawn.y,
+                     z=frac_spawn.z+frac_spawnradius}
+local frac_spawnstepmin={x=frac_spawn.x-frac_spawnradius-frac_spawnsteps,
+                         y=frac_spawn.y-frac_spawnsteps,
+                         z=frac_spawn.z-frac_spawnradius-frac_spawnsteps}                                     
+local frac_spawnstepmax={x=frac_spawn.x+frac_spawnradius+frac_spawnsteps,
+                         y=frac_spawn.y+frac_spawnsteps,
+                         z=frac_spawn.z+frac_spawnradius+frac_spawnsteps}
+print("**ZZ** frac_spawn="..dump(frac_spawn).." fracspawnmin="..dump(frac_spawnmin).." fracspawnmax="..dump(frac_spawnmax).." frac_spawnstepmin="..dump(frac_spawnstepmin).." frac_spawnstepmax="..dump(frac_spawnstepmax))
+
+--grab content IDs -- You need these to efficiently access and set node data.  get_node() works, but is far slower
+local c_air = minetest.get_content_id("air")
+local c_stone = minetest.get_content_id("default:stone")
+local c_water = minetest.get_content_id("default:water_source")
+local c_lava = minetest.get_content_id("default:lava_source")
+local c_iron = minetest.get_content_id("default:stone_with_iron")
+local c_coal = minetest.get_content_id("default:stone_with_coal")
+local c_copper = minetest.get_content_id("default:stone_with_copper")
+local c_mese = minetest.get_content_id("default:stone_with_mese")
+local c_meseblock = minetest.get_content_id("default:mese")
+local c_esem = minetest.get_content_id("default:stone_with_esem")
+local c_esemblock = minetest.get_content_id("default:esem")
+local c_diamond = minetest.get_content_id("default:stone_with_diamond")
+local c_goldblock = minetest.get_content_id("default:goldblock")
+local c_diamondblock = minetest.get_content_id("default:diamondblock")
+local c_drydirt =  minetest.get_content_id("default:dry_dirt")
+
+--
 -- Aliases for map generator outputs
 --
 
@@ -35,11 +98,12 @@ minetest.register_ore({
 	ore_type       = "scatter",
 	ore            = "default:stone_with_coal",
 	wherein        = "default:stone",
-	clust_scarcity = 0.2*8*8*8,
+	clust_scarcity = 8*8*8,
 	clust_num_ores = 8,
 	clust_size     = 3,
 	height_min     = -31000,
 	height_max     = 64,
+	flags          = "absheight",
 })
 
 minetest.register_ore({
@@ -54,27 +118,7 @@ minetest.register_ore({
 	flags          = "absheight",
 })
 
-minetest.register_ore({
-	ore_type       = "scatter",
-	ore            = "default:stone_with_iron",
-	wherein        = "default:stone",
-	clust_scarcity = 0.2*12*12*12,
-	clust_num_ores = 3,
-	clust_size     = 2,
-	height_min     = -15,
-	height_max     = 2,
-})
-
-minetest.register_ore({
-	ore_type       = "scatter",
-	ore            = "default:stone_with_iron",
-	wherein        = "default:stone",
-	clust_scarcity = 0.2*9*9*9,
-	clust_num_ores = 5,
-	clust_size     = 3,
-	height_min     = -63,
-	height_max     = -16,
-})
+--IRON
 
 minetest.register_ore({
 	ore_type       = "scatter",
@@ -84,7 +128,7 @@ minetest.register_ore({
 	clust_num_ores = 5,
 	clust_size     = 3,
 	height_min     = -31000,
-	height_max     = -64,
+	height_max     = 2,
 	flags          = "absheight",
 })
 
@@ -96,9 +140,68 @@ minetest.register_ore({
 	clust_num_ores = 27,
 	clust_size     = 6,
 	height_min     = -31000,
+	height_max     = 2,
+	flags          = "absheight",
+})
+
+-- COPPER
+
+minetest.register_ore({
+	ore_type       = "scatter",
+	ore            = "default:stone_with_copper",
+	wherein        = "default:stone",
+	clust_scarcity = 0.2*12*12*12,
+	clust_num_ores = 4,
+	clust_size     = 3,
+	height_min     = -31000,
+	height_max     = -16,
+	flags          = "absheight",
+})
+
+minetest.register_ore({
+	ore_type       = "scatter",
+	ore            = "default:stone_with_copper",
+	wherein        = "default:stone",
+	clust_scarcity = 0.2*9*9*9,
+	clust_num_ores = 5,
+	clust_size     = 3,
+	height_min     = -31000,
+	height_max     = -16,
+	flags          = "absheight",
+})
+
+--DIAMOND
+
+minetest.register_ore({
+	ore_type       = "scatter",
+	ore            = "default:stone_with_diamond",
+	wherein        = "default:stone",
+	clust_scarcity = 0.15*15*15*15,
+	clust_num_ores = 4,
+	clust_size     = 3,
+	height_min     = -31000,
+	height_max     = -128,
+	flags          = "absheight",
+})
+
+--GOLD
+
+minetest.register_ore({
+	ore_type       = "scatter",
+	ore            = "default:stone_with_gold",
+	wherein        = "default:stone",
+	clust_scarcity = 0.15*15*15*15,
+	clust_num_ores = 3,
+	clust_size     = 2,
+	height_min     = -31000,
 	height_max     = -64,
 	flags          = "absheight",
 })
+
+
+
+
+--MESE
 
 minetest.register_ore({
 	ore_type       = "scatter",
@@ -107,7 +210,7 @@ minetest.register_ore({
 	clust_scarcity = 0.2*18*18*18,
 	clust_num_ores = 3,
 	clust_size     = 2,
-	height_min     = -255,
+	height_min     = -31000,
 	height_max     = -64,
 	flags          = "absheight",
 })
@@ -120,7 +223,7 @@ minetest.register_ore({
 	clust_num_ores = 5,
 	clust_size     = 3,
 	height_min     = -31000,
-	height_max     = -256,
+	height_max     = -64,
 	flags          = "absheight",
 })
 
@@ -132,80 +235,50 @@ minetest.register_ore({
 	clust_num_ores = 3,
 	clust_size     = 2,
 	height_min     = -31000,
-	height_max     = -1024,
+	height_max     = -64,
 	flags          = "absheight",
 })
 
+-- ESEM
+
+
 minetest.register_ore({
 	ore_type       = "scatter",
-	ore            = "default:stone_with_gold",
+	ore            = "default:stone_with_esem",
 	wherein        = "default:stone",
-	clust_scarcity = 0.2*15*15*15,
+	clust_scarcity = 0.2*18*18*18,
 	clust_num_ores = 3,
 	clust_size     = 2,
-	height_min     = -255,
+	height_min     = -31000,
 	height_max     = -64,
 	flags          = "absheight",
 })
 
 minetest.register_ore({
 	ore_type       = "scatter",
-	ore            = "default:stone_with_gold",
+	ore            = "default:stone_with_esem",
 	wherein        = "default:stone",
-	clust_scarcity = 0.2*13*13*13,
-	clust_num_ores = 5,
-	clust_size     = 3,
-	height_min     = -31000,
-	height_max     = -256,
-	flags          = "absheight",
-})
-
-minetest.register_ore({
-	ore_type       = "scatter",
-	ore            = "default:stone_with_diamond",
-	wherein        = "default:stone",
-	clust_scarcity = 0.2*17*17*17,
-	clust_num_ores = 4,
-	clust_size     = 3,
-	height_min     = -255,
-	height_max     = -128,
-	flags          = "absheight",
-})
-
-minetest.register_ore({
-	ore_type       = "scatter",
-	ore            = "default:stone_with_diamond",
-	wherein        = "default:stone",
-	clust_scarcity = 0.2*15*15*15,
-	clust_num_ores = 4,
-	clust_size     = 3,
-	height_min     = -31000,
-	height_max     = -256,
-	flags          = "absheight",
-})
-
-minetest.register_ore({
-	ore_type       = "scatter",
-	ore            = "default:stone_with_copper",
-	wherein        = "default:stone",
-	clust_scarcity = 0.2*12*12*12,
-	clust_num_ores = 4,
-	clust_size     = 3,
-	height_min     = -63,
-	height_max     = -16,
-})
-
-minetest.register_ore({
-	ore_type       = "scatter",
-	ore            = "default:stone_with_copper",
-	wherein        = "default:stone",
-	clust_scarcity = 0.2*9*9*9,
+	clust_scarcity = 0.2*14*14*14,
 	clust_num_ores = 5,
 	clust_size     = 3,
 	height_min     = -31000,
 	height_max     = -64,
 	flags          = "absheight",
 })
+
+minetest.register_ore({
+	ore_type       = "scatter",
+	ore            = "default:esem",
+	wherein        = "default:stone",
+	clust_scarcity = 0.2*36*36*36,
+	clust_num_ores = 3,
+	clust_size     = 2,
+	height_min     = -31000,
+	height_max     = -64,
+	flags          = "absheight",
+})
+
+-- OTHER
 
 minetest.register_ore({
 	ore_type       = "scatter",
@@ -697,72 +770,72 @@ function default.register_biomes()
 	})
 
 
-    minetest.register_on_generated(function(minp, maxp, seed)
-            --if out of range of ore_gen limits
-       if minp.y > 0 then
-          return --quit; otherwise, you'd have wasted resources
-       end
 
-       --easy reference to commonly used values
-       local maxdist=30000
-       --best to have max saturation of ore back from the edge of the world
-       
-       local t1 = os.clock()
-       local x1 = maxp.x
-       local y1 = maxp.y
-       local z1 = maxp.z
-       local x0 = minp.x
-       local y0 = minp.y
-       local z0 = minp.z
+ --FRACTURE GENERATION
+  minetest.register_on_generated(function(minp, maxp, seed)
+     if maxp.x < -frac_riftedge or minp.x > frac_riftedge or
+        maxp.y < frac_riftdepth or minp.y > frac_rifttop then
+        return --quit; otherwise, you'd have wasted resources
+     end
 
-       print ("[ore_gen] chunk minp ("..x0.." "..y0.." "..z0..")") --tell people you are generating a chunk
+     --easy reference to commonly used values
+     local t1 = os.clock()
+     local x1 = maxp.x
+     local y1 = maxp.y
+     local z1 = maxp.z
+     local x0 = minp.x
+     local y0 = minp.y
+     local z0 = minp.z
+     
+     --no need to scan outside the rift
+     if x0 < -frac_riftedge then x0=-frac_riftedge end
+     if x1 > frac_riftedge then x1=frac_riftedge end
+     if y0 < frac_riftdepth then y0=frac_riftdepth end
+     if y1 > frac_rifttop then y1=frac_rifttop end
 
-            --This actually initializes the LVM
-       local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
-       local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
-       local data = vm:get_data()
+     print ("[frac_rifture_gen] chunk minp ("..x0.." "..y0.." "..z0..")") --tell people you are generating a chunk
 
-       --grab content IDs -- You need these to efficiently access and set node data.  get_node() works, but is far slower
-       local c_air = minetest.get_content_id("air")
-       local c_stone = minetest.get_content_id("default:stone")
-       local c_water = minetest.get_content_id("default:water_source")
-       local c_lava = minetest.get_content_id("default:lava_source")
-       local c_iron = minetest.get_content_id("default:stone_with_iron")
-       local c_coal = minetest.get_content_id("default:stone_with_coal")
-       local c_copper = minetest.get_content_id("default:stone_with_copper")
-       local c_mese = minetest.get_content_id("default:stone_with_mese")
-       local c_diamond = minetest.get_content_id("default:stone_with_diamond")
-       local c_goldblock = minetest.get_content_id("default:goldblock")
+     --This actually initializes the LVM
+     local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
+     local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
+     local data = vm:get_data()
 
-       for z = z0, z1 do -- for each xy plane progressing northwards
-          for y = y0, y1 do -- for each x row progressing upwards
-             --local vi = area:index(x0, y, z) -- This accesses the node at a given position
-             for x = x0, x1 do -- for each node do
-               local vi = area:index(x, y, z) -- This accesses the node at a given position
-             --print("x0="..x0.." x1="..x1.." xyz("..x..","..y..","..z..") vi="..vi)
-                -- Now test the node if it's an ore that needs to be potentially thinned out
-                if data[vi] == c_iron or data[vi] == c_copper or data[vi] == c_mese or data[vi] == c_diamond then
-                   -- it is, so now thin it based on distance from center
-                   --local dist = math.abs(x) + math.abs(y) + math.abs(z) + 1  -- This also accounts for vertical distance, so that you don't need new functions for deeper depths
-                   local dist = math.sqrt(math.abs(x)^2 + math.abs(y)^2 + math.abs(z)^2)
-                   if dist > maxdist then
-                     dist=maxdist 
-                   end --maxdist
-                   local adj=(dist/maxdist)+0.01 --+0.01 because we don't want spawn completely bare
-                   -- Now threshold it and delete unwanted nodes
-                   --if math.random() > (1/dist) then  -- 1/dist becomes exceeding small as dist increases. random is between 0 and 1.
-                   if math.random() > adj then
-                   --if 1 == 1 then  -- remove all for test
-                      --print("[ore_gen] removing ore old="..dump(data[vi]))
-                      --data[vi] = c_stone  -- remove the ore
-                      data[vi] = c_goldblock
-                      --print("                       new="..dump(data[vi]))
-                   end
-                end -- end ore existence check
-             end -- end 'x' loop
-          end -- end 'y' loop
-       end -- end 'z' loop
+     local changed=false
+     for z = z0, z1 do -- for each xy plane progressing northwards
+       for y = y0, y1 do -- for each x row progressing upwards
+         for x = x0, x1 do -- for each node do
+           local vi = area:index(x, y, z) -- This accesses the node at a given position
+           if x > -frac_riftedge and x < frac_riftedge then
+             if y > frac_riftdepth then
+               if y < frac_riftwaterstart then  -- air or water based on y
+                 if data[vi] ~= c_water then --not water
+                   if y > (frac_riftdepth+1) then
+                     data[vi]=c_water
+                     changed=true
+                   --roughen up very bottom layer a little bit
+                   elseif math.random() < frac_riftbottomsmooth then
+                     --leave a FEW bumps sticking up
+                     data[vi]=c_water
+                     changed=true
+                   end -- if y > (frac_riftdepth+1)
+                 end -- if data[vi] ~= c_water
+               elseif y < frac_rifttop and data[vi] ~= c_air then
+                 data[vi]=c_air
+                 changed=true
+               end --if y < frac_riftwaterstart
+             end -- if y > -frac_riftdepth
+           end -- if x > -frac_riftedge and x < frac_riftedge
+           if x == -frac_riftedge or x == frac_riftedge then  -- x is on edge
+             if data[vi] == c_water and math.random() < frac_riftwaterfallchance then
+               data[vi]=c_stone
+               changed=true
+             end -- change water to stone on edge
+           end -- if x == -frac_riftedge or x == frac_riftedge
+         end -- end 'x' loop
+       end -- end 'y' loop
+     end -- end 'z' loop
 
+     if changed==true then
        -- Wrap things up and write back to map
        --send data back to voxelmanip
        vm:set_data(data)
@@ -771,91 +844,146 @@ function default.register_biomes()
        vm:calc_lighting()
        --write it to world
        vm:write_to_map(data)
+     end --if changed write to map
 
-       local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
-       print ("[ore_gen] "..chugent.." ms") --tell people how long
-    end)
-
-
-
+     local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
+     print ("[frac_rifture_gen] "..chugent.." ms") --tell people how long
+  end) --register_on_generated fracture generation
 
 
-    minetest.register_on_generated(function(minp, maxp, seed)
-            --if out of range of ore_gen limits
-       if maxp.x < -11 or minp.x > 11 or maxp.y < -41 or minp.y > 100 then
-          return --quit; otherwise, you'd have wasted resources
+
+
+ --BLAST RADIUS AND NEW SPAWN
+  minetest.register_on_generated(function(minp, maxp, seed)
+     --dont bother if we are not near 0,0
+     if minp.x > frac_blastradius or maxp.x < -frac_blastradius or
+        minp.y > 100 or maxp.y < -20 or
+        minp.z > frac_blastradius or maxp.z < -frac_blastradius then
+        return --quit; otherwise, you'd have wasted resources
+     end
+
+     --easy reference to commonly used values
+     local t1 = os.clock()
+     local x1 = maxp.x
+     local y1 = maxp.y
+     local ymax=maxp.y
+     local z1 = maxp.z
+     local x0 = minp.x
+     local y0 = minp.y
+     local ymin=minp.y
+     local z0 = minp.z
+
+     --no reason to scan outside the y range we are changing.
+       if y0 < -20 then
+         y0 = -20
+       end
+       if y1 > 100 then
+         y1 = 100
        end
 
-       --easy reference to commonly used values
-       local t1 = os.clock()
-       local x1 = maxp.x
-       local y1 = maxp.y
-       local z1 = maxp.z
-       local x0 = minp.x
-       local y0 = minp.y
-       local z0 = minp.z
+     print ("[blast_gen] chunk minp ("..x0.." "..y0.." "..z0..")") --tell people you are generating a chunk
 
-       print ("[canyon_gen] chunk minp ("..x0.." "..y0.." "..z0..")") --tell people you are generating a chunk
+     --This actually initializes the LVM
+     local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
+     local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
+     local data = vm:get_data()
 
-       --This actually initializes the LVM
-       local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
-       local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
-       local data = vm:get_data()
+     local changed=false
 
-       --grab content IDs -- You need these to efficiently access and set node data.  get_node() works, but is far slower
-       local c_air = minetest.get_content_id("air")
-       local c_stone = minetest.get_content_id("default:stone")
-       local c_water = minetest.get_content_id("default:water_source")
-       local c_lava = minetest.get_content_id("default:lava_source")
-
-       local changed=false
-       for z = z0, z1 do -- for each xy plane progressing northwards
-         for y = y0, y1 do -- for each x row progressing upwards
-           for x = x0, x1 do -- for each node do
+     for z = z0, z1 do --
+       for x = x0, x1 do --
+         local dist= math.sqrt(x^2+z^2)
+         if dist < frac_blastradius then -- x and z inside blast circle radius
+           spawndone=0
+           y = y1
+           repeat --loop through y values from top to bottom
              local vi = area:index(x, y, z) -- This accesses the node at a given position
-             if x > -11 and x < 11 then
-               if y > -40 then
-                 if y < -20 and data[vi] ~= c_water then
-                   if y > -39 then
-                     data[vi]=c_water
-                     changed=true
-                   elseif math.random()<0.995 then
-                     --leave a FEW bumps sticking up
-                     data[vi]=c_water
-                     changed=true
-                   end -- water
-                 elseif y < 100 and data[vi] ~= c_air then
-                   data[vi]=c_air
-                   changed=true
-                 end -- air or water based on y
-               end -- in y range
-             end -- in x range
-             if x == -11 or x == 11 then
-               if data[vi] == c_water and math.random()<0.997 then
-                 data[vi]=c_stone
+             
+             --this code tries to make the new spawn usable by ensuring
+             --a flat landing space at the specified coords, AND trying to
+             --build steps up or down if the landing space is not level with the surface
+             
+             --is this the spawn square?           
+             if x>=frac_spawnmin.x and x<=frac_spawnmax.x and
+                z>=frac_spawnmin.z and z<=frac_spawnmax.z then
+               --inside spawn square
+               --if y is below newspawn make it dry dirt
+               if y>=frac_spawnmin.y and y<=frac_spawnmax.y then
+                 data[vi]=c_drydirt
                  changed=true
-               end -- change water to stone on edge
-             end -- x is on edge
-           end -- end 'x' loop
-         end -- end 'y' loop
-       end -- end 'z' loop
+               --if y is above newspawn and its not air, make it air  
+               elseif y>frac_spawnmax.y and data[vi]~=c_air then
+                 data[vi]=c_air
+                 changed=true
+               end --if y>=frac_spawnmin.y
 
-       if changed==true then
-         -- Wrap things up and write back to map
-         --send data back to voxelmanip
-         vm:set_data(data)
-         --calc lighting
-         vm:set_lighting({day=0, night=0})
-         vm:calc_lighting()
-         --write it to world
-         vm:write_to_map(data)
-       end --if changed write to map
+             --so now we have a nice square landing space, lets build those steps  
 
-       local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
-       print ("[canyon_gen] "..chugent.." ms") --tell people how long
-    end)
+             --is this the STEPS of the spawn square (where we try to merge it
+             --into the background so players can get up or down)  
+             elseif x>=frac_spawnstepmin.x and x<=frac_spawnstepmax.x and
+                    z>=frac_spawnstepmin.z and z<=frac_spawnstepmax.z then
+               --we are in the steps area, calculate what row out we are from newspawn
+               local stepdistx=0
+               local stepdistz=0
+               if x<frac_spawnmin.x then stepdistx=math.abs(x-frac_spawnmin.x)
+               elseif x>frac_spawnmax.x then stepdistx=math.abs(x-frac_spawnmax.x) end
+               if z<frac_spawnmin.z then stepdistz=math.abs(z-frac_spawnmin.z) 
+               elseif z>frac_spawnmax.z then stepdistz=math.abs(z-frac_spawnmax.z) end               
+               local stepdist=stepdistx
+               if stepdistz>stepdistx then stepdist=stepdistz end
+               --so now we know which step around new-spawn we are on.  (stepdist)
+               --remove anything above spawn more than spawn.y+stepdist 
+               if y > frac_spawn.y+stepdist and data[vi] ~= c_air then
+                 data[vi]=c_air
+                 changed=true
+               --turn to dirt if we find air below spawn more than y-stepdist  
+               elseif y <= frac_spawn.y-stepdist and data[vi] == c_air then
+                 data[vi]=c_drydirt
+                 changed=true                 
+               end -- if y > frac_spawn.y+stepdist               
+             --note that we let the logic drop through to the regular blast logic,
+             --this is important to get the blast area built correctly within the spawn steps area 
+             end -- if x>=frac_spawnmin.x and x<=frac_spawnmax.x              
+             
+             --blast area if
+             if data[vi] ~= c_air then
+               --check if we are in the last scatter% of the blast radius
+               if dist/frac_blastradius < frac_blastnoscatter then
+                 --if not, change this node and the next node down to dry dirt
+                 data[vi]=c_drydirt --hit surface, change to dry dirt
+                 changed=true
+                 if y > ymin then
+                   local vi = area:index(x, y-1, z)
+                   data[vi]=c_drydirt --make it 2 deep
+                 end --if y > ymin
+               elseif math.random() < 1-(((dist/frac_blastradius)-frac_blastnoscatter)/frac_blastscatter) then
+                 --but if we are in the last scatter% only change one deep randomly.
+                 data[vi]=c_drydirt --change to dry dirt
+                 changed=true
+               end -- dist/frac_blastradius < frac_blastnoscatter
+             end --if not air
+             y=y-1
+           until y < y0 or data[vi] == c_drydirt
+         end -- if in blast area
+       end -- end 'x' loop
+     end -- end 'z' loop
 
+     if changed==true then
+       -- Wrap things up and write back to map
+       --send data back to voxelmanip
+       vm:set_data(data)
+       --calc lighting
+       vm:set_lighting({day=0, night=0})
+       vm:calc_lighting()
+       --write it to world
+       vm:write_to_map(data)
+       --print(">>>saved")
+     end --if changed write to map
 
+     local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
+     print ("[blast_gen] "..chugent.." ms") --tell people how long
+  end) -- register_on_generated blast radius and new spawn
 
 
 end
