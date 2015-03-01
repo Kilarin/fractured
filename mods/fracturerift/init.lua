@@ -5,7 +5,7 @@
 ---
 
 local fracrift_width=20                 --how wide the rift will be
-local fracrift_depth_air=20             --how deep before the water
+local fracrift_depth_air=33000          --how deep before the water
 local fracrift_depth_water=20           --how deep the water will be
 local fracrift_top=100                  --max height to scan for land to remove
 local fracrift_bottomsmooth=0.995       --odds of bottom being smooth
