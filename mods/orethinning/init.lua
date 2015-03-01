@@ -134,7 +134,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
                -- it is, so now thin it based on distance from center
                -- note the bigger adj is, the smaller the chance of thinning.
                if math.random() > adj then
-                  data[vi] = c_stone  -- remove the ore
+                  --data[vi] = c_stone  -- remove the ore
                   --data[vi] = c_goldblock --*VIEWTHINNING* uncomment this line to make it easy to see thinning
                   changed=true
                end
