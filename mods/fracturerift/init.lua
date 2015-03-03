@@ -5,13 +5,13 @@
 ---
 
 local fracrift_width=80                 --how wide the rift will be
---local fracrift_depth_air=33000          --how deep before the water
+local fracrift_depth_air=33000          --how deep before the water
 local fracrift_depth_water=20           --how deep the water will be
 local fracrift_top=100                  --max height to scan for land to remove
 local fracrift_bottomsmooth=0.995       --odds of bottom being smooth
 local fracrift_waterfallchance=0.997    --odds of NOT having a waterfall hole in wall
-local fracrift_material=minetest.get_content_id("default:stone")
-                        minetest.get_content_id("default:stone")
+local fracrift_material=minetest.get_content_id("default:sandstone") -- Makes more sense, no?
+                        minetest.get_content_id("default:sandstone")
 
 --calculated constants
 local fracrift_half=fracrift_width/2
@@ -77,14 +77,24 @@ minetest.register_on_generated(function(minp, maxp, seed)
        for x = x0, x1 do -- for each node do
 			local vi = area:index(x, y, z) -- This accesses the node at a given position
 		 
-			if x > -fracrift_edge and x < fracrift_edge then		 
-				local grad = math.abs(x / (fracrift_edge * 1.5))
-				if ((math.abs(nvals_walls[nixyz]) + grad) > 0.6) and (x < -fracrift_edge/3 or x > fracrift_edge/3) then
+			local grad = math.abs(x / fracrift_edge) * (10^(math.abs(x / fracrift_edge)) / 10) -- Density gradient.  This controls how much to offset the noise value as x approaches the walls of the chasm.
+		 
+			if x > -fracrift_edge and x < fracrift_edge then  -- If within chasm-generating limits 
+				
+				if ((math.abs(nvals_walls[nixyz]) - grad) > 0) then -- Check the value of the perlin noise at this position with respect to distance from center
 					if data[vi] ~= c_air then
-						data[vi] = fracrift_material
+						data[vi] = c_air -- Hollow out the chasm with smooth walls
 					end
-				else
-					data[vi] = c_air
+				else 
+					if (x < -fracrift_edge/3 or x > fracrift_edge/3) then -- Put limits in to make sure the chasm always stays at least some ways open
+						if data[vi] == c_water then -- If there's water, make it wall material so as not to drain the oceans :P
+							data[vi] = fracrift_material
+						end
+					else
+						if (x > -fracrift_edge/3 or x < fracrift_edge/3) then -- In the limits, always hollow this
+							data[vi] = c_air
+						end
+					end
 				end
             
 				changed = true
@@ -92,7 +102,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 			end -- if x > -fracrift_edge and x < fracrift_edge
 		 
 			if x == -fracrift_edge or x == fracrift_edge then  -- x is on edge
-				if data[vi] == c_water and math.random() < fracrift_waterfallchance then
+				if data[vi] == c_water and math.random() < fracrift_waterfallchance and (math.abs(nvals_walls[nixyz]) - grad) > 0 then
 					data[vi]=fracrift_material
 					changed=true
 				end -- change water to stone on edge
