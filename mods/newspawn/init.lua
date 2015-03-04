@@ -3,7 +3,10 @@
 ---
 --- constants
 ---
-local nspawn_pos={x=25,y=5,z=0}  --must be in sync with mintest.conf
+local nspawn_pos={x=50,y=5,z=0}
+--do not set static_spawn in minetest.conf, this will override it.
+
+
 local nspawn_radius=5
 local nspawn_steps=10
 --local nspawn_material=minetest.get_content_id("default:brick")
@@ -25,6 +28,16 @@ local nspawn_stepmin={x=nspawn_pos.x-nspawn_totrad,
 local nspawn_stepmax={x=nspawn_pos.x+nspawn_totrad,
                          y=nspawn_pos.y+nspawn_totrad*2,
                          z=nspawn_pos.z+nspawn_totrad}
+
+--Make spawn match nspawn_pos set above
+minetest.setting_set("static_spawnpoint", nspawn_pos.x..","..nspawn_pos.y..","..nspawn_pos.z)
+--[[ Saving this just in case I decide I need it.
+minetest.register_on_newplayer(
+  function(player)
+  minetest.after(5, function()player:setpos({x=0, y=1, z=0})end) -- I guess a semi hacky way of making sure the singleplayer lands on obsidian
+  end
+  )
+--]]
 
 
 --print("**ZZ** nspawn_pos="..dump(nspawn_pos).." min="..dump(nspawn_min).." max="..dump(nspawn_max).." nspawn_stepmin="..dump(nspawn_stepmin).." nspawn_stepmax="..dump(nspawn_stepmax))
@@ -272,6 +285,3 @@ if nspawn_shape=="S" then
 elseif nspawn_shape=="C" then
    minetest.register_on_generated(circlenewspawn)
 end
-
-
-
