@@ -10,7 +10,7 @@
 --still might need to be bigger than that.
 local orethin_maxdist=45000
 local orethin_maxheight=100
-local orethin_mindensity=0.05
+local orethin_mindensity=0.0005
 local orethin_eastadj=0.5   --remember this is chance to THIN, so bigger numbers mean less ore
 local orethin_westadj=1
 --this needs to be further parameterized, allow the east west border to be parameterized, etc.
