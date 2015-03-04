@@ -1,5 +1,21 @@
 --
 
+--Set spawn and player pos
+  minetest.setting_set("static_spawnpoint", "0, 1, 0")
+  
+  minetest.register_on_generated(
+    function(name, param)
+      minetest.add_node({x=0, y=-1, z=0}, {name="default:obsidian"})
+    end
+  )
+  
+  minetest.register_on_newplayer(
+    function(player)
+      minetest.after(5, function()player:setpos({x=0, y=1, z=0})end) -- I guess a semi hacky way of making sure the singleplayer lands on obsidian
+    end
+  )
+
+--[[
 ---
 --- constants
 ---
@@ -272,6 +288,6 @@ if nspawn_shape=="S" then
 elseif nspawn_shape=="C" then
    minetest.register_on_generated(circlenewspawn)
 end
-
+]]
 
 
