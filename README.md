@@ -1,6 +1,6 @@
 
 
-**FRACTURED 0.03 **<p>
+**FRACTURED 0.04 **<p>
 [![alt text](http://a.pomf.se/dnhqdj.png "image")](http://a.pomf.se/dnhqdj.png)
 
     It was with the best of intentions that the great wizard created the world stone. He drained power from the very heart of the earth to make it, and poured much of his own essence into it as well. And the result was a creation of magic so powerful, and so intimately connected to the world, that it could alter the structure of reality itself.
@@ -107,6 +107,8 @@ and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 **Change Log**<p>
+0.04 fracturerift optimization and leak fix by HeroOfTheWinds and<p>
+     thining algorithm choice in orethinning with new exponential algorithm by HeroOfTheWinds<p>
 0.03 set static_spawn from within newspawn, suggested and demonstrated by jojoa1997<p>
 0.02 Fracture variance code by HeroOfTheWinds<p>
 0.01 Initial release to the public.  NOT READY as a game at all.
