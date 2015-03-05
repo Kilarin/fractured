@@ -17,6 +17,8 @@ local orethin_westadj=1
 
 
 
+
+
 --grab content IDs -- You need these to efficiently access and set node data.  get_node() works, but is far slower
 local c_air = minetest.get_content_id("air")
 local c_stone = minetest.get_content_id("default:stone")
@@ -63,6 +65,23 @@ local c_goldblock = minetest.get_content_id("default:goldblock")
 local c_diamondblock = minetest.get_content_id("default:diamondblock")
 
 
+--thins linearly over the whole range to maxdist
+function orethin_adj_linear(dist)
+  return dist/orethin_maxdist
+  end
+  
+--algorithm by HeroOfTheWinds that heavily thins for the
+--first 1000 nodes before rapidly becoming abundant. 
+function orethin_adj_exponental(dist)
+  return (orethin_maxdist/(1+(orethin_maxdist-1)* math.exp(-.0075*dist))) / orethin_maxdist
+  end
+    
+          
+--chose the algorithm for ore thinning (comment out all others)
+local orethin_adj_algorithm=orethin_adj_linear
+--local orethin_adj_algorithm=orethin_adj_exponental
+
+
 ---ORE THINNING
 minetest.register_on_generated(function(minp, maxp, seed)
    --if out of range of ore_gen limits (will need to change this when skylands implemented
@@ -93,7 +112,10 @@ minetest.register_on_generated(function(minp, maxp, seed)
    if dist > orethin_maxdist then
      dist=orethin_maxdist
    end --orethin_maxdist
-   local adj= (orethin_maxdist/(1+(orethin_maxdist-1)* math.exp(-.0075*dist))) / orethin_maxdist --(dist/orethin_maxdist)--original code.  
+
+   --local adj= (orethin_maxdist/(1+(orethin_maxdist-1)* math.exp(-.0075*dist))) / orethin_maxdist --(dist/orethin_maxdist)--original code.
+   local adj=orethin_adj_algorithm(dist)
+   
 		--New code makes ore thin until about 1000 nodes away, and then it rapidly gets more common.  To adjust distribution, change the value currently at -.0075. Closer to 0 is more thinning, greater negative numbers are less thinning.
    if adj < orethin_mindensity then
      adj=orethin_mindensity    --because we don't want spawn completely bare
