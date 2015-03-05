@@ -93,7 +93,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
    if dist > orethin_maxdist then
      dist=orethin_maxdist
    end --orethin_maxdist
-   local adj=(dist/orethin_maxdist)
+   local adj= (orethin_maxdist/(1+(orethin_maxdist-1)* math.exp(-.0075*dist))) / orethin_maxdist --(dist/orethin_maxdist)--original code.  
+		--New code makes ore thin until about 1000 nodes away, and then it rapidly gets more common.  To adjust distribution, change the value currently at -.0075. Closer to 0 is more thinning, greater negative numbers are less thinning.
    if adj < orethin_mindensity then
      adj=orethin_mindensity    --because we don't want spawn completely bare
     end --min adj
@@ -110,8 +111,9 @@ minetest.register_on_generated(function(minp, maxp, seed)
    for z = z0, z1 do -- for each xy plane progressing northwards
       for y = y0, y1 do -- for each x row progressing upwards
          --local vi = area:index(x0, y, z) -- This accesses the node at a given position
+		 local vi = area:index(x0, y, z) --Switched to incrementing form for slight speed increase.
          for x = x0, x1 do -- for each node do
-            local vi = area:index(x, y, z) -- This accesses the node at a given position
+            --local vi = area:index(x, y, z) -- This accesses the node at a given position
             --x>0 is east, so we exclude ores in the west only list
             --cant search arrays that way when the elements are numbers.
             --if x > 0 and orethin_westlist.data[vi] then
@@ -139,6 +141,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
                   changed=true
                end
             end -- end ore existence check
+			vi = vi + 1 --increment the LVM index
          end -- end 'x' loop
       end -- end 'y' loop
    end -- end 'z' loop

@@ -74,8 +74,9 @@ minetest.register_on_generated(function(minp, maxp, seed)
    
    for z = z0, z1 do -- for each xy plane progressing northwards
      for y = y0, y1 do -- for each x row progressing upwards
+		vi = area:index(x0, y, z) --This accesses the node at a given position.  vi is incremented inside the loop for greater performance.
        for x = x0, x1 do -- for each node do
-			local vi = area:index(x, y, z) -- This accesses the node at a given position
+			--local vi = area:index(x, y, z) -- This accesses the node at a given position
 		 
 			local grad = math.abs(x / fracrift_edge) * (10^(math.abs(x / fracrift_edge)) / 10) -- Density gradient.  This controls how much to offset the noise value as x approaches the walls of the chasm.
 		 
@@ -102,14 +103,15 @@ minetest.register_on_generated(function(minp, maxp, seed)
 			end -- if x > -fracrift_edge and x < fracrift_edge
 		 
 			if x == -fracrift_edge or x == fracrift_edge then  -- x is on edge
-				if data[vi] == c_water and math.random() < fracrift_waterfallchance and (math.abs(nvals_walls[nixyz]) - grad) > 0 then
+				if data[vi] == c_water and math.random() < fracrift_waterfallchance and (math.abs(nvals_walls[nixyz]) - grad) > -0.1 then
 					data[vi]=fracrift_material
 					changed=true
 				end -- change water to stone on edge
 			end -- if x == -fracrift_edge or x == fracrift_edge
 		 
 			nixyz = nixyz + 1
-		 
+			vi = vi + 1
+			
        end -- end 'x' loop
      end -- end 'y' loop
    end -- end 'z' loop
