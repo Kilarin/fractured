@@ -1,4 +1,4 @@
-[b]FRACTURED 0.03 [/b]
+[b]FRACTURED 0.05 [/b]
 
 [url=http://a.pomf.se/dnhqdj.png][img]http://a.pomf.se/dnhqdj.png[/img][/url]
 
@@ -106,6 +106,9 @@ and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 [b]Change Log[/b]
+0.05 world stone tower in progress, needs much work and perlin noise adjustment
+0.04 fracturerift optimization and leak fix by HeroOfTheWinds and
+     thining algorithm choice in orethinning with new exponential algorithm by HeroOfTheWinds
 0.03 set static_spawn from within newspawn, suggested and demonstrated by jojoa1997
 0.02 Fracture variance code by HeroOfTheWinds
 0.01 Initial release to the public.  NOT READY as a game at all.

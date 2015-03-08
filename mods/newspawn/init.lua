@@ -3,7 +3,7 @@
 ---
 --- constants
 ---
-local nspawn_pos={x=50,y=5,z=0}
+local nspawn_pos={x=60,y=5,z=0}
 --do not set static_spawn in minetest.conf, this will override it.
 
 
