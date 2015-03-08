@@ -42,12 +42,12 @@ local np_dmg = {
 	scale = 1,
 	--spread = {x=192, y=512, z=512}, -- squashed 2:1
   --spread = {x=200, y=80, z=80},
-  spread = {x=80, y=40, z=40},
+  spread = {x=15, y=5, z=5},
 	seed = 133742, --a LEET answer to life, the universe, and everything
 	octaves = 3,
 	persist = 0.67
 }
-local wst_dmg_lvl=0.4
+local wst_dmg_lvl=0.7
 
 
 
@@ -108,25 +108,18 @@ minetest.register_on_generated(function(minp, maxp, seed)
           --print("x="..x.." y="..y.." z="..z.." yzdist="..yzdist.." wst_radius="..wst_radius)
           local xdist=math.abs((x-xbeg))+1
           radius=wst_radius-(math.floor(xdist/wst_shrinkheight))
-          --local vi = area:index(x, y, z) -- This accesses the node at a given position
           if yzdist==radius then
-            --if nvals_dmg[nixyz] and nvals_dmg[nixyz] > 0.8 then
             if math.abs(nvals_dmg[nixyz]) > wst_dmg_lvl then
               data[vi] = c_air
-              --print(" w> vi="..vi.." nvals_dmg["..nixyz.."]="..nvals_dmg[nixyz]) 
-            else
-              --print(" w< vi="..vi.." nvals_dmg["..nixyz.."]="..nvals_dmg[nixyz])             
+            else       
               data[vi]=wst_material_wall
             end
           elseif yzdist<radius then
-            if (xdist/wst_floorheight)== math.floor(xdist/wst_floorheight) then
-              if math.abs(nvals_dmg[nixyz]) > 0.3 then
-                --print(" f> vi="..vi.." nvals_dmg["..nixyz.."]="..nvals_dmg[nixyz]) 
-                data[vi] = c_air
-              else
-                --print(" f< vi="..vi.." nvals_dmg["..nixyz.."]="..nvals_dmg[nixyz])                              
-                data[vi]=wst_material_floor
-              end
+            if (xdist/wst_floorheight)== math.floor(xdist/wst_floorheight) and
+                math.abs(nvals_dmg[nixyz]) <= wst_dmg_lvl then                     
+              data[vi]=wst_material_floor
+            else    
+              data[vi] = c_air                
             end -- if (xdist/wst_floorheight)
           end --if yzdist
         end --if x>=wst_min.x
