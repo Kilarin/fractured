@@ -42,12 +42,12 @@ local np_dmg = {
 	scale = 1,
 	--spread = {x=192, y=512, z=512}, -- squashed 2:1
   --spread = {x=200, y=80, z=80},
-  spread = {x=80, y=40, z=40},
+  spread = {x=15, y=5, z=5},
 	seed = 133742, --a LEET answer to life, the universe, and everything
 	octaves = 3,
 	persist = 0.67
 }
-local wst_dmg_lvl=0.45
+local wst_dmg_lvl=0.7
 
 
 
