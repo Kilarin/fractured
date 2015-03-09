@@ -1,22 +1,25 @@
 -- mods/default/mapgen.lua
 
+fracturerift = {} --Global container for variables accessed by other mods
+
 ---
 --- constants
 ---
 
-local fracrift_width=80                 --how wide the rift will be
+fracturerift.width = 80        --how wide the rift will be		--fracrift. prefix added so that it can be referenced by other mods (e.g. worldstonetower)
+
 local fracrift_depth_air=33000          --how deep before the water
 local fracrift_depth_water=20           --how deep the water will be
 local fracrift_top=100                  --max height to scan for land to remove
 local fracrift_bottomsmooth=0.995       --odds of bottom being smooth
 local fracrift_waterfallchance=0.997    --odds of NOT having a waterfall hole in wall
-local fracrift_material=minetest.get_content_id("default:sandstone") -- Makes more sense, no?
+local c_fracrift_material=minetest.get_content_id("default:sandstone") -- Makes more sense, no?
                         minetest.get_content_id("default:sandstone")
 
 --calculated constants
-local fracrift_half=fracrift_width/2
-local fracrift_edge=fracrift_half+1
-local fracrift_depth=-(fracrift_depth_air+fracrift_depth_water)
+local fracrift_half = fracturerift.width/2
+local fracrift_edge = fracrift_half+1
+local fracrift_depth = -(fracrift_depth_air+fracrift_depth_water)
 local fracrift_waterstart=-(fracrift_depth_air+1)
 
 --grab content IDs -- You need these to efficiently access and set node data.  get_node() works, but is far slower
@@ -88,7 +91,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
         else
           if (x < -fracrift_edge/3 or x > fracrift_edge/3) then -- Put limits in to make sure the chasm always stays at least some ways open
             if data[vi] == c_water then -- If there's water, make it wall material so as not to drain the oceans :P
-              data[vi] = fracrift_material
+              data[vi] = c_fracrift_material
             end
           else
             if (x > -fracrift_edge/3 or x < fracrift_edge/3) then -- In the limits, always hollow this
@@ -101,7 +104,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
       if x == -fracrift_edge or x == fracrift_edge then  -- x is on edge
         if data[vi] == c_water and math.random() < fracrift_waterfallchance and (math.abs(nvals_walls[nixyz]) - grad) > -0.1 then
-          data[vi]=fracrift_material
+          data[vi]=c_fracrift_material
           changed=true
         end -- change water to stone on edge
       end -- if x == -fracrift_edge or x == fracrift_edge

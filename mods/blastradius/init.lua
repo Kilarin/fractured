@@ -11,7 +11,7 @@ local blastrad_radius=100              --how wide should the blast radius be aro
 local blastrad_scatter=0.25
 local blastrad_top=100                 --don't bother blasting higher than this
 local blastrad_bot=-20                 --don't bother blasting lower than this.
-local blastrad_material=minetest.get_content_id("default:dry_dirt")
+local c_blastmat = minetest.get_content_id("default:dry_dirt")
 
 
 --caclulated constants
@@ -72,20 +72,20 @@ minetest.register_on_generated(function(minp, maxp, seed)
             --check if we are in the last scatter% of the blast radius
             if dist/blastrad_radius < blastrad_noscatter then
               --if not, change this node and the next node down to dry dirt
-              data[vi]=blastrad_material --hit surface, change to dry dirt
+              data[vi] = c_blastmat --hit surface, change to dry dirt
               changed=true
               if y > ymin then
                 local vi = area:index(x, y-1, z)
-                data[vi]=blastrad_material --make it 2 deep
+                data[vi] = c_blastmat --make it 2 deep
               end --if y > ymin
             elseif math.random() < 1-(((dist/blastrad_radius)-blastrad_noscatter)/blastrad_scatter) then
               --but if we are in the last scatter% only change one deep randomly.
-              data[vi]=blastrad_material --change to dry dirt
+              data[vi] = c_blastmat --change to dry dirt
               changed=true
             end -- dist/blastrad_radius < blastrad_noscatter
           end --if not air
           y=y-1
-        until y < y0 or data[vi] == blastrad_material
+        until y < y0 or data[vi] == c_blastmat
       end -- if in blast area
     end -- end 'x' loop
   end -- end 'z' loop

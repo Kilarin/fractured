@@ -5,16 +5,16 @@
 ---
 local wst_pos={x=0,y=0,z=0}
 local wst_radius=15
-local wst_length=100
+local wst_length = fracturerift.width + 20
 local wst_floorheight=8
 local wst_shrinkheight=20
 
 local wst_floorholeodds=0.1
 local wst_wallholeodds=0.01
 
-local wst_material_wall = minetest.get_content_id("default:obsidianbrick")
-local wst_material_floor = minetest.get_content_id("default:desert_stonebrick")
-local wst_material_stair = minetest.get_content_id("stairs:stair_obsidianbrick")
+local c_wall = minetest.get_content_id("default:obsidianbrick")
+local c_floor = minetest.get_content_id("default:desert_stonebrick")
+local c_stair = minetest.get_content_id("stairs:stair_obsidianbrick")
 
 --local wst_start={x=0,y=0,z=0}  --where to start trying to put the tower.
 --local wst_lookdist=100 --distance to look for starting point.
@@ -41,13 +41,13 @@ local np_dmg = {
 	offset = 0,
 	scale = 1,
 	--spread = {x=192, y=512, z=512}, -- squashed 2:1
-  --spread = {x=200, y=80, z=80},
-  spread = {x=15, y=5, z=5},
-	seed = 133742, --a LEET answer to life, the universe, and everything
+	--spread = {x=200, y=80, z=80},
+	spread = {x=15, y=8, z=8},
+	seed = 314159, --everyone loves pi(e)
 	octaves = 3,
 	persist = 0.67
 }
-local wst_dmg_lvl=0.7
+local wst_dmg_lvl=0.7 --threshold for holes in the tower.  Smaller means larger holes
 
 
 
@@ -110,21 +110,21 @@ minetest.register_on_generated(function(minp, maxp, seed)
           radius=wst_radius-(math.floor(xdist/wst_shrinkheight))
           if yzdist==radius then
             if math.abs(nvals_dmg[nixyz]) > wst_dmg_lvl then
-              data[vi] = c_air
+				data[vi] = c_air
             else       
-              data[vi]=wst_material_wall
+				data[vi] = c_wall
             end
           elseif yzdist<radius then
             if (xdist/wst_floorheight)== math.floor(xdist/wst_floorheight) and
                 math.abs(nvals_dmg[nixyz]) <= wst_dmg_lvl then                     
-              data[vi]=wst_material_floor
+				data[vi] = c_floor
             else    
-              data[vi] = c_air                
+				data[vi] = c_air                
             end -- if (xdist/wst_floorheight)
           end --if yzdist
         end --if x>=wst_min.x
-      nixyz = nixyz + 1
-      vi = vi + 1
+		nixyz = nixyz + 1
+		vi = vi + 1
       end -- end 'x' loop
     end -- end 'y' loop
   end -- end 'z' loop
