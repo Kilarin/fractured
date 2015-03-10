@@ -1,6 +1,4 @@
-
-
-**FRACTURED 0.05 **<p>
+**FRACTURED 0.06 **<p>
 [![alt text](http://a.pomf.se/dnhqdj.png "image")](http://a.pomf.se/dnhqdj.png)
 
     It was with the best of intentions that the great wizard created the world stone. He drained power from the very heart of the earth to make it, and poured much of his own essence into it as well. And the result was a creation of magic so powerful, and so intimately connected to the world, that it could alter the structure of reality itself.
@@ -107,6 +105,10 @@ and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 **Change Log**<p>
+0.06 world stone tower and optimizations by HeroOfThe winds<p>
+     BlastRadius changed, now levels down to 0 and gradualy steps up or down to meet environment, more crater like.<p>
+     areas and markers mods added.  areas will not protect in west!  changes planned for markers<p>
+     added mods: compassgps, bridgetool, explorertoolsall<p>
 0.05 world stone tower in progress, needs much work and perlin noise adjustment<p>
 0.04 fracturerift optimization and leak fix by HeroOfTheWinds and<p>
      thining algorithm choice in orethinning with new exponential algorithm by HeroOfTheWinds<p>

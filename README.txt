@@ -1,4 +1,4 @@
-[b]FRACTURED 0.05 [/b]
+[b]FRACTURED 0.06 [/b]
 
 [url=http://a.pomf.se/dnhqdj.png][img]http://a.pomf.se/dnhqdj.png[/img][/url]
 
@@ -106,6 +106,10 @@ and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 [b]Change Log[/b]
+0.06 world stone tower and optimizations by HeroOfThe winds
+     BlastRadius changed, now levels down to 0 and gradualy steps up or down to meet environment, more crater like.
+     areas and markers mods added.  areas will not protect in west!  changes planned for markers
+     added mods: compassgps, bridgetool, explorertoolsall
 0.05 world stone tower in progress, needs much work and perlin noise adjustment
 0.04 fracturerift optimization and leak fix by HeroOfTheWinds and
      thining algorithm choice in orethinning with new exponential algorithm by HeroOfTheWinds
