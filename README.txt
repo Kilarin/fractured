@@ -1,4 +1,4 @@
-[b]FRACTURED 0.06 [/b]
+[b]FRACTURED 0.07 [/b]
 
 [url=http://a.pomf.se/dnhqdj.png][img]http://a.pomf.se/dnhqdj.png[/img][/url]
 
@@ -106,6 +106,9 @@ and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 [b]Change Log[/b]
+0.07 fractured mod added with iswild and wilddist.  These functions should be used by all mods that need to know if they are on the wild or tame side, and how far.
+     Orethinning and areas modified to use iswild and wilddist.
+     also, I'm converting spaces to tabs in these mods.  I hate tabs, but in an open source collaborative project I should use what is considered the standard. <sigh>
 0.06 world stone tower and optimizations by HeroOfThe winds
      BlastRadius changed, now levels down to 0 and gradualy steps up or down to meet environment, more crater like.
      areas and markers mods added.  areas will not protect in west!  changes planned for markers
