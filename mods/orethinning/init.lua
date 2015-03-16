@@ -126,7 +126,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
 	--we do NOT need to recalculate adj for each and every node!
 	--calculate it once for the entire cluster
-	local dist = wilddist(minp)
+	local dist = math.abs(wilddist(minp))
 	if dist > orethin_maxdist then
 		dist=orethin_maxdist
 	end --orethin_maxdist
