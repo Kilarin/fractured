@@ -1,3 +1,5 @@
+local checkwild=false                                        --*fractured*
+if minetest.get_modpath("fractured") then checkwild=true end --*fractured*
 
 -- Returns a list of areas that include the provided position
 function areas:getAreasAtPos(pos)
@@ -16,19 +18,24 @@ end
 
 -- Checks if the area is unprotected or owned by you
 function areas:canInteract(pos, name)
+  print("canInteract name="..name.." pos="..dump(pos))
 	if minetest.check_player_privs(name, self.adminPrivs) then
+	  print("adminprivs")
 		return true
 	end
 	local owned = false
 	for _, area in pairs(self:getAreasAtPos(pos)) do
 		if area.owner == name or area.open then
+		  print("you are the owner")
 			return true
 		else
-			if pos.x >= 0 then  --*fractured*
-				owned = true
-			end                 --*fractured*
+			--owned = true                                          --*fractured*
+			if checkwild==false then owned = true                   --*fractured*
+			elseif fractured.iswild(pos) == false then owned = true --*fractured*
+			end                                                     --*fractured*
 		end
 	end
+	print("not owned")
 	return not owned
 end
 

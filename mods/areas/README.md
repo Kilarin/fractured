@@ -8,6 +8,7 @@ modifications are Licensed CC0
 modified code is tagged with --*fractured*
 modified files:
 fractured\mods\areas\api.lua
+also added depends.txt with soft depends on fractured
 
 
 Configuration
