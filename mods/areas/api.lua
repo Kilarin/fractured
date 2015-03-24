@@ -18,7 +18,7 @@ end
 
 -- Checks if the area is unprotected or owned by you
 function areas:canInteract(pos, name)
-  print("canInteract name="..name.." pos="..dump(pos))
+  --print("canInteract name="..name.." pos="..dump(pos))
 	if minetest.check_player_privs(name, self.adminPrivs) then
 	  print("adminprivs")
 		return true
