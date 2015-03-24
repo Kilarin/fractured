@@ -84,7 +84,7 @@ markers.marker_placed = function( pos, placer, itemstack )
       return;
    end
 
-   local meta = minetest.env:get_meta( pos );
+   local meta = minetest.get_meta( pos );
    local name = placer:get_player_name();
 
    meta:set_string( 'infotext', 'Marker at '..minetest.pos_to_string( pos )..
@@ -159,7 +159,7 @@ markers.marker_can_dig = function(pos,player)
       return true;
    end
 
-   local meta  = minetest.env:get_meta( pos );
+   local meta  = minetest.get_meta( pos );
    local owner = meta:get_string( 'owner' );
    local time  = meta:get_string( 'time' );
 
@@ -255,11 +255,10 @@ end --get_box_from_markers
 
 
 
-
 markers.get_marker_formspec = function(player, pos, error_msg)
    local formspec = "";
 
-   local meta  = minetest.env:get_meta( pos );
+   local meta  = minetest.get_meta( pos );
    local owner = meta:get_string( 'owner' );
 
    local name  = player:get_player_name();
@@ -279,12 +278,18 @@ markers.get_marker_formspec = function(player, pos, error_msg)
 
 	 if ( n < 2 ) then
 	   return formspec_info.."Please place 2 or more markers\n - at least one in each corner\n of your area first]";
-	 end
+   end
 
 
 	 local coords={}
 	 coords[1],coords[2] = markers.get_box_from_markers(name)
-	 meta:set_string( 'coords', minetest.serialize( coords ) );
+
+   -- save data
+      meta:set_string( 'coords', minetest.serialize( coords ) );
+
+   if( not( coords ) or #coords < 2 or not( coords[1] ) or not( coords[2] )) then
+      return formspec_info.."Error in markers.]";
+   end
 
    -- the coordinates are set; we may present an input form now
 
@@ -332,11 +337,11 @@ markers.get_marker_formspec = function(player, pos, error_msg)
                     'label[0.5,3.0;Your area ought to go..]'..
                     'label[0.5,3.5;this many blocks up:]'..
                     'field[5.0,4.0;1,0.5;add_height;;40]'..
-                    'label[6.0,3.5;(above "..coords[2].y.." )]'..
+                    'label[6.0,3.5;(above '..coords[2].y..' )]'..
 
                     'label[0.5,4.0;and this many blocks down:]'..
                     'field[5.0,4.5;1,0.5;add_depth;;10]'..
-                    'label[6.0,4.0;(below "..coords[1].y.." )]'..
+                    'label[6.0,4.0;(below '..coords[1].y..' )]'..
 
                     'label[0.5,4.5;The area shall be named]'..
                     'field[5.0,5.0;6,0.5;set_area_name;;please enter a name]'..
@@ -360,7 +365,7 @@ markers.marker_on_receive_fields = function(pos, formname, fields, sender)
    end
 
 
-   local meta  = minetest.env:get_meta( pos );
+   local meta  = minetest.get_meta( pos );
 
    local name  = sender:get_player_name();
 
@@ -423,8 +428,7 @@ markers.marker_on_receive_fields = function(pos, formname, fields, sender)
    local pos1 = coords[1];
    local pos2 = coords[2];
    -- apply height values from the formspeck
-
-   pos1.y = pos1.y - add_depth;	 
+   pos1.y = pos1.y - add_depth;
    pos2.y = pos2.y + add_height;
 
    pos1, pos2 = areas:sortPos( pos1, pos2 );
@@ -508,7 +512,7 @@ minetest.register_node("markers:mark", {
 	drawtype = "nodebox",
 	paramtype = "light",
 	paramtype2 = "facedir",
-	groups = {snappy=2,choppy=2,dig_immediate=3},
+	groups = {snappy=2,choppy=2,oddly_breakable_by_hand=1}, --fixed on both buttons dig client crash
 	light_source = 1,
 	node_box = {
 		type = "fixed",
