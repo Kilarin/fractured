@@ -1,4 +1,4 @@
-[b]FRACTURED 0.07 [/b]
+[b]FRACTURED 0.08 [/b]
 
 [url=http://a.pomf.se/dnhqdj.png][img]http://a.pomf.se/dnhqdj.png[/img][/url]
 
@@ -106,6 +106,7 @@ and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 [b]Change Log[/b]
+0.08 wildweapons added, and pvp=false, now you can only damage another player with weapons on the wild side of the world.  Not certain this will be final solution, but works for now.
 0.07 fractured mod added with iswild and wilddist.  These functions should be used by all mods that need to know if they are on the wild or tame side, and how far.
      Orethinning and areas modified to use iswild and wilddist.
      also, I'm converting spaces to tabs in these mods.  I hate tabs, but in an open source collaborative project I should use what is considered the standard. <sigh>

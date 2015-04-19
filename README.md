@@ -1,6 +1,6 @@
 
 
-**FRACTURED 0.07 **<p>
+**FRACTURED 0.08 **<p>
 [![alt text](http://a.pomf.se/dnhqdj.png "image")](http://a.pomf.se/dnhqdj.png)
 
     It was with the best of intentions that the great wizard created the world stone. He drained power from the very heart of the earth to make it, and poured much of his own essence into it as well. And the result was a creation of magic so powerful, and so intimately connected to the world, that it could alter the structure of reality itself.
@@ -107,6 +107,7 @@ and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 **Change Log**<p>
+0.08 wildweapons added, and pvp=false, now you can only damage another player with weapons on the wild side of the world.  Not certain this will be final solution, but works for now.<p>
 0.07 fractured mod added with iswild and wilddist.  These functions should be used by all mods that need to know if they are on the wild or tame side, and how far.<p>
      Orethinning and areas modified to use iswild and wilddist.<p>
      also, I'm converting spaces to tabs in these mods.  I hate tabs, but in an open source collaborative project I should use what is considered the standard. <sigh><p>
