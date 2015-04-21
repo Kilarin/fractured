@@ -1,3 +1,7 @@
+--Big thanks to TenPlus1 for his example of how to make a
+--weapon that could bypass pvp, to 4aiman for an example
+--of how to stack calls,
+
 
 --if fractured exists, get iswild and wilddist from there
 --otherwise default to west is wild
@@ -24,6 +28,7 @@ function wildweapon_onuse(itemstack, user, pointed_thing)
 				if obj:get_player_name() ~= nil then
 					-- Player
 					local cap = itemstack:get_tool_capabilities();
+					--obj:punch(user, time_from_last_punch, cap, direction) 
 					obj:set_hp(obj:get_hp()-cap.damage_groups.fleshy)
 				end--playername
 			end--iswild
@@ -38,9 +43,11 @@ end
 --then the original on_use
 for cou,def in pairs(minetest.registered_tools) do
   local old_on_use = def.on_use
+	print(dump(def))
 	local cap = def.tool_capabilities
 	--if this tool can damage someon
-	if cap and cap.damage_groups and cap.damage_groups.fleshy then
+	if cap and cap.damage_groups and cap.damage_groups.fleshy
+	  and def.name:find('sword') then
 	  --this basically creates a little stack so that we run the
 		--new wildweapon_onuse first, then run whatever on_use
 		--function was before.
