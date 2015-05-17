@@ -1,4 +1,4 @@
-[b]FRACTURED 0.081 [/b]
+[b]FRACTURED 0.082 [/b]
 
 [url=http://a.pomf.se/dnhqdj.png][img]http://a.pomf.se/dnhqdj.png[/img][/url]
 
@@ -106,6 +106,7 @@ and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 [b]Change Log[/b]
+0.082 wildweapons altered to use new register_on_punchplayer, this new function makes controling where damage happens EASY!!!  enable_pvp = true now and wildweapons disables it in the east
 0.081 wildweapons patch so shovels can dig.
 0.08 wildweapons added, and pvp=false, now you can only damage another player with weapons on the wild side of the world.  Not certain this will be final solution, but works for now.
 0.07 fractured mod added with iswild and wilddist.  These functions should be used by all mods that need to know if they are on the wild or tame side, and how far.

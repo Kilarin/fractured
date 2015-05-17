@@ -20,3 +20,13 @@ fractured.wilddist = function(pos)
 	  return -math.sqrt(pos.x^2 + pos.y^2 + pos.z^2)
 	end
 end --wilddist
+
+
+--minetest.register_on_generated(function(minp, maxp, seed)
+--  --I want to vary from .5 to .67
+--	local dist=wilddist(minp)
+--	local 
+--	--return dist/orethin_maxdist
+--	
+--.67-.5=	0.17
+--0.2/32000=0.00000625
