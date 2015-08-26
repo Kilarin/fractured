@@ -92,7 +92,7 @@ local c_air = minetest.get_content_id("air")
 
 
 -- this on_generated must become executed first!!
-minetest.register_on_generated(function(minp, maxp, seed)
+table.insert(minetest.registered_on_generateds, 1, function(minp, maxp, seed)
 	-- abort if mg doesn't touch eastern side
 	if maxp.x <= 0 then
 		return
