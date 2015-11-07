@@ -234,6 +234,7 @@ table.insert(minetest.registered_on_generateds, 1, function(minp, maxp, seed)
 	vm:set_data(data)
 	vm:set_lighting({day=0, night=0})
 	vm:calc_lighting()
+	minetest.generate_ores(vm) -- adds the ores to the mapchunk
 	vm:update_liquids()
 	vm:write_to_map()
 
