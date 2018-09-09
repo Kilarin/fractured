@@ -10,7 +10,7 @@ local nspawn_pos={x=60,y=5,z=0}
 local nspawn_radius=5
 local nspawn_steps=10
 --local nspawn_material=minetest.get_content_id("default:brick")
-local nspawn_material=minetest.get_content_id("default:dry_dirt")
+local nspawn_material=minetest.get_content_id("fractured:dry_dirt")
 local nspawn_shape="C"    --"C"=circle "S"=square
 
 --calculated constants

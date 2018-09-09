@@ -22,11 +22,22 @@ fractured.wilddist = function(pos)
 end --wilddist
 
 
+
+-- Dry Dirt
+minetest.register_node("fractured:dry_dirt", {
+description = "Dried Dirt",
+tiles = {"ethereal_dry_dirt.png"},
+is_ground_content = false,
+groups = {crumbly=3} --,
+--sounds = default.node_sound_dirt_defaults()
+})
+
+
 --minetest.register_on_generated(function(minp, maxp, seed)
 --  --I want to vary from .5 to .67
 --	local dist=wilddist(minp)
---	local 
+--	local
 --	--return dist/orethin_maxdist
---	
+--
 --.67-.5=	0.17
 --0.2/32000=0.00000625

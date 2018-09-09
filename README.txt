@@ -100,8 +100,12 @@ Remember, There is NOT much of a playable game yet!  Its just Minetest-game with
 [b]LICENSE[/b]
 ----------------------
 All of my code for this project is licensed CC0 (public domain)
+To the extent possible under law, the author has dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
+[url]http://creativecommons.org/publicdomain/zero/1.0/[/url]
+
 The only other material included so far is everything in minetest-game (license unaltered)
 and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
+
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

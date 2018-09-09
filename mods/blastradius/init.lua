@@ -14,7 +14,10 @@ local blastrad_top=150                 --don't bother blasting higher than this
 local blastrad_surface=0               --the blast radius surface
 local blastrad_deep=3                  --how deep to change existing material
 local blastrad_bot=-20                 --don't bother blasting lower than this.
-local c_blastmat = minetest.get_content_id("default:dry_dirt")
+
+
+
+local c_blastmat = minetest.get_content_id("fractured:dry_dirt")
 
 
 --caclulated constants
@@ -77,22 +80,22 @@ minetest.register_on_generated(function(minp, maxp, seed)
 				end
 				local local_surface_top = blastrad_surface+step
 				local local_surface_bot = blastrad_surface-step
-				
-				local ignore = false			
+
+				local ignore = false
 				if dist/blastrad_radius >= blastrad_noscatter and math.random() < (((dist/blastrad_radius)-blastrad_noscatter)/blastrad_scatter) then
 				  ignore = true
 				end
-				
+
 				local local_changebot=blastrad_changebot
-					
+
 				for y = y1, y0, -1 do
 					local vi = area:index(x, y, z) -- This accesses the node at a given position
           if y > local_surface_top and y <= blastrad_top and data[vi] ~= c_air then
-					  data[vi] = c_air						
+					  data[vi] = c_air
 						changed = true
 					elseif (ignore == false) and
 					       (y > local_surface_bot and y <= local_surface_top and data[vi] ~= c_air) or
-								 (y <= local_surface_bot and y >= blastrad_bot ) then 
+								 (y <= local_surface_bot and y >= blastrad_bot ) then
 						if data[vi] == c_air or y >= local_changebot then
 							data[vi]=c_blastmat
 							changed = true

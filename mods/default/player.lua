@@ -15,7 +15,7 @@ function default.player_register_model(name, def)
 end
 
 -- Default player appearance
-default.player_register_model("character.x", {
+default.player_register_model("character.b3d", {
 	animation_speed = 30,
 	textures = {"character.png", },
 	animations = {
@@ -25,7 +25,6 @@ default.player_register_model("character.x", {
 		walk      = { x=168, y=187, },
 		mine      = { x=189, y=198, },
 		walk_mine = { x=200, y=219, },
-		-- Extra animations (not currently used by the game).
 		sit       = { x= 81, y=160, },
 	},
 })
@@ -93,13 +92,9 @@ end
 -- Update appearance when the player joins
 minetest.register_on_joinplayer(function(player)
 	default.player_attached[player:get_player_name()] = false
-	default.player_set_model(player, "character.x")
+	default.player_set_model(player, "character.b3d")
 	player:set_local_animation({x=0, y=79}, {x=168, y=187}, {x=189, y=198}, {x=200, y=219}, 30)
-	
-	-- set GUI
-	if not minetest.setting_getbool("creative_mode") then
-		player:set_inventory_formspec(default.gui_survival_form)
-	end
+
 	player:hud_set_hotbar_image("gui_hotbar.png")
 	player:hud_set_hotbar_selected_image("gui_hotbar_selected.png")
 end)
