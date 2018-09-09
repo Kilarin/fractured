@@ -101,9 +101,13 @@ Remember, There is NOT much of a playable game yet!  Its just Minetest-game with
 **LICENSE**<p>
 ----------------------<p>
 All of my code for this project is licensed CC0 (public domain)<p>
+To the extent possible under law, the author has dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.<p>
+[http://creativecommons.org/publicdomain/zero/1.0/](http://creativecommons.org/publicdomain/zero/1.0/)
+
 The only other material included so far is everything in minetest-game (license unaltered)<p>
 and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
 
+<p>
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 **Change Log**<p>
@@ -122,4 +126,4 @@ and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
      thining algorithm choice in orethinning with new exponential algorithm by HeroOfTheWinds<p>
 0.03 set static_spawn from within newspawn, suggested and demonstrated by jojoa1997<p>
 0.02 Fracture variance code by HeroOfTheWinds<p>
-0.01 Initial release to the public.  NOT READY as a game at all.
+0.01 Initial release to the public.  NOT READY as a game at all.<p>

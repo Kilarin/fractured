@@ -3,31 +3,53 @@ local c_stone = minetest.get_content_id("default:stone")
 local c_dirt = minetest.get_content_id("default:dirt")
 local c_grass = minetest.get_content_id("default:dirt_with_grass")
 
+local realms={ }
+realms.count=5
+realms[1]={ }
+realms[1].bot=5000
+realms[1].top=6000
+realms[2]={ }
+realms[2].bot=10000
+realms[2].top=11000
+realms[3]={ }
+realms[3].bot=15000
+realms[3].top=16000
+realms[4]={ }
+realms[4].bot=20000
+realms[4].top=21000
+realms[5]={ }
+realms[5].bot=25000
+realms[5].top=26000
+
 
 --********************************
-function gen_realm2(minp, maxp, seed)
+function gen_realms(minp, maxp, seed)
   --this is just a stupid proof of concept
-  if maxp.y<5000 or minp.y>6000 then return end
-  
+  local r=0
+  local doit=false
+  repeat
+    r=r+1
+    if minp.y<=realms[r].top and maxp.y>realms[r].bot then doit=true end
+  until r==realms.count or doit==true
+
   local t1 = os.clock()
-   
+
   --This actually initializes the LVM
   local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
   local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
   local data = vm:get_data()
 
-  
   local miny=minp.y
-  if miny<5000 then miny=5000 end
+  if miny<realms[r].bot then miny=realms[r].bot end
   local maxy=maxp.y
-  if maxy>6000 then maxy=6000 end
+  if maxy>realms[r].top then maxy=realms[r].top end
 
-  for y=miny, maxy do  
+  for y=miny, maxy do
     for x=minp.x, maxp.x do
       for z=minp.z, maxp.z do
         vi = area:index(x, y, z) -- This accesses the node at a given position
-        if y<5980 then data[vi]=c_stone
-        elseif y<6000 then data[vi]=c_dirt
+        if y<realms[r].top-20 then data[vi]=c_stone
+        elseif y<realms[r].top then data[vi]=c_dirt
         else data[vi]=c_grass
         end --if
       end --for z
@@ -43,9 +65,8 @@ function gen_realm2(minp, maxp, seed)
   --write it to world
   vm:write_to_map(data)
   local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
-  minetest.log("realm2 END chunk="..minp.x..","..minp.y..","..minp.z.." - "..maxp.x..","..maxp.y..","..maxp.z.."  "..chugent.." ms") --tell people how long
-end -- gen_realm2
+  minetest.log("realms END chunk="..minp.x..","..minp.y..","..minp.z.." - "..maxp.x..","..maxp.y..","..maxp.z.."  "..chugent.." ms") --tell people how long
+end -- gen_realms
 
 
-minetest.register_on_generated(gen_realm2)
-        
+minetest.register_on_generated(gen_realms)
