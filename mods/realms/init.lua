@@ -31,7 +31,9 @@ function gen_realms(minp, maxp, seed)
     r=r+1
     if minp.y<=realms[r].top and maxp.y>realms[r].bot then doit=true end
   until r==realms.count or doit==true
-
+  if doit==false then return end --dont waste cpu
+  minetest.log("realms minp="..minetest.pos_to_string(minp).." maxp="..minetest.pos_to_string(maxp))
+ 
   local t1 = os.clock()
 
   --This actually initializes the LVM
@@ -43,15 +45,17 @@ function gen_realms(minp, maxp, seed)
   if miny<realms[r].bot then miny=realms[r].bot end
   local maxy=maxp.y
   if maxy>realms[r].top then maxy=realms[r].top end
+  minetest.log("realms miny="..miny.." maxy="..maxy)
 
   for y=miny, maxy do
     for x=minp.x, maxp.x do
       for z=minp.z, maxp.z do
-        vi = area:index(x, y, z) -- This accesses the node at a given position
+        local vi = area:index(x, y, z) -- This accesses the node at a given position
         if y<realms[r].top-20 then data[vi]=c_stone
         elseif y<realms[r].top then data[vi]=c_dirt
         else data[vi]=c_grass
         end --if
+        --if x<80 and x>40 and z<20 and z>-20 then minetest.log("realms x="..x.." y="..y.." z="..z.." data[vi]="..data[vi]) end        
       end --for z
     end --for x
   end --for y

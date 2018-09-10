@@ -31,6 +31,7 @@ local nspawn_stepmax={x=nspawn_pos.x+nspawn_totrad,
 
 --Make spawn match nspawn_pos set above
 minetest.setting_set("static_spawnpoint", nspawn_pos.x..","..nspawn_pos.y..","..nspawn_pos.z)
+
 --[[ Saving this just in case I decide I need it.
 minetest.register_on_newplayer(
   function(player)
@@ -40,7 +41,7 @@ minetest.register_on_newplayer(
 --]]
 
 
---print("**ZZ** nspawn_pos="..dump(nspawn_pos).." min="..dump(nspawn_min).." max="..dump(nspawn_max).." nspawn_stepmin="..dump(nspawn_stepmin).." nspawn_stepmax="..dump(nspawn_stepmax))
+--minetest.log("newspawn** nspawn_pos="..dump(nspawn_pos).." min="..dump(nspawn_min).." max="..dump(nspawn_max).." nspawn_stepmin="..dump(nspawn_stepmin).." nspawn_stepmax="..dump(nspawn_stepmax))
 
 --grab content IDs -- You need these to efficiently access and set node data.  get_node() works, but is far slower
 local c_air = minetest.get_content_id("air")
@@ -75,7 +76,7 @@ function squarenewspawn(minp, maxp, seed)
 
 
 
-     print ("[newspawn_gen] chunk minp ("..x0.." "..y0.." "..z0..")") --tell people you are generating a chunk
+     --minetest.log("[newspawn_gen] chunk minp ("..x0.." "..y0.." "..z0..")") --tell people you are generating a chunk
 
      --This actually initializes the LVM
      local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
@@ -173,13 +174,13 @@ function squarenewspawn(minp, maxp, seed)
 
 function circlenewspawn(minp, maxp, seed)
   --dont bother if we are not near new spawn
-  if minp.x > nspawn_stepmax.x or maxp.x < nspawn_stepmin.x and
-     minp.y > nspawn_stepmax.y or maxp.y < nspawn_stepmin.y and
+  if minp.x > nspawn_stepmax.x or maxp.x < nspawn_stepmin.x or
+     minp.y > nspawn_stepmax.y or maxp.y < nspawn_stepmin.y or
      minp.z > nspawn_stepmax.z or maxp.z < nspawn_stepmin.z then
-    --print("rejected: min=("..minp.x..","..minp.y..","..minp.z..") max=("..maxp.x..","..maxp.y..","..maxp.z..")")
+    --minetest.log("rejected: min=("..minp.x..","..minp.y..","..minp.z..") max=("..maxp.x..","..maxp.y..","..maxp.z..")")
     return --quit; otherwise, you'd have wasted resources
   end
-  --print("accepted: min=("..minp.x..","..minp.y..","..minp.z..") max=("..maxp.x..","..maxp.y..","..maxp.z..")")
+  --minetest.log("circlenewspawn: accepted: min=("..minp.x..","..minp.y..","..minp.z..") max=("..maxp.x..","..maxp.y..","..maxp.z..")")
 
   --easy reference to commonly used values
   local t1 = os.clock()
