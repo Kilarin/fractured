@@ -58,10 +58,10 @@ function squarenewspawn(minp, maxp, seed)
     if minp.x > nspawn_stepmax.x or maxp.x < nspawn_stepmin.x and
        minp.y > nspawn_stepmax.y or maxp.y < nspawn_stepmin.y and
        minp.z > nspawn_stepmax.z or maxp.z < nspawn_stepmin.z then
-      --print("rejected: min=("..minp.x..","..minp.y..","..minp.z..") max=("..maxp.x..","..maxp.y..","..maxp.z..")")
+      --minetest.log("rejected: min=("..minp.x..","..minp.y..","..minp.z..") max=("..maxp.x..","..maxp.y..","..maxp.z..")")
       return --quit; otherwise, you'd have wasted resources
     end
-    --print("accepted: min=("..minp.x..","..minp.y..","..minp.z..") max=("..maxp.x..","..maxp.y..","..maxp.z..")")
+    --minetest.log("accepted: min=("..minp.x..","..minp.y..","..minp.z..") max=("..maxp.x..","..maxp.y..","..maxp.z..")")
 
     --easy reference to commonly used values
     local t1 = os.clock()
@@ -89,13 +89,13 @@ function squarenewspawn(minp, maxp, seed)
        for x = x0, x1 do --
          --calculate distance 2d
          --local dist= math.sqrt((x-nspawn_pos.x)^2+(z-nspawn_pos.z)^2)
-         --print("if ("..x.." y "..z..") dist="..dist.." nspawn_totrad="..nspawn_totrad)
+         --minetest.log("if ("..x.." y "..z..") dist="..dist.." nspawn_totrad="..nspawn_totrad)
          --if dist <= nspawn_totrad then -- x and z inside blast circle radius
            --spawndone=0
            local y = y1
            repeat --loop through y values from top to bottom
              local vi = area:index(x, y, z) -- This accesses the node at a given position
-             --print("loop top -> ("..x.." "..y.." "..z..")  vi="..vi)
+             --minetest.log("loop top -> ("..x.." "..y.." "..z..")  vi="..vi)
 
              --this code tries to make the new spawn usable by ensuring
              --a flat landing space at the specified coords, AND trying to
@@ -107,14 +107,14 @@ function squarenewspawn(minp, maxp, seed)
                --inside spawn square
                --if y is below newspawn fill it
                --we are moving top down, so we won't fill below spawn
-             --print("spawn square: ("..x.." "..y.." "..z..") dist="..dist)
+             --minetest.log("spawn square: ("..x.." "..y.." "..z..") dist="..dist)
              if y>=nspawn_min.y and y<=nspawn_max.y then
-                 --print("   changed to material")
+                 --minetest.log("   changed to material")
                  data[vi]=nspawn_material
                  changed=true
                --if y is above newspawn and its not air, make it air
                elseif y>nspawn_max.y and data[vi]~=c_air then
-                 --print("   changed to air")
+                 --minetest.log("   changed to air")
                  data[vi]=c_air
                  changed=true
                end --if y>=nspawn_min.y
@@ -134,17 +134,17 @@ function squarenewspawn(minp, maxp, seed)
                elseif z>nspawn_max.z then stepdistz=math.abs(z-nspawn_max.z) end
                local stepdist=stepdistx
                if stepdistz>stepdistx then stepdist=stepdistz end
-               --print("steps: ("..x.." "..y.." "..z..") dist="..dist.." stepdistx="..stepdistx.." stepdistz="..stepdistz.." stepdist="..stepdist)
+               --minetest.log("steps: ("..x.." "..y.." "..z..") dist="..dist.." stepdistx="..stepdistx.." stepdistz="..stepdistz.." stepdist="..stepdist)
                --so now we know which step around new-spawn we are on.  (stepdist)
                --remove anything above spawn more than spawn.y+stepdist
                if y > nspawn_pos.y+stepdist and data[vi] ~= c_air then
                  data[vi]=c_air
-                 --print("   steps: changed to air")
+                 --minetest.log("   steps: changed to air")
                  changed=true
                --turn to dirt if we find air below spawn more than y-stepdist
                elseif y <= nspawn_pos.y-stepdist and data[vi] == c_air then
                  data[vi]=nspawn_material
-                 --print("   steps: changed to material")
+                 --minetest.log("   steps: changed to material")
                  changed=true
                end -- if y > nspawn_pos.y+stepdist
               end -- if x>=nspawn_min.x and x<=nspawn_max.x
@@ -163,7 +163,7 @@ function squarenewspawn(minp, maxp, seed)
        vm:calc_lighting()
        --write it to world
        vm:write_to_map(data)
-       --print(">>>saved")
+       --minetest.log(">>>saved")
      end --if changed write to map
 
      local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
@@ -205,10 +205,10 @@ function circlenewspawn(minp, maxp, seed)
   for z = z0, z1 do --
     for x = x0, x1 do --
       --calculate distance 2d
-      local dist= math.sqrt((x-nspawn_pos.x)^2+(z-nspawn_pos.z)^2)
-      --print("top ("..x.." y "..z..") dist="..dist.."nspawn_radius="..nspawn_radius.." nspawn_totrad="..nspawn_totrad)
+      local dist= luautils.distance2d(nspawn_pos.x,nspawn_pos.z, x,z)
+      --minetest.log("top ("..x.." y "..z..") dist="..dist.."nspawn_radius="..nspawn_radius.." nspawn_totrad="..nspawn_totrad)
       if dist <= nspawn_totrad then -- x and z inside new spawn radius
-        --print("--if1 ("..x.." y "..z..") dist="..dist.."nspawn_radius="..nspawn_radius.." nspawn_totrad="..nspawn_totrad)
+        --minetest.log("--if1 ("..x.." y "..z..") dist="..dist.."nspawn_radius="..nspawn_radius.." nspawn_totrad="..nspawn_totrad)
         local y = y1
         repeat --loop through y values from top to bottom
           local vi = area:index(x, y, z) -- This accesses the node at a given position
@@ -219,18 +219,18 @@ function circlenewspawn(minp, maxp, seed)
 
           --is this the spawn circle?
           if dist<=nspawn_radius then
-            --print("if2 ("..x.." "..y.." "..z..") dist="..dist.."nspawn_radius="..nspawn_radius.." nspawn_totrad="..nspawn_totrad)
+            --minetest.log("if2 ("..x.." "..y.." "..z..") dist="..dist.."nspawn_radius="..nspawn_radius.." nspawn_totrad="..nspawn_totrad)
 
             --inside spawn circle
             --if y is below newspawn fill it
             --we are moving top down, so we won't fill below spawn
            if y>=nspawn_min.y and y<=nspawn_max.y then
-              --print("   changed to material")
+              --minetest.log("   changed to material")
               data[vi]=nspawn_material
               changed=true
             --if y is above newspawn and its not air, make it air
             elseif y>nspawn_max.y and data[vi]~=c_air then
-              --print("   changed to air")
+              --minetest.log("   changed to air")
               data[vi]=c_air
               changed=true
             end --if y>=nspawn_min.y
@@ -242,18 +242,18 @@ function circlenewspawn(minp, maxp, seed)
           elseif dist<=nspawn_totrad then
             --we are in the steps area, calculate what row out we are from newspawn
             local stepdist=dist-nspawn_radius
-            --print("if3 ("..x.." "..y.." "..z..") dist="..dist.."nspawn_radius="..nspawn_radius.." nspawn_totrad="..nspawn_totrad.." stepdist="..stepdist)
+            --minetest.log("if3 ("..x.." "..y.." "..z..") dist="..dist.."nspawn_radius="..nspawn_radius.." nspawn_totrad="..nspawn_totrad.." stepdist="..stepdist)
 
             --so now we know which step around new-spawn we are on.  (stepdist)
             --remove anything above spawn more than spawn.y+stepdist
             if y > nspawn_pos.y+stepdist and data[vi] ~= c_air then
               data[vi]=c_air
-              --print("   steps: changed to air")
+              --minetest.log("   steps: changed to air")
               changed=true
             --turn to dirt if we find air below spawn more than y-stepdist
             elseif y <= nspawn_pos.y-stepdist and data[vi] == c_air then
               data[vi]=nspawn_material
-              --print("   steps: changed to material")
+              --minetest.log("   steps: changed to material")
               changed=true
             end -- if y > nspawn_pos.y+stepdist
            end -- if x>=nspawn_min.x and x<=nspawn_max.x
@@ -272,7 +272,7 @@ function circlenewspawn(minp, maxp, seed)
     vm:calc_lighting()
     --write it to world
     vm:write_to_map(data)
-    --print(">>>saved")
+    --minetest.log(">>>saved")
   end --if changed write to map
 
   local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took

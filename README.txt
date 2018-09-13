@@ -105,6 +105,7 @@ To the extent possible under law, the author has dedicated all copyright and rel
 
 The only other material included so far is everything in minetest-game (license unaltered)
 and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
+scorched tree from Ethereal (GNU GENERAL PUBLIC LICENSE)
 
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - -

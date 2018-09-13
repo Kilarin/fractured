@@ -5,9 +5,9 @@
 ---
 
 local blastrad_radius=100              --how wide should the blast radius be around 0,0
---this percentage of the outer edge of the blast radius will be scattered with dry
---dirt instead of all dry dirt.  so a scatter of 0.25 means the last 25% of the blast
---radius will gradually become less and less dried dirt
+--this percentage of the outer edge of the blast radius will be scattered with blast material
+--instead of all blast material.  so a scatter of 0.25 means the last 25% of the blast
+--radius will gradually become less and less blast material
 local blastrad_scatter=0.25            --percentage of blastrad to scatter instead of solid
 local blastrad_steps=0.30              --percentage of blastrad to start steping up or down to natural height
 local blastrad_top=150                 --don't bother blasting higher than this
@@ -17,7 +17,7 @@ local blastrad_bot=-20                 --don't bother blasting lower than this.
 
 
 
-local c_blastmat = minetest.get_content_id("fractured:dry_dirt")
+
 
 
 --caclulated constants
@@ -28,7 +28,43 @@ local blastrad_changebot=blastrad_surface-blastrad_deep
 
 
 --grab content IDs -- You need these to efficiently access and set node data.  get_node() works, but is far slower
+local c_blastmat = minetest.get_content_id("fractured:dry_dirt")
+local c_scorchedtree = minetest.get_content_id("fractured:scorched_tree")
 local c_air = minetest.get_content_id("air")
+local c_ice = minetest.get_content_id("default:ice")
+local c_watersource = minetest.get_content_id("default:water_source")
+
+
+--what material to use for the blast
+--for example, replace trees with scorched tree
+function blast_replace(x,y,z, cid)
+  local rplc=c_blastmat  --default
+	--local node=minetest.get_node({x=x,y=y,z=z})
+	local rnode=minetest.registered_nodes[minetest.get_node({x=x,y=y,z=z}).name]
+
+	if rnode.is_ground_content
+	  	or cid==c_ice
+			or cid==c_watersource
+			or cid==c_blastmat
+			then
+		rplc=c_blastmat
+	elseif rnode.groups.tree~=nil and rnode.groups.tree==1 then
+    rplc=c_scorchedtree
+	elseif rnode.groups.leaves~=nil and rnode.groups.leaves==1 then
+	  rplc=c_air
+	else
+	  local t=rnode.groups.tree
+		if t==nil then t="nil" end
+		local l=rnode.groups.leaves
+		if l==nil then l="nil" end
+	  minetest.log("blastradius-> unidentified material: "..rnode.name.. " rnode.tree="..t.." rnode.leaves="..l)
+		--minetest.log("balstradius-> rnode="..dump(rnode))
+		rplc=c_air
+	end --if
+	return rplc
+end
+
+
 
 
  --BLAST RADIUS
@@ -59,7 +95,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 			y1 = blastrad_top
 		end
 
-	print ("[blast_gen] chunk minp ("..x0.." "..y0.." "..z0..")") --tell people you are generating a chunk
+	--minetest.log("[blast_gen] chunk minp ("..x0.." "..y0.." "..z0..")") --tell people you are generating a chunk
 
 	--This actually initializes the LVM
 	local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
@@ -90,14 +126,16 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
 				for y = y1, y0, -1 do
 					local vi = area:index(x, y, z) -- This accesses the node at a given position
+					--anything between the local surface and blastrad_top should be changed to air
           if y > local_surface_top and y <= blastrad_top and data[vi] ~= c_air then
 					  data[vi] = c_air
+--						if x==48 and y==1 and z==-14 then minetest.log("blastradius-> changed ("..x..","..y..","..z..") to air") end
 						changed = true
 					elseif (ignore == false) and
 					       (y > local_surface_bot and y <= local_surface_top and data[vi] ~= c_air) or
 								 (y <= local_surface_bot and y >= blastrad_bot ) then
 						if data[vi] == c_air or y >= local_changebot then
-							data[vi]=c_blastmat
+							data[vi]=blast_replace(x,y,z, data[vi])
 							changed = true
 							if local_changebot == blastrad_changebot then
 							  local_changebot = y - (blastrad_deep-1)
@@ -111,6 +149,11 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	end -- end 'z' loop
 
 	if changed==true then
+--	  minetest.log("blastradius-> saving chunk minp="..minetest.pos_to_string(minp).." maxp="..minetest.pos_to_string(maxp).." node(48,1,-14)="..minetest.get_node({x=48,y=1,z=-14}).name)
+--		if luautils.xyz_in_box(48,1,-14, minp,maxp) then
+--			local vi = area:index(48,1,-14) -- This accesses the node at a given position			
+--			minetest.log("blastradius-> save (48,1,-14) cid="..data[vi].." node="..minetest.get_node({x=48,y=1,z=-14}).name)
+--		end --debug if
 		-- Wrap things up and write back to map
 		--send data back to voxelmanip
 		vm:set_data(data)

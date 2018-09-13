@@ -128,7 +128,7 @@ function beanstalk.calculated_constants_bylevel()
     bnst[lv].area=62000/bnst[lv].per_row
     bnst[lv].top=bnst[lv].bot+bnst[lv].height-1
     minetest.log("beanstalk-> calculated constants by level lv="..lv.." per_row="..bnst[lv].per_row.." count="..bnst[lv].count..
-        " max="..bnst[lv].max.." area="..bnst[lv].area.." top="..bnst[lv].top)    
+        " max="..bnst[lv].max.." area="..bnst[lv].area.." top="..bnst[lv].top)
   end --for
 end --calculated_constants_bylevel
 
@@ -293,35 +293,35 @@ function beanstalk.create_beanstalks()
         bnst[lv][b].pos.y=bnst[lv].bot
         bnst[lv][b].pos.z=-31000 + (bnst[lv].area * (math.floor(b/bnst[lv].per_row) % bnst[lv].per_row) + 500 + math.random(0,bnst[lv].area-1000) )
         --now check to see if this beanstalk overlaps one below it.  the odds of this are tiny tiny tiny, but must be prevented anyway
-        if lv>0 then 
+        if lv>0 then
           local lvdn=lv-1
           local bdn=0
           --note that when this runs, minp and maxp have not been calculated yet for any beanstalks!
           --so we just make them up with a distance of 250 for each, guaranteeing a distance of 500 between beanstalks
           local bnst1minp={ }
-          bnst1minp.x=bnst[lv][b].pos.x-250  
+          bnst1minp.x=bnst[lv][b].pos.x-250
           bnst1minp.y=bnst[lv][b].pos.y
-          bnst1minp.z=bnst[lv][b].pos.z-250          
+          bnst1minp.z=bnst[lv][b].pos.z-250
           local bnst1maxp={ }
-          bnst1maxp.x=bnst[lv][b].pos.x+250  
+          bnst1maxp.x=bnst[lv][b].pos.x+250
           bnst1maxp.y=bnst[lv][b].pos.y
           bnst1maxp.z=bnst[lv][b].pos.z+250
           local bnst2minp={ }
-          bnst2minp.x=bnst[lvdn][bdn].pos.x-250  
+          bnst2minp.x=bnst[lvdn][bdn].pos.x-250
           bnst2minp.y=bnst[lvdn][bdn].pos.y
-          bnst2minp.z=bnst[lvdn][bdn].pos.z-250          
+          bnst2minp.z=bnst[lvdn][bdn].pos.z-250
           local bnst2maxp={ }
-          bnst2maxp.x=bnst[lvdn][bdn].pos.x+250  
+          bnst2maxp.x=bnst[lvdn][bdn].pos.x+250
           bnst2maxp.y=bnst[lvdn][bdn].pos.y
-          bnst2maxp.z=bnst[lvdn][bdn].pos.z+250                                                      
+          bnst2maxp.z=bnst[lvdn][bdn].pos.z+250
           repeat
             if check_overlap(bnst1minp,bnst1maxp,bnst2minp,bnst2maxp) then
               overlap=true
-            end 
+            end
             bdn=bdn+1
           until bdn>bnst[lvdn].max or overlap==true
         end --if lv>0
-      until overlap==false              
+      until overlap==false
 
 
       --total number of stems
@@ -446,6 +446,10 @@ function beanstalk.checkvines(lv, x,y,z, vcx,vcz, area,data)
     changed=true
     local pos={x=x,y=y,z=z}
     local node=minetest.get_node(pos)
+    --minetest.log("beanstalkgn-> pos="..minetest.pos_to_string(pos).." vn="..dump(vn))
+    --minetest.log("beanstalkgn-> data[vn]="..dump(data[vn]))
+    --minetest.log("beanstalkgn-> node="..dump(node))
+    --minetest.log("=====")
     --we have the vine in place, but we need to rotate it with the vines
     --against the big beanstalk node.
     --if diff x is bigger than diff z we put against the x face, otherwize z
@@ -505,10 +509,10 @@ function beanstalk.gen_beanstalk(minp, maxp, seed)
       if check_overlap(minp,maxp,bnst[lv][chkb].minp,bnst[lv][chkb].maxp) then
            b=chkb  --we are in the beanstalk!
       end --if
-    until chkb==bnst[lv].max or b>-1    
+    until chkb==bnst[lv].max or b>-1
     if b<0 then lv=lv+1 end --try next level, in case of lv overlap (not beanstalk overlap)
-  until b>-1 or lv>bnst.level_max or bnst[lv].bot>maxp.y  
-      
+  until b>-1 or lv>bnst.level_max or bnst[lv].bot>maxp.y
+
   if b<0 then return end --quit; otherwise, you'd have wasted resources
 
   --ok, now we know we are in a chunk that has beanstalk in it, so we need to do the work
