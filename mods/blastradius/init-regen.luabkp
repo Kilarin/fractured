@@ -23,6 +23,15 @@ local blastrad_steprad=blastrad_radius*(1-blastrad_steps)  --the width of each s
 local blastrad_changebot=blastrad_surface-blastrad_deep    --the change bottom (based on where the surface is)
 
 
+minetest.register_node("blastradius:regen",
+	{
+	description = "BlastRadius Regen",
+	drawtype = "airlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	groups = {unbreakable = 1, not_in_creative_inventory = 1}
+  })
+
 
 --grab content IDs -- You need these to efficiently access and set node data.  get_node() works, but is far slower
 local c_blastmat = minetest.get_content_id("fractured:dry_dirt")
@@ -30,6 +39,9 @@ local c_scorchedtree = minetest.get_content_id("fractured:scorched_tree")
 local c_air = minetest.get_content_id("air")
 local c_ice = minetest.get_content_id("default:ice")
 local c_watersource = minetest.get_content_id("default:water_source")
+local c_regen = minetest.get_content_id("blastradius:regen")
+local c_brick = minetest.get_content_id("default:brick")
+
 
 
 --what material to use for the blast
@@ -40,7 +52,7 @@ function blast_replace(x,y,z, cid)
 	local rnode=minetest.registered_nodes[minetest.get_node({x=x,y=y,z=z}).name]
 
 	if rnode.is_ground_content
-			or cid==c_ice
+		or cid==c_ice
 			or cid==c_watersource
 			or cid==c_blastmat
 			then
@@ -158,6 +170,12 @@ function generate_blastradius(minp, maxp, seed)
 	end -- end 'z' loop
 
 	if changed==true then
+	  local cent=luautils.center_of_box(minp,maxp)
+	  local vi = area:index(cent.x, cent.y, cent.z) -- This accesses the node at a given position
+	  if data[vi]~=c_regen then data[vi]=c_regen
+	  else data[vi]=c_air
+	  end
+	  minetest.log("blastradius:-> regen node at "..luautils.pos_to_str(cent))
 --		minetest.log("blastradius-> saving chunk minp="..minetest.pos_to_string(minp).." maxp="..minetest.pos_to_string(maxp).." node(48,1,-14)="..minetest.get_node({x=48,y=1,z=-14}).name)
 --		if luautils.xyz_in_box(48,1,-14, minp,maxp) then
 --			local vi = area:index(48,1,-14) -- This accesses the node at a given position
@@ -171,6 +189,12 @@ function generate_blastradius(minp, maxp, seed)
 		vm:calc_lighting()
 		--write it to world
 		vm:write_to_map(data)
+		--now that its saved to the map, get it
+		local meta = minetest.get_meta(cent)
+		meta:set_string("minp", minetest.serialize(minp))
+		meta:set_string("maxp", minetest.serialize(maxp))
+		meta:set_string("seed", minetest.serialize(seed)) --serialize may not be necessary here
+		minetest.log("blastradius: set seed="..seed)
 		--print(">>>saved")
 	end --if changed write to map
 
@@ -180,11 +204,30 @@ end
 
 
 
+
+--minetest.register_on_generated(generate_blastradius) -- register_on_generated blast radius
 minetest.register_on_generated(generate_blastradius) -- register_on_generated blast radius
 
 
 
 
+
+minetest.register_abm(
+	{
+	nodenames = {"blastradius:regen"},
+	--neighbors = {"default:water_source", "default:water_flowing"},
+	interval = 10.0, -- Run every 10 seconds
+	chance = 1, -- Select every node
+	action = function(pos, node, active_object_count,active_object_count_wider)
+		local meta = minetest.get_meta(pos)
+		local minp = minetest.deserialize(meta:get_string("minp"))
+		local maxp = minetest.deserialize(meta:get_string("maxp"))
+		local seed = minetest.deserialize(meta:get_string("seed")) --serialize may not be necessary here
+		minetest.set_node(pos, {name="air"})
+
+		--generate_blastradius(minp,maxp,seed)
+		end --action
+	}) --register_abm
 
 
 

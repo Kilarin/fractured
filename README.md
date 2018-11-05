@@ -1,7 +1,5 @@
-
-
 **FRACTURED 0.082 **<p>
-[![alt text](http://a.pomf.se/dnhqdj.png "image")](http://a.pomf.se/dnhqdj.png)
+[![alt text](http://a.pomf.se/dnhqdj.png  "image") ](http://a.pomf.se/dnhqdj.png)
 
     It was with the best of intentions that the great wizard created the world stone. He drained power from the very heart of the earth to make it, and poured much of his own essence into it as well. And the result was a creation of magic so powerful, and so intimately connected to the world, that it could alter the structure of reality itself.
 
@@ -89,10 +87,10 @@ I promise NOT to be offended if you tell me I've done something wrong, stupid, o
 **CODE:**
 
 Browse:<p>
-[https://github.com/Kilarin/fractured](https://github.com/Kilarin/fractured)
+[https://github.com/Kilarin/fractured ](https://github.com/Kilarin/fractured )
 
 Download:<p>
-[https://github.com/Kilarin/fractured/archive/master.zip](https://github.com/Kilarin/fractured/archive/master.zip)<p>
+[https://github.com/Kilarin/fractured/archive/master.zip ](https://github.com/Kilarin/fractured/archive/master.zip )<p>
 unzip in the minetest games folder and rename to fractured.<p>
 Remember, There is NOT much of a playable game yet!  Its just Minetest-game with a few proof of concept changes.
 
@@ -102,10 +100,11 @@ Remember, There is NOT much of a playable game yet!  Its just Minetest-game with
 ----------------------<p>
 All of my code for this project is licensed CC0 (public domain)<p>
 To the extent possible under law, the author has dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.<p>
-[http://creativecommons.org/publicdomain/zero/1.0/](http://creativecommons.org/publicdomain/zero/1.0/)
+[http://creativecommons.org/publicdomain/zero/1.0/ ](http://creativecommons.org/publicdomain/zero/1.0/ )
 
 The only other material included so far is everything in minetest-game (license unaltered)<p>
-and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)
+and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)<p>
+scorched tree from Ethereal (GNU GENERAL PUBLIC LICENSE)
 
 <p>
 - - - - - - - - - - - - - - - - - - - - - - - - - - -

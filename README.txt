@@ -1,6 +1,6 @@
 [b]FRACTURED 0.082 [/b]
 
-[url=http://a.pomf.se/dnhqdj.png][img]http://a.pomf.se/dnhqdj.png[/img][/url]
+[url=http://a.pomf.se/dnhqdj.png][img]http://a.pomf.se/dnhqdj.png [/img] [/url]
 
     It was with the best of intentions that the great wizard created the world stone. He drained power from the very heart of the earth to make it, and poured much of his own essence into it as well. And the result was a creation of magic so powerful, and so intimately connected to the world, that it could alter the structure of reality itself.
 
@@ -88,10 +88,10 @@ I promise NOT to be offended if you tell me I've done something wrong, stupid, o
 [b]CODE:[/b]
 
 Browse:
-[url]https://github.com/Kilarin/fractured[/url]
+[url]https://github.com/Kilarin/fractured [/url]
 
 Download:
-[url]https://github.com/Kilarin/fractured/archive/master.zip[/url]
+[url]https://github.com/Kilarin/fractured/archive/master.zip [/url]
 unzip in the minetest games folder and rename to fractured.
 Remember, There is NOT much of a playable game yet!  Its just Minetest-game with a few proof of concept changes.
 
@@ -101,7 +101,7 @@ Remember, There is NOT much of a playable game yet!  Its just Minetest-game with
 ----------------------
 All of my code for this project is licensed CC0 (public domain)
 To the extent possible under law, the author has dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
-[url]http://creativecommons.org/publicdomain/zero/1.0/[/url]
+[url]http://creativecommons.org/publicdomain/zero/1.0/ [/url]
 
 The only other material included so far is everything in minetest-game (license unaltered)
 and dry dirt from Ethereal (GNU GENERAL PUBLIC LICENSE)

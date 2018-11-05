@@ -10,7 +10,7 @@ fracturerift.width = 80        --how wide the rift will be		--fracrift. prefix a
 
 local fracrift_depth_air=33000          --how deep before the water
 local fracrift_depth_water=20           --how deep the water will be
-local fracrift_top=100                  --max height to scan for land to remove
+local fracrift_top=200                  --max height to scan for land to remove
 local fracrift_bottomsmooth=0.995       --odds of bottom being smooth
 local fracrift_waterfallchance=0.997    --odds of NOT having a waterfall hole in wall
 local c_fracrift_material=minetest.get_content_id("default:sandstone") -- Makes more sense, no?
@@ -65,6 +65,10 @@ minetest.register_on_generated(function(minp, maxp, seed)
   local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
   local data = vm:get_data()
 
+  minetest.log("fr: before display chunk start minp="..minetest.pos_to_string(minp)")
+	--minetest.log("fr: starting chunk minp="..minetest.pos_to_string(minp).." (-3,47,127) node="..minetest.get_node({x=-3,y=47,z=127}).name)
+
+
   local sidelen = x1 - x0 + 1 --length of a mapblock
   local chulens = {x=sidelen, y=sidelen, z=sidelen} --table of chunk edges
   local minposxyz = {x=x0, y=y0, z=z0} --bottom corner
@@ -86,6 +90,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
         if ((math.abs(nvals_walls[nixyz]) - grad) > 0) then -- Check the value of the perlin noise at this position with respect to distance from center
           if data[vi] ~= c_air then
+            --2018-09-23 15:08:05: ACTION[Server]: singleplayer digs default:jungletree at (-3,47,127)
             data[vi] = c_air -- Hollow out the chasm with smooth walls
           end
         else

@@ -124,6 +124,53 @@ end --distance3d
 
 
 
+--rubanwardy points out in his excellent modding book that square roots are computationaly expensive.
+--a fact that is obviously true but that I hadn't taken into account.  He recommended comparing distances
+--to the square of the distance to avoid the square root.  so, to make that possible, I have created
+--duplicates of all of the distance functions, but these return only the square
+
+--this calculates the distance between two positions, 2D only, passing the x and z values directly
+--and returns the SQUARE of the result (not the square root) since square root is slow
+--note that rounddigits is optional, if you call as just luautils.distance2d(x1,z1,x2,z2) it will not round
+--also, rounding is done AFTER the distance calculation, not before.
+--********************************
+function luautils.distance2d_sq(x1,z1, x2,z2, rounddigits)
+  return luautils.round_digits((x2-x1)^2+(z2-z1)^2, rounddigits)
+  --this works because round_digits does not round when rounddigits=nil
+end --distance2d
+
+
+
+--this calculates the distance between two positions, 3D only, passing the x, y, and  z values directly
+--and returns the SQUARE of the result (not the square root) since square root is slow
+--note that rounddigits is optional, if you call as just luautils.distance2d(x1,y1,z1,x2,y1,z2) it will not round
+--also, rounding is done AFTER the distance calculation, not before.  (does that matter?)
+--********************************
+function luautils.distance3d_sq(x1,y1,z1, x2,y2,z2, rounddigits)
+  return luautils.round_digits((x2-x1)^2+(z2-z1)^2+(y2-y1)^2, rounddigits)
+  --this works because round_digits does not round when rounddigits=nil
+end --distance3d
+
+
+
+--this calculates the distance between two positions, 2D only (x,z) RETURNS THE SQUARE
+--note that rounddigits is optional, if you call as just luautils.distance2d(pos1,pos2) it will not round
+--********************************
+function luautils.distance2d_pos_sq(pos1,pos2,rounddigits)
+  return luautils.distance2d_sq(pos1.x,pos1.z, pos2.x,pos2,z, rounddigits)
+end --distance2d
+
+
+
+--calculate distance between two points, 3D (x,y,z) RETURNS THE SQUARE
+--note that rounddigits is optional, if you call as just luautils.distance3d(pos1,pos2) it will not round
+--********************************
+function luautils.distance3d_pos_sq(pos1in,pos2in,rounddigits)
+  return luautils.distance3d_sq(pos1.x,pos1.y,pos1.z, pos2.x,pos2.y,pos2.z, rounddigits)
+end --distance3d
+
+
+
 --handles nil
 --separator is optional, if you do not pass it, it will default to comma
 --rounddigits is optional, if you call as just luautils.pos_to_str(posin) it will not round
@@ -140,23 +187,24 @@ function luautils.pos_to_str(posin, separator, rounddigits)
 end --pos_to_str
 
 
-
+--return true if the node at given pos is ground content.
+--********************************
 function luautils.is_ground_content(pos)
   if minetest.registered_nodes[minetest.get_node(pos).name].is_ground_content then return true
   else return false
   end --if
 end --is_ground_content
 
---function luautils.is_ground_content
---https://github.com/minetest-mods/qa_block/blob/master/checks/is_ground_content.lua
---if minetest.registered_nodes[minetest.get_node(p).name].is_ground_content then
---for name, def in pairs(minetest.registered_nodes) do
---	if def.is_ground_content then
---		print(name)
---	end
---end
---./games/regnum/mods/nether/init.lua:					if minetest.registered_nodes[minetest.get_node(p).name].is_ground_content then
 
+--return center of box given minp and maxp
+--********************************
+function luautils.center_of_box(minp,maxp)
+  local cent={}
+  cent.x=math.floor(minp.x+(maxp.x-minp.x)/2)
+  cent.y=math.floor(minp.y+(maxp.y-minp.y)/2)
+  cent.z=math.floor(minp.z+(maxp.z-minp.z)/2)
+  return cent
+end --center_of_box
 
 
 
