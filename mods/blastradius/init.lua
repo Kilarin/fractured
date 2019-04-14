@@ -13,7 +13,7 @@ local blastrad_steps=0.30              --percentage of blastrad to start steping
 local blastrad_top=200                 --don't bother blasting higher than this
 local blastrad_surface=0               --the blast radius surface  (This is where to START, steps will change it)
 local blastrad_deep=3                  --how deep to change existing material
-                                       --  so once we find or create a surface, we will change this far down below it
+					                             --  so once we find or create a surface, we will change this far down below it
 local blastrad_bot=-20                 --don't bother blasting lower than this.
 
 
@@ -115,7 +115,7 @@ function generate_blastradius(minp, maxp, seed)
 				-- trimmed down to local_surface_top, and anything below local_surface_bot must be built up to it.  But if the surface
 				-- is between those two points it is ok.
 
-        -- when ignore=true we wont change the material so that the blast effect looks like it is fading out as it gets further from the center
+				-- when ignore=true we wont change the material so that the blast effect looks like it is fading out as it gets further from the center
 				local ignore = false
 				if dist/blastrad_radius >= blastrad_noscatter and math.random() < (((dist/blastrad_radius)-blastrad_noscatter)/blastrad_scatter) then
 					ignore = true
