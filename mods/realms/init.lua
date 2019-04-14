@@ -67,4 +67,7 @@ function gen_realms(minp, maxp, seed)
 	vm:write_to_map(data)
 	local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
 	minetest.log("realms END chunk="..minp.x..","..minp.y..","..minp.z.." - "..maxp.x..","..maxp.y..","..maxp.z.."  "..chugent.." ms") --tell people how long
-end -- ge
+end -- gen_realms
+
+
+minetest.register_on_generated(gen_realms)
