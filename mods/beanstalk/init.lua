@@ -378,6 +378,7 @@ local np_crazy =
 --this function calculates (very approximately) the circumference of a circle of radius r in voxels
 --this could be made much more accurate
 --this function has to be way up here because it has to be defined before it is used
+--*!* this is in luautils, it should be used from there, not here.
 --********************************
 function beanstalk.voxel_circum(r)
 	if r==1 then return 4
@@ -539,15 +540,15 @@ end --write_beanstalks
 --if box1maxp.x < box1minp.x then they can not overlap on that coord.  So, we check for the opposite,
 --and for each coord
 --********************************
---*!* this is in lua_utils, why do I have it here?  remove it and test
-function check_overlap(box1minp,box1maxp,box2minp,box2maxp)
-	if box1minp.x<=box2maxp.x and box1maxp.x>=box2minp.x and
-		 box1minp.y<=box2maxp.y and box1maxp.y>=box2minp.y and
-		 box1minp.z<=box2maxp.z and box1maxp.z>=box2minp.z then
-		 return true
-	else return false
-	end --if
-end --check_overlap
+--*!* this is in luautils, why do I have it here?  remove it and test
+--function check_overlap(box1minp,box1maxp,box2minp,box2maxp)
+--	if box1minp.x<=box2maxp.x and box1maxp.x>=box2minp.x and
+--		 box1minp.y<=box2maxp.y and box1maxp.y>=box2minp.y and
+--		 box1minp.z<=box2maxp.z and box1maxp.z>=box2minp.z then
+--		 return true
+--	else return false
+--	end --if
+--end --check_overlap
 
 
 
@@ -614,7 +615,7 @@ function beanstalk.create_beanstalks()
 					bnst2maxp.y=bnst[lvdn][bdn].pos.y
 					bnst2maxp.z=bnst[lvdn][bdn].pos.z+250
 					repeat
-						if check_overlap(bnst1minp,bnst1maxp,bnst2minp,bnst2maxp) then
+						if luautils.check_overlap(bnst1minp,bnst1maxp,bnst2minp,bnst2maxp) then
 							overlap=true
 						end
 						bdn=bdn+1
@@ -795,7 +796,7 @@ function beanstalk.gen_beanstalk(minp, maxp, seed)
 		repeat
 			chkb=chkb+1
 			--this checks to see if the chunk is within the beanstalk area
-			if check_overlap(minp,maxp,bnst[lv][chkb].minp,bnst[lv][chkb].maxp) then
+			if luautils.check_overlap(minp,maxp,bnst[lv][chkb].minp,bnst[lv][chkb].maxp) then
 					 b=chkb  --we are in the beanstalk!
 			end --if
 		until chkb==bnst[lv].count or b>0

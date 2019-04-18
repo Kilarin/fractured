@@ -28,10 +28,12 @@ function luautils.check_overlap(box1minp,box1maxp,box2minp,box2maxp)
 	if box1minp.x > box2maxp.x or box1maxp.x < box2minp.x or
 		 box1minp.y > box2maxp.y or box1maxp.y < box2minp.y or
 		 box1minp.z > box2maxp.z or box1maxp.z < box2minp.z then
-		 return valse
+		 return false
 	else return true
 	end --if
 end --check_overlap
+
+
 --old positive check, not as good
 --  if box1minp.x<=box2maxp.x and box1maxp.x>=box2minp.x and
 --     box1minp.y<=box2maxp.y and box1maxp.y>=box2minp.y and
@@ -53,6 +55,35 @@ end --point_in_box
 function luautils.xyz_in_box(x,y,z, minp,maxp)
 	return luautils.point_in_box({x=x,y=y,z=z}, minp,maxp)
 end --xyz_in_box
+
+
+
+--this function adjusts (trims) the secondary box to be inside the primary box
+--WARNING: this function assumes that the primary and secondary boxes overlap
+--if they dont, you will get back strange results.
+--********************************
+function luautils.box_intersection(primary_minp,primary_maxp, secondary_minp,secondary_maxp)
+	local minp={}
+	local maxp={}
+
+	minp.x=secondary_minp.x
+	if minp.x<primary_minp.x then minp.x=primary_minp.x end
+	maxp.x=secondary_maxp.x
+	if maxp.x>primary_maxp.x then maxp.x=primary_maxp.x end
+
+	minp.y=secondary_minp.y
+	if minp.y<primary_minp.y then minp.y=primary_minp.y end
+	maxp.y=secondary_maxp.y
+	if maxp.y>primary_maxp.y then maxp.y=primary_maxp.y end
+
+	minp.z=secondary_minp.z
+	if minp.z<primary_minp.z then minp.z=primary_minp.z end
+	maxp.z=secondary_maxp.z
+	if maxp.z>primary_maxp.z then maxp.z=primary_maxp.z end
+
+	return minp,maxp
+end --box_intersection
+
 
 
 --this rounds a number to a specific digit place.
@@ -210,9 +241,45 @@ end --center_of_box
 --from PiL2 20.4
 --********************************
 function luautils.trim(s)
-	return (s:gsub("^%s*(.-)%s*$", "%1"))
+	if s==nil then return nil 
+	else return (s:gsub("^%s*(.-)%s*$", "%1"))
+	end
 end
 
+--returns the next field from a string based on a seperator char
+--the first time you call this you should pass p=1 or p=nil
+--call as:
+--fld,p=luautils.next_field(str,":",p)
+--and keep passing it the same p (do not modify it) until p==nil
+--trim and num are optional.  pass "trim" or "notrim" and "num" or "str"
+--********************************
+function luautils.next_field(s,sep,p,trim,num)
+	--minetest.log("luautils-> next_field: s="..luautils.var_or_nil(s).." sep="..luautils.var_or_nil(sep).." p="..luautils.var_or_nil(p))
+	if p==nil then p=1 end
+	if s==nil or sep==nil or p>string.len(s) then return nil,nil end
+	if trim==nil or trim=="" then trim="NOTRIM" end
+	trim=string.upper(trim)
+	if num==nil or num=="" then num="STR" end
+	num=string.upper(num)
+
+	local oldp=p
+	p=string.find(s,sep,oldp)
+	--if we did not find another separator, then return everything to the end of the string
+	--and return p=nill so the user will know we are done.
+	local rtn=nil
+	if p==nil then rtn=string.sub(s,oldp) 
+	else --we found a separator
+		rtn=string.sub(s,oldp,p-1)
+		p=p+1
+		if p>string.len(s) then p=nil end --we are done
+	end --if p==nil
+	if rtn~=nil and trim=="TRIM" then rtn=luautils.trim(rtn) end
+	minetest.log("luautils-> next_field trim="..trim.." rtn="..rtn.."<")
+	if rtn~=nil and num=="NUM" then rtn=rtn+0 end
+	return rtn,p
+end --luautils.next_field
+	
+	
 
 --returns the variable, OR, the string "nil" if the variable is nil
 --space saver in some circumstances

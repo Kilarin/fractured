@@ -1,73 +1,95 @@
 
-local c_stone = minetest.get_content_id("default:stone")
-local c_dirt = minetest.get_content_id("default:dirt")
-local c_grass = minetest.get_content_id("default:dirt_with_grass")
+--this all must be loaded from a table
 
-local realms={ }
-realms.count=5
-realms[1]={ }
-realms[1].bot=5000
-realms[1].top=6000
-realms[2]={ }
-realms[2].bot=10000
-realms[2].top=11000
-realms[3]={ }
-realms[3].bot=15000
-realms[3].top=16000
-realms[4]={ }
-realms[4].bot=20000
-realms[4].top=21000
-realms[5]={ }
-realms[5].bot=25000
-realms[5].top=26000
+realms={ }
+realm={}
+
+local rtg={}
+
+--register realmst terrain generator
+--********************************
+
+function realms.register_rtg(name, func)
+	rtg[name]=func	
+	minetest.log("realms-> rtg registered for: "..name)
+end --register_rtg
+
+
+function read_realms_config()
+	minetest.log("realms-> reading realms config file")
+	realm.count=0
+	local p
+	--first we look to see if there is a realms.conf file in the world path
+	local file = io.open(minetest.get_worldpath().."/realms.conf", "r")
+	--if its not in the worldpath, try for the modpath
+	if file then
+		minetest.log("realms-> loading realms.config from worldpath:")
+	else  
+		file = io.open(minetest.get_modpath("realms").."/realms.conf", "r")    
+		if file then minetest.log("realms-> loading realms.conf from modpath") 
+		else minetest.log("realms-> unable to find realms file in worldpath or modpath.  This is bad")
+		end --if file (modpath)
+	end --if file (worldpath)   
+	if file then  
+		for str in file:lines() do
+			p=string.find(str,"|")
+			if p~=nil then --we found a vertical bar, this is an actual entry
+				realm.count=realm.count+1
+				local r=realm.count
+				realm[r]={}
+				minetest.log("realms-> count="..realm.count.." str="..str)
+				--realm[r].rtg,p=tst,p=luautils.next_field(str,"|",1)  --for some strange reason THIS wont work
+				local hld,p=luautils.next_field(str,"|",1,"trim")  --but this works fine
+				realm[r].rtg=hld
+				realm[r].minp={}
+				realm[r].minp.x, p=luautils.next_field(str,"|",p,"trim","num")
+				realm[r].minp.y, p=luautils.next_field(str,"|",p,"trim","num")
+				realm[r].minp.z, p=luautils.next_field(str,"|",p,"trim","num")
+				realm[r].maxp={}
+				realm[r].maxp.x, p=luautils.next_field(str,"|",p,"trim","num")
+				realm[r].maxp.y, p=luautils.next_field(str,"|",p,"trim","num")
+				realm[r].maxp.z, p=luautils.next_field(str,"|",p,"trim","num")
+				realm[r].surfacey, p=luautils.next_field(str,"|",p,"trim","num")
+				minetest.log("realms->   r="..r.." minp="..luautils.pos_to_str(realm[r].minp).." maxp="..luautils.pos_to_str(realm[r].maxp).." surfacey="..realm[r].surfacey)
+			end --if p~=nil
+		end --for str
+		minetest.log("realms-> all realms loaded, count="..realm.count)
+	end --if file
+end --read_realm_config()
+
 
 
 --********************************
 function gen_realms(minp, maxp, seed)
-	--this is just a stupid proof of concept
+	--eventually, this should run off of an array loaded from a file
+	--every rtg (realm terrain generator) should register with a string for a name, and a function
+	--the realm params will be loaded from a table
 	local r=0
 	local doit=false
 	repeat
 		r=r+1
-		if minp.y<=realms[r].top and maxp.y>realms[r].bot then doit=true end
-	until r==realms.count or doit==true
+		if luautils.check_overlap(realm[r].minp, realm[r].maxp, minp,maxp)==true then doit=true end
+	until r==realm.count or doit==true
 	if doit==false then return end --dont waste cpu
 
-	local t1 = os.clock()
-
-	--This actually initializes the LVM
-	local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
-	local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
-	local data = vm:get_data()
-
-	local miny=minp.y
-	if miny<realms[r].bot then miny=realms[r].bot end
-	local maxy=maxp.y
-	if maxy>realms[r].top then maxy=realms[r].top end
-
-	for y=miny, maxy do
-		for x=minp.x, maxp.x do
-			for z=minp.z, maxp.z do
-				local vi = area:index(x, y, z) -- This accesses the node at a given position
-				if y<realms[r].top-20 then data[vi]=c_stone
-				elseif y<realms[r].top then data[vi]=c_dirt
-				else data[vi]=c_grass
-				end --if
-			end --for z
-		end --for x
-	end --for y
-
-	-- Wrap things up and write back to map
-	--send data back to voxelmanip
-	vm:set_data(data)
-	--calc lighting
-	vm:set_lighting({day=0, night=0})
-	vm:calc_lighting()
-	--write it to world
-	vm:write_to_map(data)
-	local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
-	minetest.log("realms END chunk="..minp.x..","..minp.y..","..minp.z.." - "..maxp.x..","..maxp.y..","..maxp.z.."  "..chugent.." ms") --tell people how long
+	--r already equals one that matches, so start there
+	--could just do the match here automatically and skip the overlap check, then start at r+1?
+	local parms={}
+	local rstart=r	
+	for r=rstart,realm.count,1 do
+		if luautils.check_overlap(realm[r].minp, realm[r].maxp, minp,maxp)==true then
+			minetest.log("realms-> gen_realms r="..r.." rtg="..luautils.var_or_nil(realm[r].rtg).." realm minp="..luautils.pos_to_str(realm[r].minp).." maxp="..luautils.pos_to_str(realm[r].maxp))
+			minetest.log("     surfacey="..realm[r].surfacey.." minp="..luautils.pos_to_str(minp).." maxp="..luautils.pos_to_str(maxp))
+			rtg[realm[r].rtg](realm[r].minp,realm[r].maxp, realm[r].surfacey, minp,maxp, 0)
+		end --if overlap
+	end--for
+	--local gen=gen_layer_barrier(realm_minp,realm_maxp,0,minp,maxp,seed)
 end -- gen_realms
 
 
 minetest.register_on_generated(gen_realms)
+read_realms_config()
+
+
+
+
