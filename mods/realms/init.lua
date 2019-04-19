@@ -1,18 +1,16 @@
 
---this all must be loaded from a table
-
 realms={ }
 realm={}
 
-local rtg={}
+local rmg={}
 
 --register realmst terrain generator
 --********************************
 
-function realms.register_rtg(name, func)
-	rtg[name]=func	
-	minetest.log("realms-> rtg registered for: "..name)
-end --register_rtg
+function realms.register_rmg(name, func)
+	rmg[name]=func	
+	minetest.log("realms-> rmg registered for: "..name)
+end --register_rmg
 
 
 function read_realms_config()
@@ -38,9 +36,9 @@ function read_realms_config()
 				local r=realm.count
 				realm[r]={}
 				minetest.log("realms-> count="..realm.count.." str="..str)
-				--realm[r].rtg,p=tst,p=luautils.next_field(str,"|",1)  --for some strange reason THIS wont work
+				--realm[r].rmg,p=tst,p=luautils.next_field(str,"|",1)  --for some strange reason THIS wont work
 				local hld,p=luautils.next_field(str,"|",1,"trim")  --but this works fine
-				realm[r].rtg=hld
+				realm[r].rmg=hld
 				realm[r].minp={}
 				realm[r].minp.x, p=luautils.next_field(str,"|",p,"trim","num")
 				realm[r].minp.y, p=luautils.next_field(str,"|",p,"trim","num")
@@ -62,7 +60,7 @@ end --read_realm_config()
 --********************************
 function gen_realms(minp, maxp, seed)
 	--eventually, this should run off of an array loaded from a file
-	--every rtg (realm terrain generator) should register with a string for a name, and a function
+	--every rmg (realm terrain generator) should register with a string for a name, and a function
 	--the realm params will be loaded from a table
 	local r=0
 	local doit=false
@@ -78,14 +76,16 @@ function gen_realms(minp, maxp, seed)
 	local rstart=r	
 	for r=rstart,realm.count,1 do
 		if luautils.check_overlap(realm[r].minp, realm[r].maxp, minp,maxp)==true then
-			minetest.log("realms-> gen_realms r="..r.." rtg="..luautils.var_or_nil(realm[r].rtg).." realm minp="..luautils.pos_to_str(realm[r].minp).." maxp="..luautils.pos_to_str(realm[r].maxp))
+			minetest.log("realms-> gen_realms r="..r.." rmg="..luautils.var_or_nil(realm[r].rmg).." realm minp="..luautils.pos_to_str(realm[r].minp).." maxp="..luautils.pos_to_str(realm[r].maxp))
 			minetest.log("     surfacey="..realm[r].surfacey.." minp="..luautils.pos_to_str(minp).." maxp="..luautils.pos_to_str(maxp))
-			rtg[realm[r].rtg](realm[r].minp,realm[r].maxp, realm[r].surfacey, minp,maxp, 0)
+			rmg[realm[r].rmg](realm[r].minp,realm[r].maxp, realm[r].surfacey, minp,maxp, 0)
 		end --if overlap
 	end--for
 	--local gen=gen_layer_barrier(realm_minp,realm_maxp,0,minp,maxp,seed)
 end -- gen_realms
 
+dofile(minetest.get_modpath("realms").."/realms_map_generators/layer_barrier.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/flatland.lua")
 
 minetest.register_on_generated(gen_realms)
 read_realms_config()

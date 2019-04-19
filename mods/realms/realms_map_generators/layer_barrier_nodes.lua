@@ -1,4 +1,4 @@
-minetest.register_node("layer_barrier:layer_barrier", 
+minetest.register_node("realms:layer_barrier", 
 {
 	description = "Layer Barrier",
 	drawtype = "airlike",

@@ -1,5 +1,5 @@
-dofile(minetest.get_modpath("layer_barrier").."/nodes.lua")
-local c_layerbarrier = minetest.get_content_id("layer_barrier:layer_barrier")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/layer_barrier_nodes.lua")
+local c_layerbarrier = minetest.get_content_id("realms:layer_barrier")
 
 --********************************
 function gen_layer_barrier(realm_minp,realm_maxp,surfacey, chunk_minp,chunk_maxp,seed)
@@ -36,8 +36,8 @@ function gen_layer_barrier(realm_minp,realm_maxp,surfacey, chunk_minp,chunk_maxp
 	--write it to world
 	vm:write_to_map(data)
 	local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
-	minetest.log("rtg layer_barrier-> END chunk="..luautils.pos_to_str(minp).." - "..luautils.pos_to_str(maxp).."  "..chugent.." ms") --tell people how long
+	minetest.log("rmg layer_barrier-> END chunk="..luautils.pos_to_str(minp).." - "..luautils.pos_to_str(maxp).."  "..chugent.." ms") --tell people how long
 	end --if check_overlap
 end -- gen_layer_barrier
 
-realms.register_rtg("layer_barrier",gen_layer_barrier)
+realms.register_rmg("layer_barrier",gen_layer_barrier)

@@ -6,9 +6,6 @@ local c_air = minetest.get_content_id("air")
 
 
 
---dofile(minetest.get_modpath("realms").."/rtg-layer-barrier.lua")
-
-
 --********************************
 function gen_flatland(realm_minp,realm_maxp, surfacey, chunk_minp,chunk_maxp, seed)
 	--this is just a stupid proof of concept
@@ -24,7 +21,7 @@ function gen_flatland(realm_minp,realm_maxp, surfacey, chunk_minp,chunk_maxp, se
 		local maxp={}
 		--*!* also, I could send the intersection, to save time.
 		minp,maxp=luautils.box_intersection(realm_minp,realm_maxp, chunk_minp,chunk_maxp)
-		minetest.log("rtg gen_flatland-> realm minp="..luautils.pos_to_str(realm_minp).." maxp="..luautils.pos_to_str(realm_maxp)..
+		minetest.log("rmg gen_flatland-> realm minp="..luautils.pos_to_str(realm_minp).." maxp="..luautils.pos_to_str(realm_maxp)..
 		" chunk minp="..luautils.pos_to_str(chunk_minp).." maxp="..luautils.pos_to_str(chunk_maxp))
 		minetest.log("    intersection minp="..luautils.pos_to_str(minp).." maxp="..luautils.pos_to_str(maxp).." surfacey="..surfacey)
 
@@ -56,10 +53,10 @@ function gen_flatland(realm_minp,realm_maxp, surfacey, chunk_minp,chunk_maxp, se
 		--write it to world
 		vm:write_to_map(data)
 		local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
-		minetest.log("rtg flatland-> END chunk="..luautils.pos_to_str(minp).." - "..luautils.pos_to_str(maxp).."  "..chugent.." ms") --tell people how long
+		minetest.log("rmg flatland-> END chunk="..luautils.pos_to_str(minp).." - "..luautils.pos_to_str(maxp).."  "..chugent.." ms") --tell people how long
 	end --if overlap
 end -- gen_flatland
 
-realms.register_rtg("flatland",gen_flatland)
+realms.register_rmg("flatland",gen_flatland)
 
 
