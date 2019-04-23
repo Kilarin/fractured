@@ -86,6 +86,7 @@ end -- gen_realms
 
 dofile(minetest.get_modpath("realms").."/realms_map_generators/layer_barrier.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/flatland.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/very_simple.lua")
 
 minetest.register_on_generated(gen_realms)
 read_realms_config()

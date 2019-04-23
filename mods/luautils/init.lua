@@ -348,5 +348,46 @@ function luautils.string_math(str,vars)
 end  --string_math
 
 
+--pass in a maxp and a minp and this returns a tabel with the SIZE of the box
+--(so that x=length of x side, y=length of y side, and z=length of z size
+--********************************
+function luautils.box_size(minp,maxp)
+	--minetest.log("box_size-> top")
+	--minetest.log("minp="..luautils.pos_to_str(minp).." maxp="..luautils.pos_to_str(maxp))
+	local siz={}
+	--doing it in an ipairs loop like this means this will work for 2, 3, or 4, or any dimensional boxes
+	for k,v in pairs(minp) do 
+	  siz[k]=maxp[k]-minp[k]+1
+	  --minetest.log("box_size-> k="..k.." v="..v.." maxp[k]="..maxp[k].." minp[k]="..minp[k].." siz[k]="..siz[k])
+	end
+return siz
+end --box_size
+
+
+--for debugging purposes, this prints out a table in a readable format.
+--not my code, copied from here:
+--https://stackoverflow.com/questions/9168058/how-to-dump-a-table-to-console
+--its recursive, so could potential run out of memory on large nested tables
+--********************************
+function luautils.log_table(t, s)
+	if t==nil then minetest.log((s or '')..' = nil')
+	else
+		for k, v in pairs(t) do
+			local kfmt = '["' .. tostring(k) ..'"]'
+			if type(k) ~= 'string' then
+				kfmt = '[' .. k .. ']'
+			end
+			local vfmt = '"'.. tostring(v) ..'"'
+			if type(v) == 'table' then
+				luautils.log_table(v, (s or '')..kfmt)
+			else
+				if type(v) ~= 'string' then
+					vfmt = tostring(v)
+				end
+				minetest.log(type(t)..(s or '')..kfmt..' = '..vfmt)
+			end --if type(v)==table
+		end --for k,v
+	end --if t==nil
+end--table_print
 
 
