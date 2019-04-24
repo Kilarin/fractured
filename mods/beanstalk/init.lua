@@ -855,7 +855,7 @@ function beanstalk.gen_beanstalk(minp, maxp, seed)
 		if y>stemthiny then
 			local disttopdown=(y-stemthiny)-1
 			stemradius=bnst[lv][b].stemradius-((disttopdown/4) % bnst[lv][b].stemradius)
-			minetest.log("bnstt stemradius="..stemradius)
+			--minetest.log("bnstt stemradius="..stemradius)
 		end
 
 		--calculate rot1crazy
