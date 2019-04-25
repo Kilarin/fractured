@@ -284,7 +284,6 @@ function luautils.next_field(s,sep,p,trim,num)
 		if p>string.len(s) then p=nil end --we are done
 	end --if p==nil
 	if rtn~=nil and trim=="TRIM" then rtn=luautils.trim(rtn) end
-	minetest.log("luautils-> next_field trim="..trim.." rtn="..rtn.." p="..luautils.var_or_nil(p))
 	--if rtn~=nil and num=="NUM" then rtn=rtn+0 end
 	if rtn~=nil and num=="NUM" then rtn=tonumber(rtn) end
 	return rtn,p

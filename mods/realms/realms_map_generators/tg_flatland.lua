@@ -7,12 +7,12 @@ local c_air = minetest.get_content_id("air")
 
 
 --********************************
---function gen_flatland(realm_minp,realm_maxp, surfacey, chunk_minp,chunk_maxp, seed)
+--function gen_tg_flatland(realm_minp,realm_maxp, surfacey, chunk_minp,chunk_maxp, seed)
 function gen_flatland(parms)
 	--we dont need to check overlap because realms does that for us and passes us our intersect in isect_minp,isect_maxp
 	local t1 = os.clock()
 
-	minetest.log("rmg gen_flatland-> realm minp="..luautils.pos_to_str(parms.realm_minp).." maxp="..luautils.pos_to_str(parms.realm_maxp)..
+	minetest.log("rmg gen_tg_flatland-> realm minp="..luautils.pos_to_str(parms.realm_minp).." maxp="..luautils.pos_to_str(parms.realm_maxp)..
 	" chunk minp="..luautils.pos_to_str(parms.chunk_minp).." maxp="..luautils.pos_to_str(parms.chunk_maxp))
 	minetest.log("    intersection minp="..luautils.pos_to_str(parms.isect_minp).." maxp="..luautils.pos_to_str(parms.isect_maxp).." surfacey="..parms.surfacey)
 
@@ -34,9 +34,9 @@ function gen_flatland(parms)
 	end --for y
 
 	local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
-	minetest.log("rmg flatland-> END chunk="..luautils.pos_to_str(parms.isect_minp).." - "..luautils.pos_to_str(parms.isect_maxp).."  "..chugent.." ms") --tell people how long
+	minetest.log("rmg tg_flatland-> END chunk="..luautils.pos_to_str(parms.isect_minp).." - "..luautils.pos_to_str(parms.isect_maxp).."  "..chugent.." ms") --tell people how long
 end -- gen_flatland
 
-realms.register_rmg("flatland",gen_flatland)
+realms.register_rmg("tg_flatland",gen_tg_flatland)
 
 
