@@ -223,10 +223,49 @@ end --pos_to_str
 
 
 
+--same as pos_to_str but with coords
+--********************************
+function luautils.pos_to_str_xyz(x,y,z, separator, rounddigits)
+	return luautils.pos_to_str({x=x,y=y,z=z}, separator, rounddigits)
+end --pos_to_str_xyz
+
+
+--like pos to str, but takes to positions and returns (x1,y1,z1)-(x2,y2,z2)
+--********************************
+function luautils.range_to_str(posin1,posin2, separator, rounddigits)
+	return luautils.pos_to_str(posin1, separator, rounddigits).."-"..luautils.pos_to_str(posin2, separator, rounddigits)
+end --pos_to_str
+
+
+
+
+--reutrns true if pos1 x,y,z = pos2 x,y,z
+--will work on any combination of x, y, and ze
+--if you pass to tables without any x,y,z values,
+--this will return equal
+--********************************
+function luautils.pos_equals(pos1, pos2)
+	if    ( (pos1.x==nil and pos2.x==nil) or (pos1.x==pos2.x) )
+		and ( (pos1.y==nil and pos2.y==nil) or (pos1.y==pos2.y) )
+		and ( (pos1.z==nil and pos2.z==nil) or (pos1.z==pos2.z) )
+		then return true
+	else return false
+	end --if
+end --pos_equals
+
+
 --return true if position is ground content
 --********************************
 function luautils.is_ground_content(pos)
 	if minetest.registered_nodes[minetest.get_node(pos).name].is_ground_content then return true
+	else return false
+	end --if
+end --is_ground_content
+
+--return true if content_id is ground content
+--********************************
+function luautils.is_ground_content_id(id)
+	if minetest.registered_nodes[minetest.get_name_from_content_id(id)].is_ground_content then return true
 	else return false
 	end --if
 end --is_ground_content
@@ -386,7 +425,6 @@ end --box_size
 
 
 
-
 --for debugging purposes, this prints out a table in a readable format.
 --not my code, copied from here:
 --https://stackoverflow.com/questions/9168058/how-to-dump-a-table-to-console
@@ -412,5 +450,41 @@ function luautils.log_table(t, s)
 		end --for k,v
 	end --if t==nil
 end--table_print
+
+
+
+--turns x,z coords into a flat nixz index
+--********************************
+function luautils.xzcoords_to_flat(x,z, minp, chunk_size)
+	--return (z-1)*chunk_size.x+x
+	return (z-minp.z)*chunk_size.x+(x-minp.x+1)
+end
+
+
+
+--just changes a two line entry into a one line entry
+--********************************
+function luautils.place_node(x,y,z, area, data, node)
+	local vi = area:index(x, y, z)
+	data[vi] = node
+end --place node
+
+
+--This gives an UPPER BOUND for noise (not counting offset and scale)
+--And it may be an accurate upper bound, BUT, probably because of 
+--combinatorial effects, the more octaves you have, the further the
+--noise max from testing is from the noise max returned by this function.
+--our guess is that this is because to reach the ACTUAL max with say, 
+--six octaves, you would have to hit max value (1) on all 6 noises.  
+--its like rolling 6 dice.  The range is still the same, and the average
+--is still the same, but distribution is drastically different and the
+--odds of getting the maximum or minimum values is very small compared to
+--values in the middle of the range.
+--********************************
+function luautils.get_noise_max_raw(noise)
+	local nm=(noise.persist^noise.octaves-1)/(noise.persist-1)
+	return nm
+end --get_noise_max_raw
+
 
 

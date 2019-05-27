@@ -48,6 +48,9 @@ minetest.register_node("fractured:scorched_tree", {
 })
 
 
+--local player=minetest.get_player_by_name("singleplayer")
+--if player~=nil then give_initial_stuff.give(minetest.get_player_by_name(player)) end
+
 --minetest.register_on_generated(function(minp, maxp, seed)
 --  --I want to vary from .5 to .67
 --	local dist=wilddist(minp)

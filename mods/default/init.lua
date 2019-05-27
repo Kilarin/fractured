@@ -9,9 +9,16 @@ default = {}
 default.LIGHT_MAX = 14
 
 -- GUI related stuff
-default.gui_bg = "bgcolor[#080808BB;true]"
-default.gui_bg_img = "background[5,5;1,1;gui_formbg.png;true]"
-default.gui_slots = "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]"
+default.gui_bg     = ""
+default.gui_bg_img = ""
+default.gui_slots  = ""
+
+minetest.register_on_joinplayer(function(player)
+	player:set_formspec_prepend([[
+			bgcolor[#080808BB;true]
+			background[5,5;1,1;gui_formbg.png;true]
+			listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF] ]])
+end)
 
 function default.get_hotbar_bg(x,y)
 	local out = ""
@@ -40,6 +47,7 @@ local default_path = minetest.get_modpath("default")
 dofile(default_path.."/functions.lua")
 dofile(default_path.."/trees.lua")
 dofile(default_path.."/nodes.lua")
+dofile(default_path.."/chests.lua")
 dofile(default_path.."/furnace.lua")
 dofile(default_path.."/torch.lua")
 dofile(default_path.."/tools.lua")
@@ -47,6 +55,5 @@ dofile(default_path.."/item_entity.lua")
 dofile(default_path.."/craftitems.lua")
 dofile(default_path.."/crafting.lua")
 dofile(default_path.."/mapgen.lua")
-dofile(default_path.."/player.lua")
 dofile(default_path.."/aliases.lua")
 dofile(default_path.."/legacy.lua")

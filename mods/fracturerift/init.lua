@@ -10,7 +10,8 @@ fracturerift.width = 80        --how wide the rift will be		--fracrift. prefix a
 
 local fracrift_depth_air=33000          --how deep before the water
 local fracrift_depth_water=20           --how deep the water will be
-local fracrift_top=200                  --max height to scan for land to remove
+--local fracrift_top=200                  --max height to scan for land to remove
+local fracrift_top=33000                --max height to scan for land to remove
 local fracrift_bottomsmooth=0.995       --odds of bottom being smooth
 local fracrift_waterfallchance=0.997    --odds of NOT having a waterfall hole in wall
 local c_fracrift_material=minetest.get_content_id("default:sandstone") -- Makes more sense, no?

@@ -37,6 +37,8 @@ local c_air = minetest.get_content_id("air")
 --local bnst={["level_max"]=5}   --(counting up from 1, what is the highest "level" of beanstalks?)
 local bnst={}
 
+local bnst_values={}
+
 
 --this function displays the entire bnst_values table in the log
 --it is just for debugging purposes
@@ -762,12 +764,19 @@ return changed
 end --checkvines
 
 
+--this is the function that will generate beanstalks for the realms mod
+--be sure to define the realm as the whole world -33000,-33000,-33000 to 33000,33000,33000
+function beanstalk.gen_beanstalk_realms(parms)
+  beanstalk.gen_beanstalk(parms.chunk_minp,parms.chunk_maxp,parms.seed,parms)
+end --gen_beanstalk
+
+
 --this is the function that will run EVERY time a chunk is generated.
 --see at the bottom of this program where it is registered with:
 --minetest.register_on_generated(gen_beanstalk)
 --minp is the min point of the chunk, maxp is the max point of the chunk
 --********************************
-function beanstalk.gen_beanstalk(minp, maxp, seed)
+function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 	--we dont want to waste any time in this function if the chunk doesnt have
 	--a beanstalk in it.
 	--so first we loop through the levels, if our chunk is not on a level where beanstalks
@@ -820,10 +829,18 @@ function beanstalk.gen_beanstalk(minp, maxp, seed)
 	local z0 = minp.z
 
 	--minetest.log("bnst [beanstalk_gen] BEGIN chunk minp ("..x0..","..y0..","..z0..") maxp ("..x1..","..y1..","..z1..")") --tell people you are generating a chunk
-	--This actually initializes the LVM
-	local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
-	local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
-	local data = vm:get_data()
+	local vm,emin,emax,area,data
+	--if realms==nil then --removing realms functionality for now, better to run independant
+		--This actually initializes the LVM
+		vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
+		area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
+		data = vm:get_data()
+--	else
+--		vm=parms.vm
+--		area=parms.area
+--		data=parms.data
+--	end--if realms
+
 
 	local changedany=false
 	local stemx={ } --initializing the variable so we can use it for an array later
@@ -870,7 +887,7 @@ function beanstalk.gen_beanstalk(minp, maxp, seed)
 				--minetest.log("beanstalk-> crazy check lv="..lv.." b="..b.." bnst[lv][b].seed="..luautils.var_or_nil(bnst[lv][b].seed))
 				np_crazy.seed=bnst[lv][b].seed
 				--really might want to change some of the other values based on how big the crazy number is?
-				bnst[lv][b].noise1 = minetest.get_perlin_map(np_crazy, chulens):get2dMap_flat(minposxz)
+				bnst[lv][b].noise1 = minetest.get_perlin_map(np_crazy, chulens):get_2d_map_flat(minposxz)
 				--now noise1 is an array indexed from 1 to height and
 				--with each value in the range from -1 to 1 with fairly smooth changes
 			end --if noise==nil
@@ -888,7 +905,7 @@ function beanstalk.gen_beanstalk(minp, maxp, seed)
 				local chulens = {x=bnst[lv].height, y=1, z=1}
 				local minposxz = {x=0, y=0}
 				np_crazy.seed=bnst[lv][b].seed*2  --times 2 so it will be different than noise1
-				bnst[lv][b].noise2 = minetest.get_perlin_map(np_crazy, chulens):get2dMap_flat(minposxz)
+				bnst[lv][b].noise2 = minetest.get_perlin_map(np_crazy, chulens):get_2d_map_flat(minposxz)
 				local midrange=(bnst[lv][b].rot2max-bnst[lv][b].rot2min)/2
 			end --if noise2==nil
 			--so I've got a number from -1 to 1, I need to turn it into a radius in the range min to max
@@ -948,7 +965,7 @@ function beanstalk.gen_beanstalk(minp, maxp, seed)
 				until v > bnst[lv][b].stemtot or changedthis==true
 				--add air around the stalk.  (so if we drill through a floating island or another level of land, the beanstalk will have room to climb)
 				if changedthis==false and (math.sqrt((x-cx)^2+(z-cz)^2) <= bnst[lv][b].totradius)
-						and (y > bnst[lv][b].pos.y+30) and (data[vi]~=c_air) then
+						and (y > bnst[lv][b].pos.y+100) and (data[vi]~=c_air) then
 					--minetest.log("bnstR setting air=false dist="..math.sqrt((x-cx)^2+(z-cz)^2).." totradius="..bnst[lv][b].totradius.." cx="..cx.." cz="..cz.." y="..y)
 					data[vi]=c_air
 					changedany=true
@@ -960,7 +977,8 @@ function beanstalk.gen_beanstalk(minp, maxp, seed)
 	until y>bnst[lv][b].maxp.y or y>y1
 
 
-	if changedany==true then
+	--if changedany==true and realms==nil then
+	if changedany==true then --removed realms functionality for now
 		-- Wrap things up and write back to map
 		--send data back to voxelmanip
 		vm:set_data(data)
@@ -1008,7 +1026,7 @@ function beanstalk.go_beanstalk(playername,param)
 		--NEVER do local p=bnst[lv][b].pos passes by reference not value and you will change the original bnst pos!
 		p.x=p.x+bnst[lv][b].fullradius+2
 		p.y=p.y+13
-		player:setpos(p)
+		player:set_pos(p)
 		--player:set_look_yaw(100)  this is depricated, but set_look_horizontal uses radians
 		player:set_look_horizontal(1.75)
 	end --if
@@ -1043,5 +1061,10 @@ beanstalk.read_beanstalk_values()
 beanstalk.read_beanstalks()
 
 --this is what makes the beanstalk function run every time a chunk is generated
+--if realms~=nil then realms.register_rmg("beanstalks",beanstalk.gen_beanstalk_realms)
+--else minetest.register_on_generated(beanstalk.gen_beanstalk)
+--end 
 minetest.register_on_generated(beanstalk.gen_beanstalk)
+
+
 
