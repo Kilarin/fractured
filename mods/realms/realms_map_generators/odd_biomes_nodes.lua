@@ -6,10 +6,12 @@ else
   S = function ( s ) return s end
 end
 
+
+
 -- frost tree leaves
 minetest.register_node("realms:frost_leaves", {
 	description = S("Frost Leaves"),
-	drawtype = leaftype,
+	drawtype = "plantlike",
 	visual_scale = 1.4,
 	tiles = {"ethereal_frost_leaves.png"},
 	inventory_image = "ethereal_frost_leaves.png",
@@ -258,7 +260,7 @@ minetest.register_node("realms:golden_wood", {
 
 minetest.register_node("realms:goldenleaves", {
 	description = S("Golden Tree Leaves"),
-	drawtype = leaftype,
+	drawtype = "plantlike",
 	visual_scale = 1.4,
 	tiles = {"golden_leaves.png"},
 	inventory_image = "golden_leaves.png",

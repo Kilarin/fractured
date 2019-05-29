@@ -1,4 +1,67 @@
-tg_with_mountains={}
+--[[
+tg_2dMap  (Terrain Generator)
+This Terrain Generator uses 2d Noise to generate Terrain.  
+possible paramaters:
+
+tg_2dMap takes the standard realms paramters, plus the following:
+
+height_base=#   
+   The height_base is the base value the noise manipulates to generate the terrain, so higher 
+   values generate taller and deeper features.  It defaults to 30 if you do not include it in 
+   realms.conf
+sea_percent=#
+   This sets aproximately what percentage of the world will be below sea level.  The landscape 
+   is actually shifted up (or down) to accomplish this.  It defaults to 25% if you do not include 
+   it in realms.conf
+extremes  or extremes=#
+   this turns on (and optionaly sets the multiplier for) extremes in the terrain.  It creates 
+   regions of tall mountains and flatter plains.  The value defaults to 4 if you just set it as a 
+   flag |extremes| but you can specify a value like |extremes=5|
+   when extremes are on, the generator uses a second layer of 2d noise and the surface calculation
+   is multiplied by extval*(noise_ext^2)
+canyons
+   passing this flag in realms.conf will cause to terrain generator to use another layer of
+   2d noise to generate "canyons"  They aren't very canyon like yet, but do create some
+   interesting terrain
+
+noise:
+  tg_2dMap uses 3 different noises.  
+    noisetop (for determining the surface)
+    noiseext (for making extremes, high mountains, plains, deep valleys and seas)
+    noisecan (for making canyons, this doesnt work very well yet, but is at least interesting)
+    you can change any of these by passing a paramater on the realms.conf line such as 
+    |noisetop=newnoise42| (this assumes, of course, that you have registered that noise somwhere)
+
+biome function: 
+  tg_2dMap can take a biome function in the biome collumn.
+  the biome function is called after the surface is determined, and is passed in parms.share.surface
+  it is assumed that the biome function has been registered with register_mapfunc() and will return 
+  (in parms.share) surface[z][x].biome 
+  important elements expected to be in the biome table are:
+    node_top = what node to use for the surface of the biome
+    depth_top = how deep the top layer is (usually 1).  
+    node_filler = what node to fill in under the surface (usually dirt)
+    depth_filler = how deep should the filler be
+    node_water_top = only specify if you want something besides water (like ice)
+    depth_water_top = how deep should the node_water_top be
+    node_dust = specify if you want something (like snow) on top of the surface
+    decorate = the function that will place decorations.  Usually this is not defined in the biome
+        and register_biome() sets it to realms.decorate which works for all biomes in standard 
+        realms format
+  if the biome function sets parms.share.make_ocean_sand to true, then tg_2dMap will default all
+  areas under sealevel to sand with no biome.  (helps when setting up simple biomes)
+  
+  below is an example of a realms.conf line defining a realm using tg_2dMap
+  
+  RMG Name         :min x :min y :min z :max x : max y: max z:sealevel:biome func       :other parms
+  -----------------:------:------:------:------:------:------:--------:-----------------:---------- 
+  tg_2dMap         |-33000| 15000|-33000| 33000| 16500| 33000|   16000|bm_default_biomes|height_base=60|sea_percent=35|extremes=5|canyons
+
+--]]
+
+
+
+tg_2dMap={}
 
 local c_stone = minetest.get_content_id("default:stone")
 local c_dirt = minetest.get_content_id("default:dirt")
@@ -46,7 +109,7 @@ realms.register_noise("Map2dCan01",{
 
 
 --********************************
-function tg_with_mountains.gen_tg_with_mountains(parms)
+function tg_2dMap.gen_tg_2dMap(parms)
 	--we dont check for overlap because this will ONLY be called where there is an overlap
 	local t1 = os.clock()
 
@@ -58,6 +121,12 @@ function tg_with_mountains.gen_tg_with_mountains(parms)
 	sea_percent=sea_percent/100
 
 
+	--NOTE: our default_seed is the realm_seed, so that each realm will have unique noise.
+	--If you want two different realm entries to use the same noise, you must set parms.seed
+	local noisetop = realms.get_noise2d(parms.noisetop,"Map2dTop01",parms.seed,parms.realm_seed, parms.isectsize2d,parms.minposxz)
+	local noiseext = realms.get_noise2d(parms.noiseext,"Map2dExt01",parms.seed,parms.realm_seed, parms.isectsize2d,parms.minposxz)
+	local noisecan = realms.get_noise2d(parms.noisecan,"Map2dCan01",parms.seed,parms.realm_seed, parms.isectsize2d,parms.minposxz)
+	--*!* should modify this to look for noisename_seed
 
 	--we calculate the surface top and bot first
 	--because we need to loop through the voxels in z,y,x order for efficency
@@ -66,50 +135,14 @@ function tg_with_mountains.gen_tg_with_mountains(parms)
 	--we load our perlin noise as flat because, well, quite frankly, because
 	--everyone else does it that way, so I assume it's more efficent.  So instead of
 	--and x,z array, we have one array that goes from 1 to isectsize2d.x*isectsize2d.y
-	--one noise determines our dirt top, the other the dirt bot, so they will be different
+	--we determine surface[x][z].top here.  surface[x][z].bot and other stuff generally processed in biome
 	
-	--NOTE: we pass the realm_seed, so that each realm will have unique noise.
-	--If you want two different realm entries to use the same noise, you must set the seed parameter.
-	local seed=parms.seed
-	if seed==nil then seed=parms.realm_seed end
-	local np_ground_top=realms.get_noise(parms.noisetop,"Map2dTop01",seed)
-	local np_extremes=realms.get_noise(parms.noiseext,"Map2dExt01",seed)
-	local np_canyons=realms.get_noise(parms.noisecan,"Map2dCan01",seed)
-
-	
-	--local np_ground_top=realms.get_noise(parms.noisetop,"Map2dTop01")
-	--local np_ground_bot=realms.get_noise(parms.noisebot,"Map2dBot01")
-	--local np_extremes=realms.get_noise(parms.noiseext,"Map2dExt01")
-	--local np_canyons=realms.get_noise(parms.noisecan,"Map2dCan01")
-	
-	local noisetop = minetest.get_perlin_map(np_ground_top, parms.isectsize2d):get_2d_map_flat(parms.minposxz)
-	--local noisebot = minetest.get_perlin_map(np_ground_bot, parms.isectsize2d):get_2d_map_flat(parms.minposxz)
-	local noiseext = minetest.get_perlin_map(np_extremes, parms.isectsize2d):get_2d_map_flat(parms.minposxz)
-	local noiseCan = minetest.get_perlin_map(np_canyons, parms.isectsize2d):get_2d_map_flat(parms.minposxz)
-	--local noiseDep = minetest.get_perlin_map(np_depth, parms.isectsize2d):get_2d_map_flat(parms.minposxz)
 	local surface = {}
-
-
-	--*!*debugging
-	local ntlo=999
-	local nthi=-999
-	local nmlo=999
-	local nmhi=-999
-	local nclo=999
-	local nchi=-999
 
 	local nixz=1
 	for z=parms.isect_minp.z, parms.isect_maxp.z do
 		surface[z]={}
 		for x=parms.isect_minp.x, parms.isect_maxp.x do
-
-			--*!*debugging
-			if noisetop[nixz]>nthi then nthi=noisetop[nixz] end
-			if noisetop[nixz]<ntlo then ntlo=noisetop[nixz] end
-			if noiseext[nixz]>nmhi then nmhi=noiseext[nixz] end
-			if noiseext[nixz]<nmlo then nmlo=noiseext[nixz] end
-			if noiseCan[nixz]>nchi then nchi=noiseCan[nixz] end
-			if noiseCan[nixz]<nclo then nclo=noiseCan[nixz] end
 
 			--we are going to set the surface level based on noise (noise should be -1 to +1 but might be -2 to +2)
 			--dirt_height is the value for how high the terrain should be at this point.
@@ -126,10 +159,10 @@ function tg_with_mountains.gen_tg_with_mountains(parms)
 			--this creates a multiplier that creates plains and valleys by multiplying the base by another layer of noise
 			local mult=1
 			if parms.extremes~=nil then
-				local ext=parms.extremes
-				if type(ext)~="number" then ext=2 end
-				local nm=noiseext[nixz]
-				mult=(ext*nm)^2
+				local extval=parms.extremes
+				if type(extval)~="number" then extval=4 end
+				local noise_ext=noiseext[nixz]
+				mult=extval*(noise_ext^2)
 			end --if parms.plains
 
 
@@ -140,7 +173,7 @@ function tg_with_mountains.gen_tg_with_mountains(parms)
 			if parms.canyons==true then
 				--BUT, now we are going to try and add canyons.
 				--this does NOT make great canyons, but it does make sorta canyons, and interesting terrain.  And odd small deep holes.
-				local can=noiseCan[nixz]
+				local can=noisecan[nixz]
 				local edge=0.5 --change this to play with different canyon shapes
 				if can<edge and surface[z][x].top>parms.sealevel then --make a canyon/river
 					local t=surface[z][x].top --just to make this more readable
@@ -152,13 +185,12 @@ function tg_with_mountains.gen_tg_with_mountains(parms)
 					--minetest.log("***canyon-> x="..x.." z="..z.." was "..t.." now ".. surface[z][x].top)
 				end--if can<edge
 			end --if parms.canyons
-
-			--surface[z][x].bot=surface[z][x].top-(3+math.floor(math.abs(20*noisebot[nixz]))) --*!* this should use filler_depth
-			--*!* BUT there is a big problem, how can I use filler_depth when I haven't determined the biome yet!
-			--mess with it later, other things more important right now
 			
 			--the below will be overridden if you have a biomefunc
-      surface[z][x].biome=realms.dflt_biome
+			if surface[z][x].top>parms.sealevel then surface[z][x].biome=realms.undefined_biome
+			else surface[z][x].biome=realms.undefined_underwater_biome
+			end --if top>parms.sealevel
+			
 			nixz=nixz+1
 		end --for x
 	end --for z
@@ -167,7 +199,7 @@ function tg_with_mountains.gen_tg_with_mountains(parms)
 	parms.share.surface=surface --got to share it so the biomefunc can update it
 	if parms.biomefunc~=nil then realms.rmf[parms.biomefunc](parms) end
 	surface=parms.share.surface  --just in case the bf (biome func) replaced it
-	--minetest.log("tg_with_mountains-> surface["..z.."]["..x.."].biome.node_top="..surface[z][x].biome.node_top.."   name="..surface[z][x].biome.name)
+	--minetest.log("tg_2dMap-> surface["..z.."]["..x.."].biome.node_top="..surface[z][x].biome.node_top.."   name="..surface[z][x].biome.name)
 
 --here is where we actually do the work of generating the landscape.
 --we loop through as z,y,x because that is way the voxel info is stored, so it is most efficent.
@@ -187,10 +219,10 @@ function tg_with_mountains.gen_tg_with_mountains(parms)
 				if y<sfc.fil_bot then
 					luautils.place_node(x,y,z, parms.area, parms.data, biome.node_stone)
 
-				--for biome maps that do not provide underwater biomes (parms.share.make_ocean_sand==true)
-				--if we are going to be under water, put sand instead of an under OR top node
-				elseif parms.share.make_ocean_sand==true and y<=sfc.top and sfc.top<sealevel then
-					luautils.place_node(x,y,z, parms.area, parms.data, c_sand)
+--				--for biome maps that do not provide underwater biomes (parms.share.make_ocean_sand==true)
+--				--if we are going to be under water, put sand instead of an under OR top node
+--				elseif parms.share.make_ocean_sand==true and y<=sfc.top and sfc.top<sealevel then
+--					luautils.place_node(x,y,z, parms.area, parms.data, c_sand)
 
 				--anything between filler bottom and top bottom (and not under sealevel) gets the filler node (biome based)
 				elseif y<sfc.top_bot then 
@@ -202,7 +234,6 @@ function tg_with_mountains.gen_tg_with_mountains(parms)
 
 				--if this is the top, set top node (biome based) and ALSO call the decorate function (if it exists)
 				elseif y==sfc.top then
-					--minetest.log("tg_with_mountains->TOP surface["..z.."]["..x.."].biome.node_top="..biome.node_top.."   name="..biome.name)
 					luautils.place_node(x,y,z, parms.area, parms.data, biome.node_top)
 					if biome.decorate~=nil then biome.decorate(x,y+1,z, biome, parms) end
 
@@ -230,16 +261,9 @@ function tg_with_mountains.gen_tg_with_mountains(parms)
 
 
 	local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
-	ntlo=luautils.round_digits(ntlo,3)
-	nthi=luautils.round_digits(nthi,3)
-	nmlo=luautils.round_digits(nmlo,3)
-	nmhi=luautils.round_digits(nmhi,3)
-	nclo=luautils.round_digits(nclo,3)
-	nchi=luautils.round_digits(nchi,3)
-	minetest.log("gen_tg_with_mountains-> END isect="..luautils.pos_to_str(parms.isect_minp).."-"..luautils.pos_to_str(parms.isect_maxp).."  "..chugent.." ms") --tell people how long
-	minetest.log("   noise-> ntlo="..ntlo.." nthi="..nthi.." : nmlo="..nmlo.." nmhi="..nmhi.." : nclo="..nclo.." nchi="..nchi) --*!*debugging
+	minetest.log("gen_tg_2dMap-> END isect="..luautils.pos_to_str(parms.isect_minp).."-"..luautils.pos_to_str(parms.isect_maxp).."  "..chugent.." ms") --tell people how long
 end -- gen_with_mountains
 
-realms.register_mapgen("tg_with_mountains",tg_with_mountains.gen_tg_with_mountains)
+realms.register_mapgen("tg_2dMap",tg_2dMap.gen_tg_2dMap)
 
 

@@ -5,13 +5,26 @@ local c_air = minetest.get_content_id("air")
 local c_stone = minetest.get_content_id("default:stone")
 local c_dirt = minetest.get_content_id("default:dirt")
 local c_dirt_grass = minetest.get_content_id("default:dirt_with_grass")
+local c_sand = minetest.get_content_id("default:sand")
 
-realms.dflt_biome={
-	name="Crystal",
-	node_top=c_dirt,
-	node_filler=c_dirt_grass,
+realms.undefined_biome={
+	name="undefined_biome",
+	node_top=c_dirt_grass,
+	depth_top = 1,
+	node_filler=c_dirt,
+	depth_filler = 5,
 	dec=nil
 	}
+
+realms.undefined_underwater_biome={
+	name="undefined_underwater_biome",
+	node_top=c_sand,
+	depth_top = 1,
+	node_filler=c_sand,
+	depth_filler = 1,
+	dec=nil
+	}
+
 
 --node_dust = "default:snow",
 --node_top = "default:dirt_with_snow",
@@ -66,25 +79,56 @@ end --register_noise
 
 
 --call this function passing a noise parameter (usually parms.noisename)
---and a default noise name.  The function will return the default noise if parm_noise is blank.
+--call this function passing a noisename_in (the name of a registered noise, usually parms.noisename)
+--and a default noise name.  The function will return the default noise if noisename_in is blank.
 --if you pass seed, the noise.seed will be set to that
+--if seed is nil and default_seed is not, it will use default_seed (usualy pass parms.realm_seed)
+--if default_seed is nill, it will not change the seed.
+--NOTE: we add the seed you pass to nameseed, a unique seed based on the noise name.  that way you get
+--unique seeds for each noise even when passing the same realm_seed
+--
 --this just makes it simpler and more intuitive to get your noise
+--it is usually better to use realms.get_noise2d or realms.get_noise3d
 --********************************
-function realms.get_noise(noisename_in, default_noise, seed)
+function realms.get_noise(noisename_in, default_noise, seed, default_seed)
 	local noisename
-	--if parm_noise~=nil and parm_noise~="" then noisename=parms.noisetop
-	if parm_noise~=nil and parm_noise~="" then noisename=parms_noise
+	if noisename_in~=nil and noisename_in~="" then noisename=noisename_in
 	else noisename=default_noise
-	end --if parm_noise
-	--minetest.log("realms.init-> noisename="..noisename)
+	end --if noisename_in
 	local noise=realms.noise[noisename]
 	if seed~=nil then
-		--minetest.log("get_noise-> bfr "..noisename.." seed="..noise.seed)
 		noise.seed=noise.nameseed+tonumber(seed)
-		--minetest.log("get_noise-> aft "..noisename.." seed="..noise.seed)
+	elseif default_seed~=nil then
+		noise.seed=noise.nameseed+tonumber(default_seed)
 	end --if seed
 	return noise
 end --get_noise
+
+
+--note that this just saves the step of you getting the perlin map and lets you do it all in one step
+--see get_noise for details on that function
+--noisename_in=the name of a registered noise, usually parms.noisename
+--default_noise=the name of a registered noise to use if noisename_in is nil
+--seed=a seed to add to nameseed for this noise (usually parms.seed)
+--default_seed=a seed to use if seed=nil (usually parms.realm_seed)
+--size2d=the size of the map, (usually parms.isectsize2d)
+--minposxz=the min position, (usually parms.minposxz)
+--this function will return the noise map
+--********************************
+function realms.get_noise2d(noisename_in, default_noise, seed, default_seed, size2d, minposxz)
+	local noise=realms.get_noise(noisename_in, default_noise, seed, default_seed)
+	local noisemap = minetest.get_perlin_map(noise, size2d):get_2d_map_flat(minposxz)
+	return noisemap
+end --get_noise2d
+
+
+--same as get_noise2d but for 3d noise
+--********************************
+function realms.get_noise3d(noisename_in, default_noise, seed, default_seed, size3d, minpos)
+	local noise=realms.get_noise(noisename_in, default_noise, seed, default_seed)
+	local noisemap = minetest.get_perlin_map(noise, size3d):get_3d_map_flat(minposxz)
+	return noisemap
+end --get_noise2d
 
 
 --********************************
@@ -92,6 +136,7 @@ function realms.read_realms_config()
 	minetest.log("realms-> reading realms config file")
 	realm.count=0
 	local p
+	local cmnt
 	--first we look to see if there is a realms.conf file in the world path
 	local file = io.open(minetest.get_worldpath().."/realms.conf", "r")
 	--if its not in the worldpath, try for the modpath
@@ -105,8 +150,11 @@ function realms.read_realms_config()
 	end --if file (worldpath)
 	if file then
 		for str in file:lines() do
+			str=luautils.trim(str)
+			cmnt=false
+			if string.len(str)>=2 and string.sub(str,1,2)=="--" then cmnt=true end
 			p=string.find(str,"|")
-			if p~=nil then --we found a vertical bar, this is an actual entry
+			if p~=nil and cmnt~=true then --not a comment, and we found a vertical bar, this is an actual entry
 				realm.count=realm.count+1
 				local r=realm.count
 				realm[r]={}
@@ -301,7 +349,7 @@ end --realms.voronoi_sort
 realms.vboxsz=20
 --********************************
 function realms.register_biomemap(biomemap)
-	--minetest.log("realms.register_biomemap "..biomemap.name)
+	minetest.log("realms.register_biomemap "..biomemap.name.." ["..biomemap.typ.."]")
 	if realms.biomemap[biomemap.name]~=nil then
 		minetest.log("realms.register_biomemap-> ***WARNING!!!*** duplicate biome map being registered!  biomemap.name="..biomemap.name)
 	end
@@ -354,7 +402,33 @@ function realms.register_biomemap(biomemap)
 			minetest.log("voronoi analysis-> "..c.." : "..v.biome.name)
 			v.biome.count=nil
 		end
-	end --if voronoi
+	elseif biomemap.typ=="MATRIX" then
+		--convert alternates from strings to direct links to the biomes
+		--we could do this in register biome, but doing it here means we dont have to worry
+		--about the order of the biomes
+		--the reason for this?  With a voronoi map, if one biome is unavailble because of y_min/y_max restrictions
+		--you just take the next closest distance heat/humidity point.  BUT, with a matrix type of biome map,
+		--you can NOT have an empty spot on the matrix.  So we provide a list of alternate biomes if we provide
+		--a y_min/y_max.  
+		--this ends up working almost identical to the voronoi map because what is usually done with the voronoi
+		--is to provide alternate biomes with the exact same heat/humidity point and different y_min/y_max limits
+		minetest.log("realms.register_biomemap-> starting alternate scan for "..biomemap.name)
+		--biomemap.biome is a table in the form of biomemap.biome[heat][humid]
+		for i1,v1 in ipairs(biomemap.biome) do --loop through biomemap.biome[heat] 
+			minetest.log("  heat index["..i1.."]")
+			for i2,v2 in ipairs(v1) do --loop through biomemap.biome[heat][humid] (this gives us the actual biome)
+				minetest.log("    humid index["..i2.."] "..v2.name)
+				--only proceed if alternates exists, and if it is a list of strings (has not already been converted into actual biome links)
+				if v2.alternates~=nil and type(v2.alternates[1])=="string" then
+					for i3,v3 in ipairs(v2.alternates) do --loop through biomemap[heat][humid].alternates
+						biomemap.biome[i1][i2].alternates[i3]=realms.biome[v3] --turn string name into actual biome
+						minetest.log("      "..v2.name..".alternates["..i3.."]="..biomemap.biome[i1][i2].alternates[i3].name)
+					end --for i3,v3
+				end --if v2.alternates
+			end --for i2,v2
+		end --for i1,v1
+						
+	end --if biomemap.typ
 	minetest.log("realms-> biomemap registered for: "..biomemap.name)
 end --register_biomemap
 
@@ -474,11 +548,12 @@ end -- gen_realms
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_layer_barrier.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_flatland.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_very_simple.lua")
-dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_with_mountains.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_2dMap.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_shattered.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bg_basic_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bf_basic_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_caves.lua")
-dofile(minetest.get_modpath("realms").."/realms_map_generators/bf_odd_biomes.lua")
+--dofile(minetest.get_modpath("realms").."/realms_map_generators/bf_odd_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_stupid_islands.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bf_generic.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bd_basic_biomes.lua")
@@ -487,6 +562,7 @@ dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_basic_biomes.l
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_mixed_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bd_default_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_default_biomes.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_shattered_biomes.lua")
 
 minetest.register_on_generated(realms.gen_realms)
 realms.read_realms_config()

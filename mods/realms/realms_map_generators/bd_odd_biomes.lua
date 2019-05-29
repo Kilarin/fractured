@@ -6,6 +6,9 @@ local c_air = minetest.get_content_id("air")
 local realmsschematics=minetest.get_modpath("realms").."/schematics"
 
 
+upper_limit=33000
+ocean_bottom=-800
+
 
 dofile(realmsschematics.."/frost_tree.lua")
 
@@ -15,6 +18,9 @@ realms.register_biome({
 		depth_top = 1,
 		node_filler="default:dirt",
 		depth_filler = 3,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec={
 			{chance=1, schematic=bd_odd_biomes.frost_tree, offset_x=-3, offset_z=-3, offset_y=-1}, --center and one underground
 			{chance=3,node="realms:crystal_grass"}
@@ -33,6 +39,9 @@ realms.register_biome({
 		depth_top = 1,
 		node_filler="default:dirt",
 		depth_filler = 3,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec={
 			{chance=1, schematic=bd_odd_biomes.mushroomone, offset_x=-3, offset_z=-3, offset_y=-1}, --center and one underground
 			{chance=2,node="flowers:mushroom_brown"},
@@ -49,6 +58,9 @@ realms.register_biome({
 		depth_top = 1,
 		node_filler="realms:dry_dirt",
 		depth_filler = 3,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec={
 			{chance=.1, node="realms:scorched_trunk", height = 2, height_max = 6},
 			{chance=.05, node="default:dry_grass_1"},
@@ -71,6 +83,9 @@ realms.register_biome({
 		depth_top = 1,
 		node_filler="default:dirt",
 		depth_filler = 9,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec={                    
 			{chance=.5, schematic=bd_odd_biomes.golden_tree, offset_x=-4, offset_y=-1, offset_z=-4},
 			{chance=.5, node="realms:golden_grass_1"},
@@ -92,6 +107,9 @@ realms.register_biome({
 		depth_top = 1,
 		node_filler="default:dirt",
 		depth_filler = 9,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec={                    
 			{chance=.5, schematic=bd_odd_biomes.rainbow_willow_tree, offset_x=-6, offset_y=-1, offset_z=-6},
 			{chance=.5, node="realms:rainbow_bush"},

@@ -33,6 +33,8 @@ local c_ptree  =minetest.get_content_id("default:pine_tree")
 local realmsschematics=minetest.get_modpath("realms").."/schematics"
 local defaultschematics=minetest.get_modpath("default").."/schematics"
 
+upper_limit=33000
+ocean_bottom=-800
 
 function bd_basic_biomes.gen_appletree(x, y, z, area, data)
 	for j = -1, 6 do
@@ -83,21 +85,50 @@ function bd_basic_biomes.gen_jungletree(x, y, z, area, data)
 end
 
 
+--could expand this later to have lots of different shore and ocean biomes like default does
+--but right now just trying to get the system working so using these generics most places
+realms.register_biome({
+		name = "basic_shore",
+		node_top = "default:sand",
+		depth_top = 1,
+		node_filler = "default:sand",
+		depth_filler = 3,
+		y_max = 0,
+		y_min = -1,
+	})
+
+realms.register_biome({
+		name = "basic_ocean",
+		node_top = "default:sand",
+		depth_top = 1,
+		node_filler = "default:sand",
+		depth_filler = 3,
+		y_max = -2,
+		y_min = ocean_bottom,
+--		dec={
+--			{chance=0.5,schematic = minetest.get_modpath("default") .. "/schematics/corals.mts",y_max = -2,y_min = -8}, --ymin/ymax for decorations not implmented yet
+--			{chance=0.5,node="default:sand_with_kelp",y_max = -5,y_min = -10},
+--			}
+--coral looks goofy without the y limits, and kelp just isn't working for some reason
+	})
 
 
 
-
+-----
 realms.register_biome({
 		name="basic_arctic",
 		node_top="default:ice",
 		depth_top = 1,
 		node_filler="default:ice",
 		depth_filler = 10,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec=nil
 		})
 
 
-
+-----
 dofile(realmsschematics.."/pine_tree.lua")
 
 realms.register_biome({
@@ -106,6 +137,9 @@ realms.register_biome({
 		depth_top = 1,
 		node_filler="default:dirt",
 		depth_filler = 6,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec={
 			{chance=1.0,schematic=bd_basic_biomes.pinetree, offset_x=-3,offset_z=-3,offset_y=-1},
 			{chance=1.0,schematic=defaultschematics.."/pine_tree.mts", offset_x=-3,offset_z=-3,offset_y=-1},
@@ -120,12 +154,16 @@ realms.register_biome({
 		})
 
 
+-----
 realms.register_biome({
 		name="basic_warm",
 		node_top="default:dirt_with_grass",
 		depth_top = 1,
 		node_filler="default:dirt",
 		depth_filler = 4,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec={
 			{chance=0.25, func=bd_basic_biomes.gen_appletree},
 			{chance=0.25,schematic=defaultschematics.."/apple_tree.mts", offset_x=-3,offset_z=-3,offset_y=-1},
@@ -141,12 +179,16 @@ realms.register_biome({
 		})
 
 
+-----
 realms.register_biome({
 		name="basic_hot",
 		node_top="default:dirt_with_rainforest_litter",
 		depth_top = 1,
 		node_filler="default:dirt",
 		depth_filler = 3,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec={
 			{chance=2.5,func=bd_basic_biomes.gen_jungletree},
 			{chance=2.5,schematic=defaultschematics.."/jungle_tree.mts",offset_x=-3,offset_y=-1,offset_z=-3},
@@ -156,12 +198,17 @@ realms.register_biome({
 			}
 		})
 
+
+-----
 realms.register_biome({
 		name="basic_desert",
 		node_top="default:desert_sand",
 		depth_top = 1,
 		node_filler="default:desert_sand",
 		depth_filler = 9,
+		y_max = upper_limit,
+		y_min = 1,
+		alternates={"basic_shore","basic_ocean"},
 		dec={
 			{chance=.1, node="default:cactus", height=2, height_max=4},
 			{chance=0.05,schematic = defaultschematics.."/large_cactus.mts",offset_x=-3,offset_z=-3},

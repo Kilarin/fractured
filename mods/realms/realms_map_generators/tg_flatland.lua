@@ -27,32 +27,32 @@ function gen_tg_flatland(parms)
 		surface[z]={}
 		for x=parms.isect_minp.x, parms.isect_maxp.x do
 			surface[z][x]={}
-			surface[z][x].top=parms.sealevel
-			surface[z][x].bot=parms.sealevel-20
-      surface[z][x].biome=realms.dflt_biome
+			surface[z][x].top=parms.sealevel+5
+			surface[z][x].bot=parms.sealevel-10
+      surface[z][x].biome=realms.undefined_biome
 			nixz=nixz+1
 		end --for x
 	end --for z
-	parms.share.surface=surface
 
-  --*!* this should call a biome func!
+	parms.share.surface=surface --got to share it so the biomefunc can update it
+	if parms.biomefunc~=nil then realms.rmf[parms.biomefunc](parms) end
+	surface=parms.share.surface  --just in case the bf (biome func) replaced it
 
-	--this should loop z,x,y to be more efficient
-	local c_material=c_stone
-	for y=parms.isect_minp.y, parms.isect_maxp.y do
-		--doing check here saves a little cpu (because we only check once per y) and isn't as ugly as 4 loops
-		if y<parms.sealevel-20 then c_material=c_stone
-		elseif y<parms.sealevel then c_material=c_dirt
-		elseif y==parms.sealevel then c_material=c_grass
-		elseif y>parms.sealevel then c_material=c_air
-		end --if y
-		for x=parms.isect_minp.x, parms.isect_maxp.x do
-			for z=parms.isect_minp.z, parms.isect_maxp.z do
-				local vi = parms.area:index(x, y, z) -- This accesses the node at a given position
-				parms.data[vi]=c_material
-			end --for z
-		end --for x
-	end --for y
+	for z=parms.isect_minp.z, parms.isect_maxp.z do
+		for y=parms.isect_minp.y, parms.isect_maxp.y do
+			for x=parms.isect_minp.x, parms.isect_maxp.x do
+				local sfc=surface[z][x]
+				local biome=sfc.biome
+				if y<sfc.bot then luautils.place_node(x,y,z, parms.area, parms.data, biome.node_stone)
+				elseif y<sfc.top then luautils.place_node(x,y,z, parms.area, parms.data, biome.node_filler)
+				elseif y==sfc.top then 
+					luautils.place_node(x,y,z, parms.area, parms.data, biome.node_top)
+					if biome.decorate~=nil then biome.decorate(x,y+1,z, biome, parms) end
+				--elseif y>parms.sealevel then c_material=c_air
+				end --if y
+			end --for x
+		end --for y
+	end --for z
 
 	local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
 	minetest.log("rmg tg_flatland-> END chunk="..luautils.pos_to_str(parms.isect_minp).." - "..luautils.pos_to_str(parms.isect_maxp).."  "..chugent.." ms") --tell people how long

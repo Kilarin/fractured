@@ -254,6 +254,7 @@ function luautils.pos_equals(pos1, pos2)
 end --pos_equals
 
 
+
 --return true if position is ground content
 --********************************
 function luautils.is_ground_content(pos)
@@ -261,6 +262,7 @@ function luautils.is_ground_content(pos)
 	else return false
 	end --if
 end --is_ground_content
+
 
 --return true if content_id is ground content
 --********************************
@@ -454,6 +456,17 @@ end--table_print
 
 
 --turns x,z coords into a flat nixz index
+--proof of algorithm:  ( minp={50,25}, chunk_size={3,3} )
+--  z   x   nixz   (z-minp.z)*chunk_size.x+(x-minp.x+1)= nixz
+--[50][25] = 1     (50-50)   *3           +(25-25   +1)= 1
+--[50][26] = 2     (50-50)   *3           +(26-25   +1)= 2
+--[50][27] = 3     (50-50)   *3           +(27-25   +1)= 3
+--[51][25] = 4     (51-50)   *3           +(25-25   +1)= 4
+--[51][26] = 5     (51-50)   *3           +(26-25   +1)= 5
+--[51][27] = 6     (51-50)   *3           +(27-25   +1)= 6
+--[52][25] = 7     (52-50)   *3           +(25-25   +1)= 7
+--[52][26] = 8     (52-50)   *3           +(26-25   +1)= 8
+--[52][27] = 9     (52-50)   *3           +(27-25   +1)= 9
 --********************************
 function luautils.xzcoords_to_flat(x,z, minp, chunk_size)
 	--return (z-1)*chunk_size.x+x

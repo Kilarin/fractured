@@ -84,7 +84,7 @@ function tg_very_simple.gen_tg_very_simple(parms)
 			surface[z][x].top=math.floor(parms.sealevel+sea_adj+dirt_height)
 			surface[z][x].bot=surface[z][x].top-math.floor(math.abs(20*noisebot[nixz]))
 			--the below will be overridden if you have a biomefunc
-      surface[z][x].biome=realms.dflt_biome
+      surface[z][x].biome=realms.undefined_biome
 
 			nixz=nixz+1
 		end --for x

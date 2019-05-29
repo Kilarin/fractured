@@ -12,11 +12,35 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 Much stuff copied from Minetest default, see default for information on licensing
 
-------
+======================================================
+BORROWED CODE
+
+bf_basic_biomes.lua inspired by and takes some code from https://github.com/SmallJoker/noisetest WTFPL License
+gen_appletree and gen_jungletree function in bf_basic_biomes, bg_basic_biomes, and bd_basic biomes
+      from https://github.com/SmallJoker/noisetest WTFPL License
 
 
----my images, copyright CC0, no rights reserved
+======================================================
+BORROWED SCHEMATICS
+
+frost_tree.lua  from ethereal (license MIT TenPlus1) with very slight modifications by Kilarin (license MIT)
+golden_tree.lua  from ethereal (license MIT TenPlus1) with very slight modifications by Kilarin (license MIT)
+mushroomone.lua  from ethereal (license MIT TenPlus1) with very slight modifications by Kilarin (license MIT)
+pine_tree.lua  from ethereal (license MIT TenPlus1) with slight modifications by Kilarin (license MIT)
+rainbow_willow_tree.lua from ethereal (license MIT TenPlus1) with very slight modifications by Kilarin (license MIT)
+
+
+======================================================
+BORROWED IMAGES
+
+---images created or modified by Kilarin, my changes copyright CC0, no rights reserved
 bedrock.png
+rainbow_bush.png (modified from default default_bush_sapling.png)
+rainbow_willow_leaves.png (modified from ethereal willow_twig.png license MIT TenPlus1)
+rainbow_willow_trunk.png (modified from ethereal willow_trunk.png license MIT TenPlus1)
+rainbow_willow_trunk_top.png (modified from ethereal willow_trunk_top.png license MIT TenPlus1)
+realms_golden_grass_1 through 5.png (modified from default default_dry_grass_*.png)
+
 
 ---images copied from ethereal (license MIT TenPlus1)
 bamboo_leaves.png
@@ -31,13 +55,13 @@ ethereal_grass_bamboo_side.png
 ethereal_grass_bamboo_top.png
 ethereal_grass_crystal_side.png
 ethereal_grass_crystal_top.png
+ethereal_grass_gray_side.png
+ethereal_grass_gray_top.png
 ethereal_grass_mushroom_side.png
 ethereal_grass_mushroom_top.png
 ethereal_snowygrass.png
 frost_wood.png
-illumishroom2.png
-illumishroom3.png
-illumishroom.png
+golden_leaves, golden_tree, golden_tree_top, golden_wood, all from ethereal yellow_*
 mushroom_block.png
 mushroom_pore.png
 mushroom_trunk.png
@@ -45,3 +69,19 @@ mushroom_trunk_top.png
 purple_leaves.png
 scorched_tree.png
 scorched_tree_top.png
+realms_apple_gold (originally ethereal default_apple_gold.png)
+
+
+--not used yet (from ethereal license MIT TenPlus1)
+bamboo.png
+bamboo_leaves.png
+illumishroom2.png
+illumishroom3.png
+illumishroom.png
+Willow_trunk.png
+willow_trunk_top.png
+willow_wood.png
+
+--not used yet, created or modified by Kilarin, my changes copyright CC0, no rights reserved
+blue_willow_leaves.png (modified from ethereal willow_twig.png license MIT TenPlus1)
+

@@ -2,14 +2,14 @@ bf_basic_biomes={}
 --this was inspired by and takes some code from
 --https://github.com/SmallJoker/noisetest WTFPL License
 
+
+--bf_ = Biome Function  Biome Functions are called by a tg_ Terrain Generator to build a surface map.
+--
+
+
 --this biome generator should be called once per chunk to build a biome map
 --that will provide your landscape generator with
---parms.share.surface[z][x].biome       *!* out of date
---parms.share.surface[z][x].node_top
---parms.share.surface[z][x].node_filler
---parms.share.surface[z][x].decorate
---use node_filler between surface and stone.  use node_top for the surface, and call
---the decorate(x,y,z, biome, parms) function whenever you use node_top for the surface.
+--parms.share.surface[z][x].biome       
 
 --I tried a version of this that was called for every node surface top to bot and placed
 --the node_top and node_filler itself, as well as doing the decorating.  BUT, it was VERY

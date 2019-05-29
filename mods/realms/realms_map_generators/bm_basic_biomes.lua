@@ -1,6 +1,6 @@
 bm_basic_biomes={}
 bm_basic_biomes.name="bm basic biomes"
-bm_basic_biomes.make_ocean_sand=true
+--bm_basic_biomes.make_ocean_sand=true
 
 bm_basic_biomes.typ="MATRIX"
 bm_basic_biomes.heatrange=5
@@ -19,9 +19,13 @@ bm_basic_biomes.biome={
 		}
 
 
+realms.register_biomemap(bm_basic_biomes)
+
+
 --********************************
 function bm_basic_biomes.bm_basic_biomes(parms)
 bf_generic.map_biome_to_surface(parms,bm_basic_biomes)
 end -- bf_basic_biomes
 
 realms.register_mapfunc("bm_basic_biomes",bm_basic_biomes.bm_basic_biomes)
+
