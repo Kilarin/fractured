@@ -1,3 +1,11 @@
+--[[
+this was my first attempt at a terrain generator after flatland.
+It is really quite pointless now as tg_2dMap can do anything this one does, but better.
+I'm not even using it in my demos.  I've just left it here as a simple example.
+
+--]]
+
+
 tg_very_simple={}
 
 local c_stone = minetest.get_content_id("default:stone")
@@ -94,8 +102,6 @@ function tg_very_simple.gen_tg_very_simple(parms)
 	--the below will add surface.biome, node_top, node_filler, and decorate (function)
 	parms.share.surface=surface --got to share it so the biomefunc can update it
 	if parms.biomefunc~=nil then realms.rmf[parms.biomefunc](parms) end
-
---*!* so should I just exit here if we know we are above the surface?
 
 --here is where we actually do the work of generating the landscape.
 --we loop through as z,y,x because that is way the voxel info is stored, so it is most efficent.

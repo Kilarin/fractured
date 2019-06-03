@@ -1,3 +1,14 @@
+--[[
+I have not taken the time to learn how to make natural looking landscapes with 3d noise yet.
+Or even how you map the surface with overhangs so that biomes can be generated/decorated.
+
+So this is just sort of here to say "hey, someday I want floating islands, but not like
+these..."
+
+
+--]]
+
+
 tg_stupid_islands={}
 
 local c_stone = minetest.get_content_id("default:stone")

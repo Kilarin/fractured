@@ -1,3 +1,13 @@
+--[[
+
+this is a not very good attempt to created caves out of 3d noise.
+It needs a lot of improvement.
+
+below is an example of a realms.conf line calling tg_caves:
+
+    tg_caves         |-33000|  5000|-33000| 33000|  6000| 33000|    6000|                    |
+
+--]]
 tg_caves={}
 
 local c_stone = minetest.get_content_id("default:stone")

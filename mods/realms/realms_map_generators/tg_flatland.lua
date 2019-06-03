@@ -1,14 +1,10 @@
+--[[
+flatland is a very boring landscape generator that just generates an absolutely flat surface.  
+It DOES utilize biomes if you pass a biomefunc
+below is an example of a realms.conf entry that calls flatland:
 
-local c_stone = minetest.get_content_id("default:stone")
-local c_dirt = minetest.get_content_id("default:dirt")
-local c_grass = minetest.get_content_id("default:dirt_with_grass")
-local c_air = minetest.get_content_id("air")
-
-
-
-	--we calculate the surface top and bot first
-
-
+    tg_flatland      |-33000| 25000|-33000| 33000| 26500| 33000|   26000|bm_mixed_biomes     |
+--]]
 
 
 --********************************
@@ -16,12 +12,10 @@ local c_air = minetest.get_content_id("air")
 function gen_tg_flatland(parms)
 	--we dont need to check overlap because realms does that for us and passes us our intersect in isect_minp,isect_maxp
 	local t1 = os.clock()
-	--minetest.log("rmg gen_tg_flatland-> realm minp="..luautils.pos_to_str(parms.realm_minp).." maxp="..luautils.pos_to_str(parms.realm_maxp)..
-	--" chunk minp="..luautils.pos_to_str(parms.chunk_minp).." maxp="..luautils.pos_to_str(parms.chunk_maxp))
-	--minetest.log("    intersection minp="..luautils.pos_to_str(parms.isect_minp).." maxp="..luautils.pos_to_str(parms.isect_maxp).." sealevel="..parms.sealevel)
 
 	local surface={}
 
+--we generate a surface map so we can use biomes if we want
 	local nixz=1
 	for z=parms.isect_minp.z, parms.isect_maxp.z do
 		surface[z]={}
@@ -48,7 +42,6 @@ function gen_tg_flatland(parms)
 				elseif y==sfc.top then 
 					luautils.place_node(x,y,z, parms.area, parms.data, biome.node_top)
 					if biome.decorate~=nil then biome.decorate(x,y+1,z, biome, parms) end
-				--elseif y>parms.sealevel then c_material=c_air
 				end --if y
 			end --for x
 		end --for y

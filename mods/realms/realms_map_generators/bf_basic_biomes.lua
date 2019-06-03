@@ -1,21 +1,26 @@
+--[[
+this was inspired by and takes some code from
+https://github.com/SmallJoker/noisetest WTFPL License
+
+bf_ = Biome Function  Biome Functions are called by a tg_ Terrain Generator to map biomes to parms.share.surface
+
+This is really a left over from some of my earlier experimentation with biomes.
+I've kept it just to demonstrate that you can write a biome function that does not use the 
+realms biome definition/biome map framework.  
+
+this biome function should be called once per chunk to map biomes to parms.share.surface
+that will provide your landscape generator with
+parms.share.surface[z][x].biome.node_top, node_filler, and a decorate function
+
+I tried a version of this that was called for every node surface top to bot and placed
+the node_top and node_filler itself, as well as doing the decorating.  BUT, it was VERY
+VERY slow.
+I also tried a version that did all the decorating in one loop after you were done with
+the chunk.  it was a smidgen slower than this version.
+--]]
+
+
 bf_basic_biomes={}
---this was inspired by and takes some code from
---https://github.com/SmallJoker/noisetest WTFPL License
-
-
---bf_ = Biome Function  Biome Functions are called by a tg_ Terrain Generator to build a surface map.
---
-
-
---this biome generator should be called once per chunk to build a biome map
---that will provide your landscape generator with
---parms.share.surface[z][x].biome       
-
---I tried a version of this that was called for every node surface top to bot and placed
---the node_top and node_filler itself, as well as doing the decorating.  BUT, it was VERY
---VERY slow.
---I also tried a version that did all the decorating in one loop after you were done with
---the chunk.  it was a smidgen slower than this version.  So sticking with this
 
 
 local c_air = minetest.get_content_id("air")

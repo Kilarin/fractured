@@ -1,5 +1,8 @@
 
-realms={ }
+--Realms is Minetest mod that allows you to use multiple diferent lua landscape generators
+--and control exactly where each one runs on the map through the realms.conf file
+
+realms={}
 
 local c_air = minetest.get_content_id("air")
 local c_stone = minetest.get_content_id("default:stone")
@@ -26,12 +29,6 @@ realms.undefined_underwater_biome={
 	}
 
 
---node_dust = "default:snow",
---node_top = "default:dirt_with_snow",
---depth_top = 1,
---node_filler = "default:permafrost",
---depth_filler = 3,
---node_stone = "default:bluestone",
 
 
 realm={}
@@ -40,7 +37,7 @@ realm={}
 realms.rmg={}  --realms map gen
 realms.rmf={}  --realms map function
 realms.noise={} --noise (so you can reuse the same noise or change it easily)
-realms.biome={} --where registered biomes are stored.  Remember, registerd biomes do nothing unless included in a biome map
+realms.biome={} --where registered biomes are stored.  Remember, registered biomes do nothing unless included in a biome map
 realms.biomemap={}
 
 
@@ -466,9 +463,6 @@ end --reandomize_depth
 
 --********************************
 function realms.gen_realms(chunk_minp, chunk_maxp, seed)
-	--eventually, this should run off of an array loaded from a file
-	--every rmg (realm terrain generator) should register with a string for a name, and a function
-	--the realm params will be loaded from a table
 	local r=0
 	local doit=false
 	repeat
@@ -497,9 +491,14 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 	--r already equals one that matches, so start there
 	--could just do the match here automatically and skip the overlap check, then start at r+1?
 	local rstart=r
+	local first=0
 	for r=rstart,realm.count,1 do
 		local parms=realm[r].parms
 		if luautils.check_overlap(parms.realm_minp, parms.realm_maxp, chunk_minp,chunk_maxp)==true then
+			if first==0 then
+				minetest.log("======== realms-> gen_realms chunk minp="..luautils.pos_to_str(chunk_minp).." maxp="..luautils.pos_to_str(chunk_maxp))
+				first=1
+			end --first
 			--minetest.log("realms-> gen_realms r="..r.." rmg="..luautils.var_or_nil(realm[r].rmg)..
 			--		" realm minp="..luautils.pos_to_str(parms.realm_minp).." maxp="..luautils.pos_to_str(parms.realm_maxp))
 			--minetest.log("     sealevel="..parms.sealevel.." chunk minp="..luautils.pos_to_str(chunk_minp).." maxp="..luautils.pos_to_str(chunk_maxp))
@@ -518,7 +517,7 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 			parms.mts=mts --for storing schematics to be written before vm is saved to map
 			parms.chunk_seed=seed --the seed that was passed to realms for this chunk
 			--minetest.log("realms-> r="..r)
-			minetest.log(">>>realms-> gen_realms r="..r.." rmg="..luautils.var_or_nil(realm[r].rmg).." isect "..luautils.pos_to_str(parms.isect_minp).."-"..luautils.pos_to_str(parms.isect_maxp))
+			minetest.log("  >>>realms-> gen_realms r="..r.." rmg="..luautils.var_or_nil(realm[r].rmg).." isect "..luautils.pos_to_str(parms.isect_minp).."-"..luautils.pos_to_str(parms.isect_maxp))
 			realms.rmg[realm[r].rmg](parms)
 			if parms.area~=area then minetest.log("***realms.init-> WARNING parms.area~=area!!!") end
 			share=parms.share --save share to be used in next parms (user might have changed pointer)
@@ -527,7 +526,7 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 
 	--Wrap things up and write back to map, send data back to voxelmanip
 	--(by saving here we avoid multiple save and pulls in overlapping realm map gens)
-	minetest.log("---realms-> saving area "..luautils.range_to_str(chunk_minp,chunk_maxp))
+	minetest.log("  ---realms-> saving area "..luautils.range_to_str(chunk_minp,chunk_maxp))
 	vm:set_data(data)
 	--apply any schematics that were set (see comments above where parms.mts is defined)
 	--generator should have placed schematics using: table.insert(parms.mts,{pos,schematic})
@@ -549,8 +548,8 @@ dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_layer_barrier.
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_flatland.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_very_simple.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_2dMap.lua")
-dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_shattered.lua")
-dofile(minetest.get_modpath("realms").."/realms_map_generators/bg_basic_biomes.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_mesas.lua")
+--dofile(minetest.get_modpath("realms").."/realms_map_generators/bg_basic_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bf_basic_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tg_caves.lua")
 --dofile(minetest.get_modpath("realms").."/realms_map_generators/bf_odd_biomes.lua")
@@ -562,7 +561,10 @@ dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_basic_biomes.l
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_mixed_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bd_default_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_default_biomes.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_mesas_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_shattered_biomes.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/nodes_chasm.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/tf_generic_2dMap_loop.lua")
 
 minetest.register_on_generated(realms.gen_realms)
 realms.read_realms_config()

@@ -1,12 +1,16 @@
+--[[
+this is just the default biomes from minetest game converted to realms biomes
+heat_point and humidity_point are set in the biome map, not in the biome definition
+decorations have been added.
+not all of these settings have been implemented in realms yet.  working on it...
+--]]
+
+
 bd_default_biomes={}
 
 upper_limit=33000
 ocean_bottom=-800
 
-
---this is just the default biomes from minetest game converted to realms biomes
-
---heat_point and humidity_point are set in the biome map, not in the biome definition
  
 	-- Icesheet
 
@@ -25,8 +29,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = -8,
-		--heat_point = 0,
-		--humidity_point = 73,
 	})
 
 	realms.register_biome({
@@ -40,8 +42,6 @@ realms.register_biome({
 		depth_water_top = 10,
 		y_max = -9,
 		y_min = ocean_bottom,
-		--heat_point = 0,
-		--humidity_point = 73,
 	})
 
 	-- Tundra
@@ -53,8 +53,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 47,
-		--heat_point = 0,
-		--humidity_point = 40,
 		dec={
 			{chance=1,node="default:permafrost_with_moss",offset_y=-1},
 			}
@@ -71,8 +69,6 @@ realms.register_biome({
 		vertical_blend = 4,
 		y_max = 46,
 		y_min = 2,
-		--heat_point = 0,
-		--humidity_point = 40,
 		dec={
 			{chance=5,node="default:snow"},
 			}
@@ -89,8 +85,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = 1,
 		y_min = -3,
-		--heat_point = 0,
-		--humidity_point = 40,
 		dec={
 			{chance=5,node="default:snow"},
 			}
@@ -107,8 +101,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = -4,
 		y_min = ocean_bottom,
-		--heat_point = 0,
-		--humidity_point = 40,
 	})
 
 	-- Taiga
@@ -124,8 +116,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 4,
-		--heat_point = 25,
-		--humidity_point = 70,
 		dec={
 			{chance=1.0,schematic=minetest.get_modpath("default").."/schematics/pine_tree.mts", offset_x=-3,offset_z=-3,offset_y=-1},
 			{chance=0.5,schematic=minetest.get_modpath("default").."/schematics/small_pine_tree.mts",offset_x=-2,offset_z=-2,offset_y=-1},
@@ -147,8 +137,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = 3,
 		y_min = ocean_bottom,
-		--heat_point = 25,
-		--humidity_point = 70,
 --		dec={
 --			{chance=0.5,node="default:sand_with_kelp",y_max = -5,y_min = -10},
 --			}
@@ -168,8 +156,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 4,
-		--heat_point = 20,
-		--humidity_point = 35,
 		dec={
 			{chance=0.3,schematic=minetest.get_modpath("default").."/schematics/pine_bush.mts",offset_x=-1,offset_z=-1},
 			{chance=0.2,node="default:dry_shrub"},
@@ -188,8 +174,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = 3,
 		y_min = ocean_bottom,
-		--heat_point = 20,
-		--humidity_point = 35,
 --		dec={
 --			{chance=0.5,node="default:sand_with_kelp",y_max = -5,y_min = -10},
 --			}
@@ -208,8 +192,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 6,
-		--heat_point = 50,
-		--humidity_point = 35,
 		dec={
 			{chance=0.5,schematic=minetest.get_modpath("default").."/schematics/apple_tree.mts", offset_x=-3,offset_z=-3,offset_y=-1},
 			{chance=0.05,schematic=minetest.get_modpath("default").."/schematics/bush.mts", offset_x=-1,offset_z=-1},
@@ -232,8 +214,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = 5,
 		y_min = 4,
-		--heat_point = 50,
-		--humidity_point = 35,
 		dec={
 			{chance=1, node="default:marram_grass_1"},
 			{chance=1, node="default:marram_grass_2"},
@@ -251,8 +231,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = 3,
 		y_min = ocean_bottom,
-		--heat_point = 50,
-		--humidity_point = 35,
 --		dec={
 --			{chance=0.5,node="default:sand_with_kelp",y_max = -5,y_min = -10},
 --			}
@@ -271,8 +249,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 6,
-		--heat_point = 45,
-		--humidity_point = 70,
 		dec={
 			{chance=1.0,schematic=minetest.get_modpath("default") .. "/schematics/pine_tree.mts", offset_x=-3,offset_z=-3,offset_y=-1},
 			{chance=0.5,schematic=minetest.get_modpath("default") .. "/schematics/small_pine_tree.mts",offset_x=-2,offset_z=-2,offset_y=-1},
@@ -294,8 +270,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = 5,
 		y_min = 4,
-		--heat_point = 45,
-		--humidity_point = 70,
 		dec={
 			{chance=1, node="default:marram_grass_1"},
 			{chance=1, node="default:marram_grass_2"},
@@ -313,8 +287,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = 3,
 		y_min = ocean_bottom,
-		--heat_point = 45,
-		--humidity_point = 70,
 --		dec={
 --			{chance=0.5,node="default:sand_with_kelp",y_max = -5,y_min = -10},
 --			}
@@ -333,8 +305,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 1,
-		--heat_point = 60,
-		--humidity_point = 68,
 		dec={
 			{chance=0.5,schematic=minetest.get_modpath("default").."/schematics/apple_tree.mts", offset_x=-3,offset_z=-3,offset_y=-1},
 			{chance=0.1,schematic=minetest.get_modpath("default").."/schematics/aspen_tree.mts", offset_x=-3,offset_z=-3,offset_y=-1},
@@ -358,8 +328,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = 0,
 		y_min = -1,
-		--heat_point = 60,
-		--humidity_point = 68,
 	})
 
 	realms.register_biome({
@@ -373,8 +341,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = -2,
 		y_min = ocean_bottom,
-		--heat_point = 60,
-		--humidity_point = 68,
 --		dec={
 --			{chance=0.5,node="default:sand_with_kelp",y_max = -5,y_min = -10},
 --			}
@@ -394,8 +360,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 4,
-		--heat_point = 92,
-		--humidity_point = 16,
 		dec={
 			{chance=0.05,schematic = minetest.get_modpath("default").."/schematics/large_cactus.mts",offset_x=-3,offset_z=-3},
 			{chance=0.1,node="default:cactus",height=2,height_max=5},
@@ -415,8 +379,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = 3,
 		y_min = ocean_bottom,
-		--heat_point = 92,
-		--humidity_point = 16,
 --		dec={
 --			{chance=0.5,schematic = minetest.get_modpath("default") .. "/schematics/corals.mts",y_max = -2,y_min = -8},
 --			}
@@ -436,8 +398,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 4,
-		--heat_point = 60,
-		--humidity_point = 0,
 		dec={
 			{chance=0.2,node="default:dry_shrub"},
 			}
@@ -454,8 +414,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = 3,
 		y_min = ocean_bottom,
-		--heat_point = 60,
-		--humidity_point = 0,
 --		dec={
 --			{chance=0.5,node="default:sand_with_kelp",y_max = -5,y_min = -10},
 --			}
@@ -474,8 +432,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 4,
-		--heat_point = 40,
-		--humidity_point = 0,
 		dec={
 			{chance=0.2,node="default:dry_shrub"},
 			}
@@ -492,8 +448,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = 3,
 		y_min = ocean_bottom,
-		--heat_point = 40,
-		--humidity_point = 0,
 --		dec={
 --			{chance=0.5,node="default:sand_with_kelp",y_max = -5,y_min = -10},
 --			}
@@ -512,8 +466,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 1,
-		--heat_point = 89,
-		--humidity_point = 42,
 		dec={
 			{chance=0.10, schematic=minetest.get_modpath("default").."/schematics/acacia_tree.mts",offset_x=-3,offset_y=-1,offset_z=-3},
 			{chance=0.05, schematic=minetest.get_modpath("default").."/schematics/acacia_log.mts"},
@@ -537,8 +489,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = 0,
 		y_min = -1,
-		--heat_point = 89,
-		--humidity_point = 42,
 	})
 
 	realms.register_biome({
@@ -555,9 +505,6 @@ realms.register_biome({
 --		dec={
 --			{chance=0.5,schematic = minetest.get_modpath("default") .. "/schematics/corals.mts",y_max = -2,y_min = -8},
 --			}
---coral looks goofy without the y limits keeping it under water
-		--heat_point = 89,
-		--humidity_point = 42,
 	})
 
 	-- Rainforest
@@ -572,8 +519,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = upper_limit,
 		y_min = 1,
-		--heat_point = 86,
-		--humidity_point = 65,
 		dec={
 			--note: original register_decoration said of emergent_jungle_tree: "Due to 32 node height, altitude is limited and prescence depends on chunksize"
 			--so it looks like I may need some more logic to allow that kind of limit?
@@ -594,8 +539,6 @@ realms.register_biome({
 		depth_riverbed = 2,
 		y_max = 0,
 		y_min = -1,
-		--heat_point = 86,
-		--humidity_point = 65,
 		dec={
 			{chance=5 ,schematic=minetest.get_modpath("default").."/schematics/jungle_tree.mts",offset_x=-3,offset_y=-1,offset_z=-3},
 			{chance=0.3,schematic=minetest.get_modpath("default") .. "/schematics/jungle_log.mts",offset_x=-3,offset_z=-3},
@@ -613,8 +556,6 @@ realms.register_biome({
 		vertical_blend = 1,
 		y_max = -2,
 		y_min = ocean_bottom,
-		--heat_point = 86,
-		--humidity_point = 65,
 --		dec={
 --			{chance=0.5,schematic = minetest.get_modpath("default") .. "/schematics/corals.mts",y_max = -2,y_min = -8},
 --			}
@@ -627,8 +568,6 @@ realms.register_biome({
 		name = "default_underground",
 		y_max = -113,
 		y_min = -31000,
-		--heat_point = 50,
-		--humidity_point = 50,
 	})
 
 

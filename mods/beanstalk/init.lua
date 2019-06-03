@@ -1022,6 +1022,10 @@ function beanstalk.go_beanstalk(playername,param)
 		local slv,sb = string.match(param,"([^,]+),([^,]+)")
 		local lv=tonumber(slv)
 		local b=tonumber(sb)
+		if (lv<1) or (lv>bnst.level_max) or (b<1) or (b>bnst[lv].count) then
+			minetest.chat_send_player(playername,"No such beanstalk as "..lv..","..b)
+			return
+		end --if (lv<1)
 		local p={x=bnst[lv][b].pos.x,y=bnst[lv][b].pos.y,z=bnst[lv][b].pos.z}
 		--NEVER do local p=bnst[lv][b].pos passes by reference not value and you will change the original bnst pos!
 		p.x=p.x+bnst[lv][b].fullradius+2

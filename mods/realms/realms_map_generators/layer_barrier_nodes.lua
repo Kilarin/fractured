@@ -1,3 +1,7 @@
+--[[
+This defines the nodes used by tg_layer_barrier
+--]]
+
 minetest.register_node("realms:layer_barrier", 
 {
 	description = "Layer Barrier",

@@ -1,3 +1,7 @@
+--[[
+This defines the nodes used by bd_basic_biomes.lua
+--]]
+
 -- Boilerplate to support localized strings if intllib mod is installed.
 local S
 if (minetest.get_modpath("intllib")) then

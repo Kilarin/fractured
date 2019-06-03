@@ -1,10 +1,27 @@
+--[[
+this biome function is designed to work with most biome maps.  Your biome map can use it with code something like this:
+
+    --this is a shell biome function that just calls the generic mapping function
+    --********************************
+    function bm_basic_biomes.bm_basic_biomes(parms)
+    bf_generic.map_biome_to_surface(parms,bm_basic_biomes)
+    end -- bf_basic_biomes
+
+    realms.register_mapfunc("bm_basic_biomes",bm_basic_biomes.bm_basic_biomes
+---
+
+The shell biome fuction wouldnt even be needed if I just moved the biome map into parms.shared ?
+I need to consider that in the future.
+
+This biome function should be called by the terrain generation once per chuck. AFTER it has maped 
+parms.shared.surface[z][x].top for the whole chunk.  Then this function will map
+parms.shared.surface[z][x].biome for each
+
+This function also adds a bit of randomness to water_top_depth, top_depth, and filler_depth.
+
+--]]
+
 bf_generic={}
-
---this biome generator should be called once per chunk to build a biome map
---that will provide your landscape generator with
-
-local c_mese = minetest.get_content_id("default:Mese")
-local c_dirt = minetest.get_content_id("default:dirt")
 
 
 --1 octave on both of these so that the noise range is 0 to 1
@@ -12,6 +29,7 @@ realms.register_noise("Map2dHeat01",{
 	offset = 0,
 	scale = 1,
 	spread = {x=512, y=512, z=512},
+--spread = {x=128, y=128, z=128},
 	octaves = 1,
 	persist = 0.2,
 	seed = 928349
@@ -21,6 +39,7 @@ realms.register_noise("Map2dHeat01",{
 realms.register_noise("Map2dHumid01",{
 	offset = 0,
 	scale = 1,
+--spread = {x=256, y=256, z=256},
 	spread = {x=412, y=412, z=412},
 	octaves = 1,
 	persist = 0.3,
@@ -51,18 +70,6 @@ realms.register_noise("TopDep01",{
 
 --********************************
 function bf_generic.map_biome_to_surface(parms,biomemap)
---[[
-	--get noise details
-	local np_heat=realms.get_noise(parms.noiseheat,"Map2dHeat01",parms.seed)
-	local np_humid=realms.get_noise(parms.noisehumid,"Map2dHumid01",parms.seed)
-	local np_filler_dep=realms.get_noise(parms.noisefil,"FillerDep01",parms.seed)
-	local np_top_dep=realms.get_noise(parms.noisetop,"TopDep01",parms.seed) --will also use for rare cases where top depth is needed
-
-	local heat_map = minetest.get_perlin_map(np_heat, parms.isectsize2d):get_2d_map_flat(parms.minposxz)
-	local humid_map= minetest.get_perlin_map(np_humid, parms.isectsize2d):get_2d_map_flat(parms.minposxz)
-	local filler_noise= minetest.get_perlin_map(np_filler_dep, parms.isectsize2d):get_2d_map_flat(parms.minposxz)
-	local top_noise=minetest.get_perlin_map(np_top_dep, parms.isectsize2d):get_2d_map_flat(parms.minposxz)
---]]
 
 	--NOTE: our default_seed is the realm_seed, so that each realm will have unique noise.
 	--If you want two different realm entries to use the same noise, you must set parms.seed

@@ -1,6 +1,12 @@
+--[[
+This is a collection of unusual/odd/strange biomes.
+It needs more biomes, and more decorations
+--]]
+
+
 bd_odd_biomes={}
 
-dofile(minetest.get_modpath("realms").."/realms_map_generators/odd_biomes_nodes.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/nodes_odd_biomes.lua")
 local c_air = minetest.get_content_id("air")
 
 local realmsschematics=minetest.get_modpath("realms").."/schematics"
@@ -86,7 +92,7 @@ realms.register_biome({
 		y_max = upper_limit,
 		y_min = 1,
 		alternates={"basic_shore","basic_ocean"},
-		dec={                    
+		dec={
 			{chance=.5, schematic=bd_odd_biomes.golden_tree, offset_x=-4, offset_y=-1, offset_z=-4},
 			{chance=.5, node="realms:golden_grass_1"},
 			{chance=.5, node="realms:golden_grass_2"},
@@ -110,7 +116,7 @@ realms.register_biome({
 		y_max = upper_limit,
 		y_min = 1,
 		alternates={"basic_shore","basic_ocean"},
-		dec={                    
+		dec={
 			{chance=.5, schematic=bd_odd_biomes.rainbow_willow_tree, offset_x=-6, offset_y=-1, offset_z=-6},
 			{chance=.5, node="realms:rainbow_bush"},
 			}

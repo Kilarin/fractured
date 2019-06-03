@@ -1,24 +1,17 @@
 bd_basic_biomes={}
 
---this was inspired by and takes some code from
---https://github.com/SmallJoker/noisetest WTFPL License
+--[[
+this was inspired by and takes some code from
+https://github.com/SmallJoker/noisetest WTFPL License
 
---this biome generator should be called once per chunk to build a biome map
---that will provide your landscape generator with
---parms.share.surface[z][x].biome
---parms.share.surface[z][x].biome.node_top
---parms.share.surface[z][x].biome.node_filler
---parms.share.surface[z][x].biome.decorate    --*!* do I still need this?
---use node_filler between surface and stone.  use node_top for the surface, and call
---the decorate(x,y,z, biome, parms) function whenever you use node_top for the surface.
+This just defines some basic biomes.  It is largely a leftover from when I was exploring and figuring out how to do biomes.
+I'm keeping it for illustration and variation purposes.  I will later probably greatly expand this, or remove it all together.
 
---I tried a version of this that was called for every node surface top to bot and placed
---the node_top and node_filler itself, as well as doing the decorating.  BUT, it was VERY
---VERY slow.
---I also tried a version that did all the decorating in one loop after you were done with
---the chunk.  it was a smidgen slower than this version.  So sticking with this
+please note: a biome definition file creates and registers biomes.  it doesn't actually DO anything with them.
+for that you want to look at the bm_ biome map file.
+--]]
 
-dofile(minetest.get_modpath("realms").."/realms_map_generators/basic_biomes_nodes.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/nodes_basic_biomes.lua")
 local c_air = minetest.get_content_id("air")
 
 local c_tree   =minetest.get_content_id("default:tree")

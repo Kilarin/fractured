@@ -1,3 +1,22 @@
+--[[
+A biome map (bm_*) collects a group of biomes from biome definition files (could be all from the
+same or could be from different ones) and decides how to map them to the world surface.
+A biome map provides a list of biomes, and a biome function that maps those biomes to the surface.
+Like most biome maps, this one uses bf_generic.map_biome_to_surface for its biome function.
+
+There are two primary biome map types.  "MATRIX" and "VORONOI"  this is an example of MATRIX.
+
+MATRIX is very simple to implement, you just build a matrix and populate it with the biomes you
+want.  It gives you complete and easy control over what percentage of the world will be what biome.
+The disadvantage is that it does not create as natural of a distribution as VORONOI, and your biomes
+have to set up "alternate" lists of repalcement biomes if the primary biome is outside of its y 
+range.
+
+this biome map combines biomes from bd_basic and bd_odd
+
+--]]
+
+
 bm_mixed_biomes={}
 
 bm_mixed_biomes.name="bm basic biomes"

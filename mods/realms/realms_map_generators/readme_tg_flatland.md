@@ -1,11 +1,9 @@
-#realms
-This mod lets you add different lua landscape generators based on coords.  
-Nothing but bare bones version right now
+#tg_flatland
 
-**realms version 0.0
+flatland is a very boring landscape generator that just generates an absolutely flat surface.  
+It DOES utilize biomes if you pass a biomefunc
 
-## License
-This code is licensed CC0 (No rights reserved)
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+below is an example of a realms.conf entry that calls flatland:
 
+    tg_flatland      |-33000| 25000|-33000| 33000| 26500| 33000|   26000|bm_mixed_biomes     |
 

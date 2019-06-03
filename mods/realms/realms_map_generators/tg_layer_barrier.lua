@@ -1,10 +1,23 @@
+--[[
+Layer Barrier creates a layer of invisble invulnerable nodes to separate layers 
+(thank you to Beerholder and his `multi_map` mod for this idea.)  
+
+Passing the parameter "bedrock" to `tg_layer_barrier` will cause it to generate a layer of 
+invulnerable (but opaque) nodes as the very top layer of its area.  Very handy for creating 
+a "bottom" to a realm in -the sky.
+
+below is an example of a realms.conf line that calls layer barrier
+
+    tg_layer_barrier |-33000|  4900|-33000| 33000|  4999| 33000|       0|                    |bedrock
+--]]
+
+
 dofile(minetest.get_modpath("realms").."/realms_map_generators/layer_barrier_nodes.lua")
 local c_layerbarrier = minetest.get_content_id("realms:layer_barrier")
 local c_bedrock = minetest.get_content_id("realms:bedrock")
 
 
 --********************************
---function gen_layer_barrier(realm_minp,realm_maxp,surfacey, chunk_minp,chunk_maxp,seed)
 function gen_tg_layer_barrier(parms)
 	--we dont need to check overlap because realms does that for us and passes us our intersect in isect_minp,isect_maxp
 	local t1 = os.clock()

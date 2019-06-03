@@ -1,21 +1,21 @@
 --[[
 tg_2dMap  (Terrain Generator)
-This Terrain Generator uses 2d Noise to generate Terrain.  
+This Terrain Generator uses 2d Noise to generate Terrain.
 possible paramaters:
 
 tg_2dMap takes the standard realms paramters, plus the following:
 
-height_base=#   
-   The height_base is the base value the noise manipulates to generate the terrain, so higher 
-   values generate taller and deeper features.  It defaults to 30 if you do not include it in 
+height_base=#
+   The height_base is the base value the noise manipulates to generate the terrain, so higher
+   values generate taller and deeper features.  It defaults to 30 if you do not include it in
    realms.conf
 sea_percent=#
-   This sets aproximately what percentage of the world will be below sea level.  The landscape 
-   is actually shifted up (or down) to accomplish this.  It defaults to 25% if you do not include 
+   This sets aproximately what percentage of the world will be below sea level.  The landscape
+   is actually shifted up (or down) to accomplish this.  It defaults to 25% if you do not include
    it in realms.conf
 extremes  or extremes=#
-   this turns on (and optionaly sets the multiplier for) extremes in the terrain.  It creates 
-   regions of tall mountains and flatter plains.  The value defaults to 4 if you just set it as a 
+   this turns on (and optionaly sets the multiplier for) extremes in the terrain.  It creates
+   regions of tall mountains and flatter plains.  The value defaults to 4 if you just set it as a
    flag |extremes| but you can specify a value like |extremes=5|
    when extremes are on, the generator uses a second layer of 2d noise and the surface calculation
    is multiplied by extval*(noise_ext^2)
@@ -25,36 +25,36 @@ canyons
    interesting terrain
 
 noise:
-  tg_2dMap uses 3 different noises.  
+  tg_2dMap uses 3 different noises.
     noisetop (for determining the surface)
     noiseext (for making extremes, high mountains, plains, deep valleys and seas)
     noisecan (for making canyons, this doesnt work very well yet, but is at least interesting)
-    you can change any of these by passing a paramater on the realms.conf line such as 
+    you can change any of these by passing a paramater on the realms.conf line such as
     |noisetop=newnoise42| (this assumes, of course, that you have registered that noise somwhere)
 
-biome function: 
+biome function:
   tg_2dMap can take a biome function in the biome collumn.
   the biome function is called after the surface is determined, and is passed in parms.share.surface
-  it is assumed that the biome function has been registered with register_mapfunc() and will return 
-  (in parms.share) surface[z][x].biome 
+  it is assumed that the biome function has been registered with register_mapfunc() and will return
+  (in parms.share) surface[z][x].biome
   important elements expected to be in the biome table are:
     node_top = what node to use for the surface of the biome
-    depth_top = how deep the top layer is (usually 1).  
+    depth_top = how deep the top layer is (usually 1).
     node_filler = what node to fill in under the surface (usually dirt)
     depth_filler = how deep should the filler be
     node_water_top = only specify if you want something besides water (like ice)
     depth_water_top = how deep should the node_water_top be
     node_dust = specify if you want something (like snow) on top of the surface
     decorate = the function that will place decorations.  Usually this is not defined in the biome
-        and register_biome() sets it to realms.decorate which works for all biomes in standard 
+        and register_biome() sets it to realms.decorate which works for all biomes in standard
         realms format
   if the biome function sets parms.share.make_ocean_sand to true, then tg_2dMap will default all
   areas under sealevel to sand with no biome.  (helps when setting up simple biomes)
-  
+
   below is an example of a realms.conf line defining a realm using tg_2dMap
-  
+
   RMG Name         :min x :min y :min z :max x : max y: max z:sealevel:biome func       :other parms
-  -----------------:------:------:------:------:------:------:--------:-----------------:---------- 
+  -----------------:------:------:------:------:------:------:--------:-----------------:----------
   tg_2dMap         |-33000| 15000|-33000| 33000| 16500| 33000|   16000|bm_default_biomes|height_base=60|sea_percent=35|extremes=5|canyons
 
 --]]
@@ -63,12 +63,8 @@ biome function:
 
 tg_2dMap={}
 
-local c_stone = minetest.get_content_id("default:stone")
-local c_dirt = minetest.get_content_id("default:dirt")
-local c_dirt_grass = minetest.get_content_id("default:dirt_with_grass")
-local c_air = minetest.get_content_id("air")
-local c_water_source = minetest.get_content_id("default:water_source")
-local c_sand = minetest.get_content_id("default:sand")
+--local c_air = minetest.get_content_id("air")
+--local c_water_source = minetest.get_content_id("default:water_source")
 
 
 realms.register_noise("Map2dTop01",{
@@ -136,7 +132,7 @@ function tg_2dMap.gen_tg_2dMap(parms)
 	--everyone else does it that way, so I assume it's more efficent.  So instead of
 	--and x,z array, we have one array that goes from 1 to isectsize2d.x*isectsize2d.y
 	--we determine surface[x][z].top here.  surface[x][z].bot and other stuff generally processed in biome
-	
+
 	local surface = {}
 
 	local nixz=1
@@ -174,6 +170,7 @@ function tg_2dMap.gen_tg_2dMap(parms)
 				--BUT, now we are going to try and add canyons.
 				--this does NOT make great canyons, but it does make sorta canyons, and interesting terrain.  And odd small deep holes.
 				local can=noisecan[nixz]
+				--[ [
 				local edge=0.5 --change this to play with different canyon shapes
 				if can<edge and surface[z][x].top>parms.sealevel then --make a canyon/river
 					local t=surface[z][x].top --just to make this more readable
@@ -184,13 +181,15 @@ function tg_2dMap.gen_tg_2dMap(parms)
 					end--if can>=(edge-.05)
 					--minetest.log("***canyon-> x="..x.." z="..z.." was "..t.." now ".. surface[z][x].top)
 				end--if can<edge
+			--] ]
+			--if can>0.5 and can<0.6 then surface[z][x].top=parms.sealevel-3 end
 			end --if parms.canyons
-			
+
 			--the below will be overridden if you have a biomefunc
 			if surface[z][x].top>parms.sealevel then surface[z][x].biome=realms.undefined_biome
 			else surface[z][x].biome=realms.undefined_underwater_biome
 			end --if top>parms.sealevel
-			
+
 			nixz=nixz+1
 		end --for x
 	end --for z
@@ -198,67 +197,14 @@ function tg_2dMap.gen_tg_2dMap(parms)
 	--the below will add surface.biome, node_top, node_filler, and decorate (function)
 	parms.share.surface=surface --got to share it so the biomefunc can update it
 	if parms.biomefunc~=nil then realms.rmf[parms.biomefunc](parms) end
-	surface=parms.share.surface  --just in case the bf (biome func) replaced it
+	--surface=parms.share.surface  --just in case the bf (biome func) replaced it
 	--minetest.log("tg_2dMap-> surface["..z.."]["..x.."].biome.node_top="..surface[z][x].biome.node_top.."   name="..surface[z][x].biome.name)
 
---here is where we actually do the work of generating the landscape.
---we loop through as z,y,x because that is way the voxel info is stored, so it is most efficent.
-	for z=parms.isect_minp.z, parms.isect_maxp.z do
-		for y=parms.isect_minp.y, parms.isect_maxp.y do
-			for x=parms.isect_minp.x, parms.isect_maxp.x do
-				local sfc=surface[z][x]
-				local biome=sfc.biome
-				local sealevel=parms.sealevel
-				if sfc.top_depth==nil then sfc.top_depth=1 end
-				if sfc.filler_depth==nil then sfc.filler_depth=6 end
-				sfc.top_bot=sfc.top+(sfc.top_depth-1)
-				sfc.fil_bot=sfc.top_bot-sfc.filler_depth 
-				if sfc.water_top_depth==nil then sfc.water_top_depth=9999 end
-
-				--anything lower than our surface filler bottom gets node_stone from biome
-				if y<sfc.fil_bot then
-					luautils.place_node(x,y,z, parms.area, parms.data, biome.node_stone)
-
---				--for biome maps that do not provide underwater biomes (parms.share.make_ocean_sand==true)
---				--if we are going to be under water, put sand instead of an under OR top node
---				elseif parms.share.make_ocean_sand==true and y<=sfc.top and sfc.top<sealevel then
---					luautils.place_node(x,y,z, parms.area, parms.data, c_sand)
-
-				--anything between filler bottom and top bottom (and not under sealevel) gets the filler node (biome based)
-				elseif y<sfc.top_bot then 
-					luautils.place_node(x,y,z, parms.area, parms.data, biome.node_filler)
-
-				--for those rare cases where top_depth>1
-				elseif y<sfc.top then
-					luautils.place_node(x,y,z, parms.area, parms.data, biome.node_filler)
-
-				--if this is the top, set top node (biome based) and ALSO call the decorate function (if it exists)
-				elseif y==sfc.top then
-					luautils.place_node(x,y,z, parms.area, parms.data, biome.node_top)
-					if biome.decorate~=nil then biome.decorate(x,y+1,z, biome, parms) end
-
-				--if we are at top+1 apply dust node (if it exists)
-				elseif y==sfc.top+1 and sfc.top>sealevel and biome.node_dust~=nil then
-					luautils.place_node(x,y,z, parms.area, parms.data, biome.node_dust)
-
-				--and if we are above the top, but under sea level, put water
-				elseif y>sfc.top and y<=sealevel then
-					local water_node=c_water_source
-					if biome.node_water_top~=nil then
---						local nixz=luautils.xzcoords_to_flat(x,z, parms.isect_minp, parms.isectsize2d)
---						minetest.log("biome.node_water_top-> z="..z.." x="..x.." nixz="..nixz)
-						--local depth_water_top=realms.randomize_depth(biome.depth_water_top,0.33,noiseDep,x,z,parms.isect_minp,parms.isectsize2d)
-						if y>=sealevel-sfc.water_top_depth then water_node=biome.node_water_top end
-					end --if biome.node_water_top~=nil
-					luautils.place_node(x,y,z, parms.area, parms.data, water_node)
-					
-				--putting air just messes up the decorations since we work our way from bot to top
-				--elseif y>dirttop[z][x] then luautils.place_node(x,y,z, parms.area, parms.data, c_air)
-				end --if y
-			end --for x
-		end --for y
-	end --for z
-
+	--now that the surface map has been generated, we run generic_2dMap_loop
+	--here is where we actually do the work of generating the landscape.
+	--this is in a "generic" terrain function because it is used in multiple places
+	--and I hate duplicate code
+	tf_generic_2dMap_loop(parms)
 
 	local chugent = math.ceil((os.clock() - t1) * 1000) --grab how long it took
 	minetest.log("gen_tg_2dMap-> END isect="..luautils.pos_to_str(parms.isect_minp).."-"..luautils.pos_to_str(parms.isect_maxp).."  "..chugent.." ms") --tell people how long

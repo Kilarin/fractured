@@ -1,8 +1,23 @@
+--[[
+A biome map (bm_*) collects a group of biomes from biome definition files (could be all from the
+same or could be from different ones) and decides how to map them to the world surface.
+A biome map provides a list of biomes, and a biome function that maps those biomes to the surface.
+Like most biome maps, this one uses bf_generic.map_biome_to_surface for its biome function.
+
+There are two primary biome map types.  "MATRIX" and "VORONOI"  this is an example of MATRIX.
+
+This bm uses VORONOI.  (well, its a close approximation of a Voronoi diagram)  The advantages of 
+Voronoi is that it produces a very natural arrangement of the biomes, and that it deals with 
+altitude restrictrions very easily and naturally.  The disadvantage is that it can be a real
+pain trying to distribute biomes so that they show up in the percentages you want.
+
+this biome map collects the default biomes from bd_default_biomes and sets up how to map them to the surface of a world.
+
+--]]
+
 bm_default_biomes={}
 
 bm_default_biomes.name="default_biomes_map"
-
-
 
 local icesheet                = realms.biome.default_icesheet
 local icesheet_ocean          = realms.biome.default_icesheet_ocean
@@ -36,32 +51,6 @@ local rainforest              = realms.biome.default_rainforest
 local rainforest_swamp        = realms.biome.default_rainforest_swamp
 local rainforest_ocean        = realms.biome.default_rainforest_ocean
 local underground             = realms.biome.default_underground
-
---[[
-bm_default_biomes.type="VORONOI"
-bm_default_biomes.list={
-	{biome=bd_basic_biomes.arctic ,heatp=0.00, humidp=0.00}
-	{biome=bd_basic_biomes.cold   ,heatp=0.20, humidp=0.20}
-	{biome=bd_odd_biomes.crystal  ,heatp=0.35, humidp=0.35}
-	{biome=bd_basic_biomes.warm   ,heatp=0.50, humidp=0.50}
-	{biome=bd_odd_biomes.mushroom ,heatp=0.30, humidp=0.80}
-	{biome=bd_basic_biomes.hot    ,heatp=0.75, humidp=0.75}
-	{biome=bd_odd_biomes.scorched ,heatp=0.99, humidp=0.00}
-	{bbiome=bd_basic_biomes.desert,heatp=0.90, humidp=0.10}
-	}
-
-
-bm_default_biomes.type="MATRIX"
---temporary removing ocean/beach/shore until I get y range activated
-bm_default_biomes.heatrange=4
-bm_default_biomes.humidrange=4
-bm_default_biomes.biome={
-		{icesheet                ,tundra_highland         ,tundra                  ,taiga                   },
-		{snowy_grassland         ,grassland               ,grassland_dunes         ,coniferous_forest       },
-		{coniferous_forest_dunes ,deciduous_forest        ,desert                  ,sandstone_desert        },
-		{cold_desert             ,savanna                 ,rainforest              ,rainforest_swamp        },
-		}
---]]
 
 bm_default_biomes.typ="VORONOI"
 bm_default_biomes.list={

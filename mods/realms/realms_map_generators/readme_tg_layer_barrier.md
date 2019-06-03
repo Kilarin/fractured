@@ -1,11 +1,9 @@
-#realms
-This mod lets you add different lua landscape generators based on coords.  
-Nothing but bare bones version right now
+#tg_layer_barrier
 
-**realms version 0.0
+Layer Barrier creates a layer of invisble invulnerable nodes to separate layers (thank you to Beerholder and his `multi_map` mod for this idea.)  
 
-## License
-This code is licensed CC0 (No rights reserved)
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+Passing the parameter "bedrock" to `tg_layer_barrier` will cause it to generate a layer of invulnerable (but opaque) nodes as the very top layer of its area.  Very handy for creating a "bottom" to a realm in the sky.
 
+below is an example of a realms.conf line that calls layer barrier
 
+    tg_layer_barrier |-33000|  4900|-33000| 33000|  4999| 33000|       0|                    |bedrock
