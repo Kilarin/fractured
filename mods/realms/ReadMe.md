@@ -118,7 +118,7 @@ But, perhaps the most important point of all about this biome implementation, is
 
 If you want to see realms in action, it is used in the current version of [Fractured](https://forum.minetest.net/viewtopic.php?f=50&t=11346)
 
-##To Do
+## To Do
 Realms works, but it is mainly a proof of concept right now.  It needs a lot of work, and since I don't know what I'm doing, I could certainly use some help.  These are SOME of the major issues I see that still need working on
 
 * I need a map generator that uses 3d noise.  I haven't yet figured out how to use 3d noise to create natural looking terrain.  And HOW do you define the surface so that the biome functions know where to decorate?
@@ -135,10 +135,4 @@ Realms works, but it is mainly a proof of concept right now.  It needs a lot of 
 * the chasm walls in tg_mesas.lua and bm_shattered_biomes.lua need to have some more natural dropoff.  Also, decorations for chasm floor in progress.
 * documentation still needs work
 * there is a strange glitch where sometimes an area of recently generated terrain is suddenly dusted with snow.  I'm not certain if this is something minetest is doing or a problem in my code.
-
-
-
-
-
-
 

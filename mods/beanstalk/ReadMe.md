@@ -128,59 +128,60 @@ Depending on how you set up the beanstalk_values.conf file, there are literally 
 
 The beanstalk_values.conf file looks like this:
 
-    beanstalk_level=1
-    count      =16
-    bot        =-10
-    height     =6070
-    snode      =beanstalk:beanstalk1
-    vnode      =beanstalk:vine1
-    stemtot    =5|3
-               =3|2;5
-               =1|1;8
-    stemradius =75|2;6
-               =20|3;9
-               =05|4;10
-    rot1radius =3|5;8
-               =1|3;10
-    enforce_min_rot1rad=Y   --Y means rot1rad minimum will be stemradius+1
-    rot1dir    =1|1
-               =1|-1
-    rot1yper360=3|rot1circumf;80        --you can use variables in these values
-               =1|rot1circumf;100     
-    rot1crazy  =1|0
-               =1|3;8              --very small values for crazy are hard to detect, so I use a minimum of 3
-    rot2radius =3|3;rot1radius+5   --yes you can use rot1radius as a value here
-               =1|0;16
-    rot2dir    =1|rot1dir
-               =1|rot1dir*-1
-    rot2yper360=3|rot2circumf;100  
-               =1|rot2circumf;500 
-    rot2crazy  =1|0
-               =1|5;17        
-    
-    beanstalk_level=2
-    count      =16
-    bot        =5990
-    height     =5070
-    snode      =beanstalk:beanstalk2
-    vnode      =beanstalk:vine2
-    --if you dont specify stemtot, stemradius, etc, it will use the same values as for the previous beanstalk level
-
-    beanstalk_level=3
-    count      =16
-    bot        =10990
-    height     =5070
-    snode      =beanstalk:beanstalk3
-    vnode      =beanstalk:vine3
-
-
-
-Now, I realize this looks very confusing at first, but its not as bad as you think.  Lets take one entry out and examine it:
-
-    stemtot=5|3
+```
+beanstalk_level=1
+count      =16
+bot        =-10
+height     =6070
+snode      =beanstalk:beanstalk1
+vnode      =beanstalk:vine1
+stemtot    =5|3
            =3|2;5
            =1|1;8
+stemradius =75|2;6
+           =20|3;9
+           =05|4;10
+rot1radius =3|5;8
+           =1|3;10
+enforce_min_rot1rad=Y   --Y means rot1rad minimum will be stemradius+1
+rot1dir    =1|1
+           =1|-1
+rot1yper360=3|rot1circumf;80        --you can use variables in these values  
+           =1|rot1circumf;100     
+rot1crazy  =1|0
+           =1|3;8              --very small values for crazy are hard to detect, so I use a minimum of 3
+rot2radius =3|3;rot1radius+5   --yes you can use rot1radius as a value here
+           =1|0;16
+rot2dir    =1|rot1dir       
+           =1|rot1dir*-1
+rot2yper360=3|rot2circumf;100  
+           =1|rot2circumf;500 
+rot2crazy  =1|0
+           =1|5;17        
 
+beanstalk_level=2
+count      =16
+bot        =5990
+height     =5070
+snode      =beanstalk:beanstalk2
+vnode      =beanstalk:vine2
+--if you dont specify stemtot, stemradius, etc, it will use the same values as for the previous beanstalk level
+
+beanstalk_level=3
+count      =16
+bot        =10990
+height     =5070
+snode      =beanstalk:beanstalk3
+vnode      =beanstalk:vine3
+
+```
+
+Now, I realize this looks very confusing at first, but its not as bad as you think.  Lets take one entry out and examine it:
+```
+stemtot=5|3
+       =3|2;5
+       =1|1;8
+```
 stemtot is the name of the variable, this one controls how many stems (vines) a beanstalk might have.  There are three entries for stemtot.
 The number BEFORE the vertical bar (pipe) is the chance.  This is not necessarily a percentage, its just a number.  In this example we have 3 lines with chances of 5, 3, and 1.  The program will roll a random number between 1 and 9 (5+3+1=9), and if it comes up between 1 and 5, stemtot will be 3 and the beanstalk will have 3 stems.
 BUT, if the random number is between 6 and 8, the value then is "2;5" this means roll a number between 2 and 5.  So the beanstalk will have anywhere between 2 and 5 stems.

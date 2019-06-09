@@ -32,7 +32,7 @@ bm_shattered_biomes={}
 
 bm_shattered_biomes.name="shattered biomes map"
 
-local icesheet    = realms.biome.default_icesheet
+local icesheet    = realms.biome.default_icesheet_shallow
 local tundra      = realms.biome.default_tundra
 local taiga       = realms.biome.default_taiga
 local snowy_grass = realms.biome.default_snowy_grassland
@@ -100,7 +100,9 @@ function bm_shattered_biomes.bm_shattered_biomes(parms)
 	local edgehe=(1/biomemap.heatrange)*edge
 	local edgehu=(1/biomemap.humidrange)*edge
 	--minetest.log(" edgehe="..edgehe.." edgehu="..edgehu)
-	local changeheight=20
+	local sealevel=parms.sealevel
+	local changeheight=30
+	local minmesaheight=8+sealevel
 
 	--bf_generic.map_biome_to_surface(parms,bm_shattered_biomes)
 	--this biome map does some strange stuff, so it can't use bf_generic
@@ -116,6 +118,7 @@ function bm_shattered_biomes.bm_shattered_biomes(parms)
 		for x=parms.isect_minp.x, parms.isect_maxp.x do
 			local srfc=parms.share.surface[z][x]
 			local biome
+			
 
 			local noisehe=math.abs(heat_map[nixz])
 			local noisehu=math.abs(humid_map[nixz])
@@ -124,16 +127,21 @@ function bm_shattered_biomes.bm_shattered_biomes(parms)
 			local n_heat = math.floor(noisehe*biomemap.heatrange)+1
 			local n_humid = math.floor(noisehu*biomemap.humidrange)+1
 			--minetest.log("shattered->>> heat="..heat_map[nixz].." humd="..humid_map[nixz].." n_heat="..n_heat.." n_humid="..n_humid)
-			local bfr=srfc.top
+
+			--if we are close to the edge, then make this 
 			if math.floor((noisehe+edgehe)*biomemap.heatrange)+1~=n_heat or math.floor((noisehe-edgehe)*biomemap.heatrange)+1~=n_heat
 					or math.floor((noisehu+edgehu)*biomemap.humidrange)+1~=n_humid or math.floor((noisehu-edgehu)*biomemap.humidrange)+1~=n_humid then
-				srfc.biome=realms.undefined_underwater_biome
-				srfc.top=srfc.top-changeheight
+				srfc.biome=realms.biome.odd_chasm_bottom
+				--srfc.top=srfc.top-changeheight
+				--we want to move the surface height to close to sealevel, we will use our own noise
+				srfc.top=math.floor(sealevel+3*top_noise[nixz])
 			else
 				srfc.biome=biomemap.biome[n_heat][n_humid]
 				srfc.top=srfc.top+changeheight
+				--no mater what the noise, we dont want the mesa height to drop below minmesaheight
+				--if it does, we reverse the change so it is climbing up again 
+				if srfc.top<minmesaheight then srfc.top=minmesaheight+(minmesaheight-srfc.top) end
 			end --if math.floor
-			--minetest.log("shattered -> srfc.top.bfr="..bfr.." aft="..srfc.top.." biome="..srfc.biome.name)
 
 			--I like these depths to have a bit of variation in them:
 			if srfc.biome.node_water_top~=nil then

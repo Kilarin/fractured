@@ -39,6 +39,9 @@ local bnst={}
 
 local bnst_values={}
 
+-- reuse the same massive VoxelManip memory buffer instead of creating on every on_generate()
+local vm_data = {} 
+
 
 --this function displays the entire bnst_values table in the log
 --it is just for debugging purposes
@@ -250,7 +253,7 @@ function beanstalk.read_beanstalk_values()
 				end --if tag="beanstalk_level"  
 			end --equals    
 		end -- for line in file:lines() do
-	beanstalk.copy_prev_bnst_values(bnst_values.level_max)  --got to copy previous values for the last one
+	if lv>1 then beanstalk.copy_prev_bnst_values(bnst_values.level_max) end  --got to copy previous values for the last one
 	end --if file 
 	minetest.log("beanstalk-> beanstalk_values loaded bnst_values.level_max="..bnst_values.level_max)
 	beanstalk.displaybv()
@@ -829,16 +832,16 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 	local z0 = minp.z
 
 	--minetest.log("bnst [beanstalk_gen] BEGIN chunk minp ("..x0..","..y0..","..z0..") maxp ("..x1..","..y1..","..z1..")") --tell people you are generating a chunk
-	local vm,emin,emax,area,data
+	local vm,emin,emax,area
 	--if realms==nil then --removing realms functionality for now, better to run independant
 		--This actually initializes the LVM
 		vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
 		area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
-		data = vm:get_data()
+		vm:get_data(vm_data)
 --	else
 --		vm=parms.vm
 --		area=parms.area
---		data=parms.data
+--		vm_data=parms.data
 --	end--if realms
 
 
@@ -948,14 +951,14 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 				repeat  --loops through the vines until we set the node or run out of vines
 					local dist=math.sqrt((x-stemx[v])^2+(z-stemz[v])^2)
 					if dist <= stemradius then  --inside stalk
-						data[vi]=bnst[lv].snode
+						vm_data[vi]=bnst[lv].snode
 						changedany=true
 						changedthis=true
 						--minetest.log("--- -- stalk placed at x="..x.." y="..y.." z="..z.." (v="..v..")")
 					--this else says to check for adding climbing vines if we are 1 node outside stalk of a beanstalk vine
 					--(it is confusing that I call them both vine.  I should have called it stalks and vines)
 					elseif dist<=(stemradius+1) then --one node outside stalk
-						if beanstalk.checkvines(lv, x,y,z, stemx[v],stemz[v], area,data)==true then
+						if beanstalk.checkvines(lv, x,y,z, stemx[v],stemz[v], area,vm_data)==true then
 							changedany=true
 							changedthis=true
 							--minetest.log("--- -- vine placed at x="..x.." y="..y.." z="..z.."(v="..v..")")
@@ -965,9 +968,9 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 				until v > bnst[lv][b].stemtot or changedthis==true
 				--add air around the stalk.  (so if we drill through a floating island or another level of land, the beanstalk will have room to climb)
 				if changedthis==false and (math.sqrt((x-cx)^2+(z-cz)^2) <= bnst[lv][b].totradius)
-						and (y > bnst[lv][b].pos.y+100) and (data[vi]~=c_air) then
+						and (y > bnst[lv][b].pos.y+100) and (vm_data[vi]~=c_air) then
 					--minetest.log("bnstR setting air=false dist="..math.sqrt((x-cx)^2+(z-cz)^2).." totradius="..bnst[lv][b].totradius.." cx="..cx.." cz="..cz.." y="..y)
-					data[vi]=c_air
+					vm_data[vi]=c_air
 					changedany=true
 				end --if changedthis=false
 			end --for z
@@ -981,12 +984,12 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 	if changedany==true then --removed realms functionality for now
 		-- Wrap things up and write back to map
 		--send data back to voxelmanip
-		vm:set_data(data)
+		vm:set_data(vm_data)
 		--calc lighting
 		vm:set_lighting({day=0, night=0})
 		vm:calc_lighting()
 		--write it to world
-		vm:write_to_map(data)
+		vm:write_to_map(vm_data)
 		--minetest.log("beanstalk-> >>saved")
 	end --if changed write to map
 

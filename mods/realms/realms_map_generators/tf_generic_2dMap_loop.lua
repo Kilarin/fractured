@@ -1,3 +1,4 @@
+local c_air = minetest.get_content_id("air")
 local c_water_source = minetest.get_content_id("default:water_source")
 
 --this is a generic function for looping through a 2dMap and applying details from surface
@@ -43,11 +44,16 @@ function tf_generic_2dMap_loop(parms)
 
 				--and if we are above the top, but under sea level, put water
 				elseif y>sfc.top and y<=sealevel then
-					local water_node=c_water_source
-					if biome.node_water_top~=nil then
-						if y>=sealevel-sfc.water_top_depth then water_node=biome.node_water_top end
-					end --if biome.node_water_top~=nil
-					luautils.place_node(x,y,z, parms.area, parms.data, water_node)
+					local vn = parms.area:index(x, y, z)  --we get the node we are checking
+					--dont put water if a decoration is there!
+					--minetest.log("parms.data[vn]="..luautils.var_or_nil(parms.data[vn]))
+					if parms.data[vn]==c_air or parms.data[vn]==nil then
+						local water_node=c_water_source
+						if biome.node_water_top~=nil then
+							if y>=sealevel-sfc.water_top_depth then water_node=biome.node_water_top end
+						end --if biome.node_water_top~=nil
+						luautils.place_node(x,y,z, parms.area, parms.data, water_node)
+					end
 					
 				--putting air just messes up the decorations since we work our way from bot to top
 				--elseif y>dirttop[z][x] then luautils.place_node(x,y,z, parms.area, parms.data, c_air)

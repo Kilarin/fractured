@@ -227,8 +227,17 @@ function realms.decorate(x,y,z, biome, parms)
 	if (dec[d]~=nil) and (r<dec[d].chancetop) then
 		--decorate
 		--minetest.log("      hit d="..d.." chancetop="..luautils.var_or_nil(dec[d].chancetop).." chancebot="..luautils.var_or_nil(dec[d].chancebot))
+
+		--deal with offest here, because we use it for all three decoration types
+		local px=x
+		local py=y
+		local pz=z
+		if dec[d].offset_x ~= nil then px=px+dec[d].offset_x end
+		if dec[d].offset_y ~= nil then py=py+dec[d].offset_y end
+		if dec[d].offset_z ~= nil then pz=pz+dec[d].offset_z end
+
 		if dec[d].node~=nil then
-			luautils.place_node(x,y,z,area,data,dec[d].node)
+			luautils.place_node(px,py,pz,area,data,dec[d].node)
 			if dec[d].height~=nil then
 				local height_max=dec[d].height_max
 				if height_max==nil then height_max=dec[d].height end
@@ -236,11 +245,11 @@ function realms.decorate(x,y,z, biome, parms)
 				--minetest.log("heighttest-> height="..dec[d].height.." height_max="..height_max.." r="..r)
 				for i=2,r do --start at 2 because we already placed 1
 					--minetest.log(" i="..i.." y-i+1="..(y-i)+1)
-					luautils.place_node(x,y+i-1,z,area,data,dec[d].node)
+					luautils.place_node(px,py+i-1,pz,area,data,dec[d].node)
 				end --for
 			end --if dec[d].node.height
 		elseif dec[d].func~=nil then
-			dec[d].func(x, y, z, area, data)
+			dec[d].func(px, py, pz, area, data)
 		elseif dec[d].schematic~=nil then
 			--minetest.log("  realms.decorate-> schematic "..luautils.pos_to_str_xyz(x,y,z).." biome="..biome.name)
 			--luautils.place_node(x,y+1,z,area,data,c_mese)
@@ -248,12 +257,6 @@ function realms.decorate(x,y,z, biome, parms)
 			--minetest.place_schematic_on_vmanip(parms.vm,{x=x,y=y,z=z}, dec[d].schema, "random", nil, true)
 			--can't add schematics to the area properly, so they get added to the parms.mts table, then placed at the end just before the vm is saved
 			--I'm using offset instead of center so I dont have to worry about whether the schematic is a table or mts file
-			local px=x
-			local py=y
-			local pz=z
-			if dec[d].offset_x ~= nil then px=px+dec[d].offset_x end
-			if dec[d].offset_y ~= nil then py=py+dec[d].offset_y end
-			if dec[d].offset_z ~= nil then pz=pz+dec[d].offset_z end
 			--I dont know how to send flags for mts file schematics, flags dont seem to be working well for me anyway
 			table.insert(parms.mts,{{x=px,y=py,z=pz},dec[d].schematic})
 		end --if dec[d].node~=nil
@@ -563,7 +566,6 @@ dofile(minetest.get_modpath("realms").."/realms_map_generators/bd_default_biomes
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_default_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_mesas_biomes.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/bm_shattered_biomes.lua")
-dofile(minetest.get_modpath("realms").."/realms_map_generators/nodes_chasm.lua")
 dofile(minetest.get_modpath("realms").."/realms_map_generators/tf_generic_2dMap_loop.lua")
 
 minetest.register_on_generated(realms.gen_realms)

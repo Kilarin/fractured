@@ -22,7 +22,7 @@ bm_mesas_biomes.name="default_biomes_map"
 
 bm_mesas_biomes.typ="RANDOM"
 bm_mesas_biomes.biome={
-	realms.biome.default_icesheet,
+	realms.biome.default_icesheet_shallow,
 	realms.biome.default_tundra,
 	realms.biome.default_taiga,
 	realms.biome.default_snowy_grassland,

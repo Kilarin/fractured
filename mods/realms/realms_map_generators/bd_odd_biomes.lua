@@ -7,9 +7,11 @@ It needs more biomes, and more decorations
 bd_odd_biomes={}
 
 dofile(minetest.get_modpath("realms").."/realms_map_generators/nodes_odd_biomes.lua")
+dofile(minetest.get_modpath("realms").."/realms_map_generators/nodes_chasm.lua")
 local c_air = minetest.get_content_id("air")
 
 local realmsschematics=minetest.get_modpath("realms").."/schematics"
+local defaultschematics=minetest.get_modpath("default").."/schematics"
 
 
 upper_limit=33000
@@ -121,6 +123,29 @@ realms.register_biome({
 			{chance=.5, node="realms:rainbow_bush"},
 			}
 		})
+
+
+--------------------------------------------------
+
+dofile(realmsschematics.."/skeleton.lua")
+
+realms.register_biome({
+	name="odd_chasm_bottom",
+	node_top="default:sand",
+	depth_top = 1,
+	node_filler="default:sand",
+	depth_filler = 1,
+	dec={
+		{chance=0.007, schematic=bd_odd_biomes.skeleton},
+		{chance=0.007, node="realms:skeleton_head"},
+		{chance=0.02,schematic=defaultschematics.."/pine_log.mts"},
+		{chance=0.02,schematic=defaultschematics.."/aspen_log.mts"},
+		{chance=0.02,schematic=defaultschematics.."/jungle_log.mts"},
+		{chance=0.5,node="default:stone",height=1,height_max=2,offset_y=-1},
+		{chance=0.5,node="default:gravel",height=1,height_max=2,offset_y=-1},
+		}
+	})
+
 
 
 

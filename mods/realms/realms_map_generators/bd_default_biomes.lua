@@ -564,10 +564,32 @@ realms.register_biome({
 
 	-- Underground
 
+--for when you dont want the ice below (such as with shattered plains or mesas)
+--this is identical to default_icesheet but without the node_stone=cave_ice
+realms.register_biome({
+		name = "default_icesheet_shallow",
+		node_dust = "default:snowblock",
+		node_top = "default:snowblock",
+		depth_top = 1,
+		node_filler = "default:snowblock",
+		depth_filler = 3,
+		--node_stone = "default:cave_ice",
+		node_water_top = "default:ice",
+		depth_water_top = 10,
+		node_river_water = "default:ice",
+		node_riverbed = "default:gravel",
+		depth_riverbed = 2,
+		y_max = upper_limit,
+		y_min = -8,
+	})
+
+
+
 	realms.register_biome({
 		name = "default_underground",
 		y_max = -113,
 		y_min = -31000,
 	})
+
 
 

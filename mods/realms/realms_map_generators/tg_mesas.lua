@@ -79,7 +79,8 @@ function tg_mesas.gen_tg_mesas(parms)
 	--it is not expecting the biome func to map surface[z][x].top and .biome for all of the chunk.
 	--instead it expects the biome func to just return one random biome.
 	if parms.biomefunc~=nil then biometop=realms.rmf[parms.biomefunc](parms) end
-	local biomebot=realms.undefined_underwater_biome
+	--local biomebot=realms.undefined_underwater_biome
+	local biomebot=realms.biome.odd_chasm_bottom
 
 
 	--the below should always be 1 I think
@@ -129,7 +130,7 @@ function tg_mesas.gen_tg_mesas(parms)
 				sfc.top=math.floor(parms.sealevel+h+3*noisetop[nixz])
 				sfc.biome=biometop
 			else
-				sfc.top=math.floor((parms.sealevel-5)+3*noisetop[nixz])
+				sfc.top=math.floor((parms.sealevel)+3*noisetop[nixz])
 				sfc.biome=biomebot
 			end
 			--minetest.log("mesas-> sfc["..z.."]["..x.."].biome="..sfc.biome.name.."  sfc.top="..sfc.top)
