@@ -503,18 +503,4 @@ function luautils.get_noise_max_raw(noise)
 	return nm
 end --get_noise_max_raw
 
---[[
-luautils.direction={top=0,bot=1,est=2,wst=3,bck=4,fwd=5}
-function luautils.rotate_node(x,y,z, area,data, dir)
-	local pos={x=x,y=y,z=z}
-	local node=minetest.get_node(pos)
-	--facedir 0=top 1=bot 2=+x 3=-x 4=+z 5=-z
-	node.param2=facedir --setting param2 on the node changes where it faces.
-					minetest.log("beanstalk-> set3 swap type(node)="..type(node))
-			luautils.log_table(node,"swapnode")
-	minetest.swap_node(pos,node)
-	minetest.log("beanstalk-> after swap")
-	--and for some reason I do not understand, you can't set it before you place it.
-	--you have to set it afterwards and then swap it for it to take effect
-end --rotate_node
---]]
+
