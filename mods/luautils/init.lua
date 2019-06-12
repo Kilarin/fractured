@@ -337,7 +337,11 @@ end --luautils.next_field
 --********************************
 function luautils.var_or_nil(var)
 	if var==nil then return "nil"
-	else return var
+	else
+		if type(var)=="boolean" then return tostring(var)
+		elseif type(var)=="table" then return "table"
+		else return var
+		end --if type(var)
 	end --if
 end --var_or_nil
 
