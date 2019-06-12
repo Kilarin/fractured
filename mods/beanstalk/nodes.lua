@@ -327,3 +327,21 @@ minetest.register_node("beanstalk:leaf_stem", {
     }
 })
 
+
+minetest.register_node("beanstalk:magic_bean", {
+  description = "Magic Bean",
+  tiles = {"magic_bean.png"},
+  paramtype2 = "facedir",
+  wield_image ="magic_bean.png",
+  inventory_image="magic_bean.png",
+  is_ground_content = false,
+  --climbable = true,
+  groups = {snappy=1,level=2,choppy=1,level=2},
+  sounds = default.node_sound_wood_defaults(),
+  --on_place = beanstalk.place_magic_bean,
+  on_place = function(itemstack, placer, pointed_thing)
+    return beanstalk.place_magic_bean(itemstack, placer, pointed_thing)
+  end --on_place
+})
+
+

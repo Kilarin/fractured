@@ -39,8 +39,15 @@ local bnst={}
 
 local bnst_values={}
 
+
+local pts=luautils.pos_to_str
+
+
 -- reuse the same massive VoxelManip memory buffer instead of creating on every on_generate()
 local vm_data = {} 
+local vm_param2 = {}
+local vm,emin,emax,area
+local hitignore = false
 
 
 --this function displays the entire bnst_values table in the log
@@ -410,6 +417,8 @@ function beanstalk.calculated_constants_bylevel()
 		--bnst[lv].seed=bnst.seed+(math.sin(lv)*100000000)  --this gives us a uniqe different seed for each level, used for crazy
 		if bnst[lv]==nil then bnst[lv]={} end --we run this more than once, dont want to wipe out values other times
 		bnst[lv].count=beanstalk.get_bval(lv,0,"count")
+		if bnst[lv].added==nil then bnst[lv].added=0 end  --for beanstalks added with magic_beans
+
 		bnst[lv].bot=beanstalk.get_bval(lv,0,"bot")
 		bnst[lv].height=beanstalk.get_bval(lv,0,"height")
 		--*!* should put some logging or at least error catching around these?
@@ -418,8 +427,8 @@ function beanstalk.calculated_constants_bylevel()
 		bnst[lv].vnode=minetest.get_content_id(beanstalk.get_bval(lv,0,"vnode"))
 
 		bnst[lv].per_row=math.floor(math.sqrt(bnst[lv].count))  --beanstalks per row are the sqrt of beanstalks per level
-		bnst[lv].count=bnst[lv].per_row*bnst[lv].per_row  --recalculate to a perfect square
-		--so yes, the count you set can be changed
+		bnst[lv].count=bnst[lv].per_row*bnst[lv].per_row+bnst[lv].added  --recalculate to a perfect square
+		--so yes, the count you set can be changed, note that we add "added" to account for magic beans
 		bnst[lv].area=62000/bnst[lv].per_row
 		bnst[lv].top=bnst[lv].bot+bnst[lv].height-1
 		minetest.log("beanstalk-> calculated constants by level lv="..lv.." per_row="..bnst[lv].per_row..
@@ -556,6 +565,123 @@ end --write_beanstalks
 --end --check_overlap
 
 
+--this has been split out from create_beanstalks so that it can be called
+--by magic_bean when you want to generate a beanstalk AFTER initial mapgen
+--********************************
+function beanstalk.make_beanstalk(lv,b, posin)
+	if posin~=nil then
+		minetest.log("make_beanstalk lv="..lv.." b="..b.." posin="..luautils.pos_to_str(posin))
+	end
+	bnst[lv][b]={ }
+	--this gives us a unique seed for each beanstalk, used for perlin noise for crazy (bnst.seed=mapseed)
+	bnst[lv][b].seed=bnst.seed+beanstalk.seednum(math.cos(lv))+beanstalk.seednum(math.sin(b))
+	
+	minetest.log(" air="..minetest.get_content_id("air").." ignore="..minetest.get_content_id("ignore"))
+
+	--if the caller passed a position, then this was called from a magic bean and we set the pos passed
+	if posin~=nil then
+		 bnst[lv][b].pos=posin
+	else --but if posin was not passed, we must determine a random position and check for overlap
+		--note that our random position is always at least 500 from the border, so that beanstalks can NEVER be right next to each other
+		local overlap=false
+		repeat  --loop until there is no overlap
+			--get our random position
+			bnst[lv][b].pos={ }
+			bnst[lv][b].pos.x=math.floor(-31000 + (bnst[lv].area * (b % bnst[lv].per_row) + 500+math.random(0,bnst[lv].area-1000) ))
+			bnst[lv][b].pos.y=math.floor(bnst[lv].bot)  --floor just in case the user put some crazy fraction in here
+			bnst[lv][b].pos.z=math.floor(-31000 + (bnst[lv].area * (math.floor(b/bnst[lv].per_row) % bnst[lv].per_row) + 500 + math.random(0,bnst[lv].area-1000) ))
+			--now check to see if this beanstalk overlaps one below it.  the odds of this are tiny tiny tiny, but must be prevented anyway
+			--note that we only check for beanstalks with randomly generated postions, if you used a magic bean, we dont.
+			if lv>1 and posin==nil then
+				local lvdn=lv-1
+				local bdn=1
+				--note that when this runs, minp and maxp have not been calculated yet for any beanstalks!
+				--so we just make them up with a distance of 250 for each, guaranteeing a distance of 500 between beanstalks
+				local bnst1minp={ }
+				bnst1minp.x=bnst[lv][b].pos.x-250
+				bnst1minp.y=bnst[lv][b].pos.y
+				bnst1minp.z=bnst[lv][b].pos.z-250
+				local bnst1maxp={ }
+				bnst1maxp.x=bnst[lv][b].pos.x+250
+				bnst1maxp.y=bnst[lv][b].pos.y
+				bnst1maxp.z=bnst[lv][b].pos.z+250
+				local bnst2minp={ }
+				bnst2minp.x=bnst[lvdn][bdn].pos.x-250
+				bnst2minp.y=bnst[lvdn][bdn].pos.y
+				bnst2minp.z=bnst[lvdn][bdn].pos.z-250
+				local bnst2maxp={ }
+				bnst2maxp.x=bnst[lvdn][bdn].pos.x+250
+				bnst2maxp.y=bnst[lvdn][bdn].pos.y
+				bnst2maxp.z=bnst[lvdn][bdn].pos.z+250
+				repeat
+					if luautils.check_overlap(bnst1minp,bnst1maxp,bnst2minp,bnst2maxp) then
+						overlap=true
+					end
+					bdn=bdn+1
+				until bdn>bnst[lvdn].count or overlap==true
+			end --if lv>0
+		until overlap==false
+	end --if posin~=nil
+
+	--stemtot = total number of stems
+	bnst[lv][b].stemtot=beanstalk.get_bval(lv,b,"stemtot")
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." stemtot="..bnst[lv][b].stemtot)
+	
+	--stemradius = radius of each stem
+	bnst[lv][b].stemradius=beanstalk.get_bval(lv,b,"stemradius")
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." stemradius="..bnst[lv][b].stemradius)      
+	
+	--rot1dir = direction of rotation of the inner spiral
+	bnst[lv][b].rot1dir=beanstalk.get_bval(lv,b,"rot1dir")
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot1dir="..bnst[lv][b].rot1dir)        
+
+	--rot1radius = the radius the stems rotate around
+	bnst[lv][b].rot1radius=beanstalk.get_bval(lv,b,"rot1radius")       
+	if string.upper(beanstalk.get_bval(lv,b,"enforce_min_rot1rad"))=="Y" then      
+		--stems merge too much if the rotation radius isn't at least stemradius
+		--and stem radius +1 looks better in my opinion
+		if bnst[lv][b].rot1radius<bnst[lv][b].stemradius then bnst[lv][b].rot1radius=bnst[lv][b].stemradius+1 
+		end --if rot1radius<stemradius
+	end --if enforce_min_rot1rad
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot1radius="..bnst[lv][b].rot1radius)          
+				
+	--rot1circumf = is usually used when determining yper360
+	bnst[lv][b].rot1circumf=beanstalk.voxel_circum(bnst[lv][b].rot1radius)  --used as a variable for setting yper360
+
+	--rot1yper360 = y units per one 360 degree rotation of a stem
+	bnst[lv][b].rot1yper360=math.floor(beanstalk.get_bval(lv,b,"rot1yper360"))
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot1yper360="..bnst[lv][b].rot1yper360)             
+
+	--rot1crazy = how much rot1radius varies
+	--crazy gives us a number, the biger the number, the bigger the range of change in the crazy stem rot1radius value
+	--note that this is the number we change each way, so crazy=3 means from radius-3 to radius+3
+	--and crazy=6 is a whopping TWELVE change in radius, that should be VERY noticible
+	--in calculated_constants_bybnst we use rot1crazy to set rot1min and rot1max
+	bnst[lv][b].rot1crazy=beanstalk.get_bval(lv,b,"rot1crazy")    
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot1crazy="..bnst[lv][b].rot1crazy)     
+
+	--rot2dir = direction of rotation of the outer spiral
+	bnst[lv][b].rot2dir=beanstalk.get_bval(lv,b,"rot2dir")    
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot2dir="..bnst[lv][b].rot2dir)         
+	
+	--rot2radius = radius of the secondary spiral
+	bnst[lv][b].rot2radius=beanstalk.get_bval(lv,b,"rot2radius")    
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot2radius="..bnst[lv][b].rot2radius)       
+
+ --rot2circumf is usually used when determining yper360      
+	bnst[lv][b].rot2circumf=beanstalk.voxel_circum(bnst[lv][b].rot2radius)  --used as a variable for setting yper360
+
+	--rot2yper360 = y units per one 365 degree rotation of secondary spiral
+	bnst[lv][b].rot2yper360=math.floor(beanstalk.get_bval(lv,b,"rot2yper360"))
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot2yper360="..bnst[lv][b].rot2yper360)         
+
+	--rot2crazy = like rot1crazy, but this is for the outer spiral
+	--in calculated_constants_bybnst we use rot2crazy to set rot2min and rot2max
+	bnst[lv][b].rot2crazy=beanstalk.get_bval(lv,b,"rot2crazy")    
+	--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot2crazy="..bnst[lv][b].rot2crazy)         
+end --make_beanstalk
+
+
 
 --this is the function that randomly generates the beanstalks based on the map seed, level,
 --and beanstalk.  It should usually only run once per game
@@ -583,110 +709,8 @@ function beanstalk.create_beanstalks()
 	beanstalk.calculated_constants_bylevel()
 
 	for lv=1,bnst.level_max do  --loop through the levels
-
 		for b=1,bnst[lv].count do   --loop through the beanstalks
-			bnst[lv][b]={ }
-			--bnst[lv][b].seed=mapseed+lv*10000+b  
-			--this gives us a unique seed for each beanstalk, used for perlin noise for crazy
-			bnst[lv][b].seed=mapseed+beanstalk.seednum(math.cos(lv))+beanstalk.seednum(math.sin(b))
-
-			--note that our random position is always at least 500 from the border, so that beanstalks can NEVER be right next to each other
-			local overlap=false
-			repeat
-				bnst[lv][b].pos={ }
-				bnst[lv][b].pos.x=math.floor(-31000 + (bnst[lv].area * (b % bnst[lv].per_row) + 500+math.random(0,bnst[lv].area-1000) ))
-				bnst[lv][b].pos.y=math.floor(bnst[lv].bot)  --floor just in case the user put some crazy fraction in here
-				bnst[lv][b].pos.z=math.floor(-31000 + (bnst[lv].area * (math.floor(b/bnst[lv].per_row) % bnst[lv].per_row) + 500 + math.random(0,bnst[lv].area-1000) ))
-								--now check to see if this beanstalk overlaps one below it.  the odds of this are tiny tiny tiny, but must be prevented anyway
-				if lv>1 then
-					local lvdn=lv-1
-					local bdn=1
-					--note that when this runs, minp and maxp have not been calculated yet for any beanstalks!
-					--so we just make them up with a distance of 250 for each, guaranteeing a distance of 500 between beanstalks
-					local bnst1minp={ }
-					bnst1minp.x=bnst[lv][b].pos.x-250
-					bnst1minp.y=bnst[lv][b].pos.y
-					bnst1minp.z=bnst[lv][b].pos.z-250
-					local bnst1maxp={ }
-					bnst1maxp.x=bnst[lv][b].pos.x+250
-					bnst1maxp.y=bnst[lv][b].pos.y
-					bnst1maxp.z=bnst[lv][b].pos.z+250
-					local bnst2minp={ }
-					bnst2minp.x=bnst[lvdn][bdn].pos.x-250
-					bnst2minp.y=bnst[lvdn][bdn].pos.y
-					bnst2minp.z=bnst[lvdn][bdn].pos.z-250
-					local bnst2maxp={ }
-					bnst2maxp.x=bnst[lvdn][bdn].pos.x+250
-					bnst2maxp.y=bnst[lvdn][bdn].pos.y
-					bnst2maxp.z=bnst[lvdn][bdn].pos.z+250
-					repeat
-						if luautils.check_overlap(bnst1minp,bnst1maxp,bnst2minp,bnst2maxp) then
-							overlap=true
-						end
-						bdn=bdn+1
-					until bdn>bnst[lvdn].count or overlap==true
-				end --if lv>0
-			until overlap==false
-
-			--stemtot = total number of stems
-			bnst[lv][b].stemtot=beanstalk.get_bval(lv,b,"stemtot")
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." stemtot="..bnst[lv][b].stemtot)
-			
-			--stemradius = radius of each stem
-			bnst[lv][b].stemradius=beanstalk.get_bval(lv,b,"stemradius")
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." stemradius="..bnst[lv][b].stemradius)      
-			
-			--rot1dir = direction of rotation of the inner spiral
-			bnst[lv][b].rot1dir=beanstalk.get_bval(lv,b,"rot1dir")
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot1dir="..bnst[lv][b].rot1dir)        
-
-			--rot1radius = the radius the stems rotate around
-			bnst[lv][b].rot1radius=beanstalk.get_bval(lv,b,"rot1radius")       
-			if string.upper(beanstalk.get_bval(lv,b,"enforce_min_rot1rad"))=="Y" then      
-				--stems merge too much if the rotation radius isn't at least stemradius
-				--and stem radius +1 looks better in my opinion
-				if bnst[lv][b].rot1radius<bnst[lv][b].stemradius then bnst[lv][b].rot1radius=bnst[lv][b].stemradius+1 
-				end --if rot1radius<stemradius
-			end --if enforce_min_rot1rad
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot1radius="..bnst[lv][b].rot1radius)          
-						
-			--rot1circumf = is usually used when determining yper360
-			bnst[lv][b].rot1circumf=beanstalk.voxel_circum(bnst[lv][b].rot1radius)  --used as a variable for setting yper360
-
-			--rot1yper360 = y units per one 360 degree rotation of a stem
-			bnst[lv][b].rot1yper360=math.floor(beanstalk.get_bval(lv,b,"rot1yper360"))
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot1yper360="..bnst[lv][b].rot1yper360)             
-
-			--rot1crazy = how much rot1radius varies
-			--crazy gives us a number, the biger the number, the bigger the range of change in the crazy stem rot1radius value
-			--note that this is the number we change each way, so crazy=3 means from radius-3 to radius+3
-			--and crazy=6 is a whopping TWELVE change in radius, that should be VERY noticible
-			--in calculated_constants_bybnst we use rot1crazy to set rot1min and rot1max
-			bnst[lv][b].rot1crazy=beanstalk.get_bval(lv,b,"rot1crazy")    
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot1crazy="..bnst[lv][b].rot1crazy)     
-
-			--rot2dir = direction of rotation of the outer spiral
-			bnst[lv][b].rot2dir=beanstalk.get_bval(lv,b,"rot2dir")    
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot2dir="..bnst[lv][b].rot2dir)         
-			
-			--rot2radius = radius of the secondary spiral
-			bnst[lv][b].rot2radius=beanstalk.get_bval(lv,b,"rot2radius")    
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot2radius="..bnst[lv][b].rot2radius)       
-
-		 --rot2circumf is usually used when determining yper360      
-			bnst[lv][b].rot2circumf=beanstalk.voxel_circum(bnst[lv][b].rot2radius)  --used as a variable for setting yper360
-
-			--rot2yper360 = y units per one 365 degree rotation of secondary spiral
-			bnst[lv][b].rot2yper360=math.floor(beanstalk.get_bval(lv,b,"rot2yper360"))
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot2yper360="..bnst[lv][b].rot2yper360)         
---      if math.random(1,4)<4 then bnst[lv][b].rot2yper360=math.floor(math.random(bnst[lv][b].rot2circumf,100))
---      else bnst[lv][b].rot2yper360=math.floor(math.random(bnst[lv][b].rot2circumf*0.75,500))
---      end
-
-			--rot2crazy = like rot1crazy, but this is for the outer spiral
-			--in calculated_constants_bybnst we use rot2crazy to set rot2min and rot2max
-			bnst[lv][b].rot2crazy=beanstalk.get_bval(lv,b,"rot2crazy")    
-			--minetest.log("beanstalk-> setting: lv="..lv.." b="..b.." rot2crazy="..bnst[lv][b].rot2crazy)         
+			beanstalk.make_beanstalk(lv,b)
 		end --for b
 	end --for lv
 	
@@ -701,6 +725,80 @@ function beanstalk.create_beanstalks()
 	--and also get the beanstalk level calculated constants
 	beanstalk.calculated_constants_bybnst()
 end --create_beanstalks
+
+
+--this is based on farming.api.lua
+function beanstalk.place_magic_bean(itemstack, placer, pointed_thing)
+	minetest.log("beanstalk.place_magic_bean-> top")
+	local pt=pointed_thing
+	if not pt.type == "node" then
+		return itemstack
+	end
+
+	local under = minetest.get_node(pt.under)
+	--not certain how magic beans should work with protection
+	--probably need to modify gen_beanstalk to respect protection.
+	local above = minetest.get_node(pt.above)
+	local player_name = placer and placer:get_player_name() or ""
+	if minetest.is_protected(pt.under, player_name) then
+		minetest.record_protection_violation(pt.under, player_name)
+		return
+	end
+	if minetest.is_protected(pt.above, player_name) then
+		minetest.record_protection_violation(pt.above, player_name)
+		return
+	end
+
+	-- add the node and remove 1 item from the itemstack
+	local beanpos=pt.under
+	minetest.log("magic_bean-> beanpos="..luautils.pos_to_str(beanpos))
+	local chklv=0
+	local lv=0
+	repeat
+		chklv=chklv+1
+		if bnst[chklv].bot<=beanpos.y and bnst[chklv].top>=beanpos.y then lv=chklv end
+	until chklv==bnst.level_max or lv>0  or bnst[chklv+1].bot>maxp.y
+	if lv<1 then return end  --quit, we didn't match any level
+	--*!* need to do something if there are 0 levels
+	--if not in any beanstalk level, add a new one?
+	bnst[lv].count=bnst[lv].count+1
+	bnst[lv].added=bnst[lv].added+1
+	local b=bnst[lv].count
+	beanstalk.make_beanstalk(lv,bnst[lv].count, beanpos)
+	
+	beanstalk.write_beanstalks()
+	--but that wiped out some of our calculated constants bylevel, so lets redo them
+	beanstalk.calculated_constants_bylevel()
+	--and also get the beanstalk level calculated constants
+	beanstalk.calculated_constants_bybnst()
+	
+	minetest.log("magic_bean-> minp="..pts(bnst[lv][bnst[lv].count].minp).." maxp="..pts(bnst[lv][bnst[lv].count].maxp))
+	
+	--grow that darn beanstalk
+
+		local minp={x=bnst[lv][b].minp.x-15, y=bnst[lv][b].minp.y, z=bnst[lv][b].minp.z-15}
+		local maxp={x=bnst[lv][b].maxp.x+15, y=minp.y+79,          z=bnst[lv][b].maxp.z+15}
+		repeat
+			minetest.log("magic_bean-> calling gen_beanstalk "..minp.y.." with minp="..pts(minp).." maxp="..pts(maxp).." hitignore="..luautils.var_or_nil(hitignore))
+			beanstalk.gen_beanstalk(minp,maxp,nil,nil)
+			--now lets align by emerge so we will be pulling the right size area
+			minp.x=emin.x
+			minp.z=emin.z
+			maxp.x=emax.x
+			maxp.z=emax.z 
+			minp.y=maxp.y+1
+			maxp.y=maxp.y+79
+		until hitignore or minp.y>bnst[lv].top
+	
+	if not (creative and creative.is_enabled_for
+		and creative.is_enabled_for(player_name)) then  --I dont have player_name
+		itemstack:take_item()
+	end
+	
+	return itemstack
+end
+
+
 
 
 
@@ -743,8 +841,6 @@ function beanstalk.checkvines(lv, x,y,z, vcx,vcz, area,data)
 	if data[vn]~=bnst[lv].snode and data[vn]~=bnst[lv].vnode and data[vndown]~=bnst[lv].snode then
 		data[vn]=bnst[lv].vnode
 		changed=true
-		local pos={x=x,y=y,z=z}
-		local node=minetest.get_node(pos)
 		--we have the vine in place, but we need to rotate it with the vines
 		--against the big beanstalk node.
 		--if diff x is bigger than diff z we put against the x face, otherwize z
@@ -758,10 +854,7 @@ function beanstalk.checkvines(lv, x,y,z, vcx,vcz, area,data)
 		else
 			if (z-vcz)<0 then facedir=4 else facedir=5 end
 		end
-		node.param2=facedir --setting param2 on the node changes where it faces.
-		minetest.swap_node(pos,node)
-		--and for some reason I do not understand, you can't set it before you place it.
-		--you have to set it afterwards and then swap it for it to take effect
+		vm_param2[vn]=facedir --setting param2 on the node changes where it faces.
 	end --if
 return changed
 end --checkvines
@@ -769,6 +862,7 @@ end --checkvines
 
 --this is the function that will generate beanstalks for the realms mod
 --be sure to define the realm as the whole world -33000,-33000,-33000 to 33000,33000,33000
+--this needs to be tested again
 function beanstalk.gen_beanstalk_realms(parms)
   beanstalk.gen_beanstalk(parms.chunk_minp,parms.chunk_maxp,parms.seed,parms)
 end --gen_beanstalk
@@ -780,6 +874,8 @@ end --gen_beanstalk
 --minp is the min point of the chunk, maxp is the max point of the chunk
 --********************************
 function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
+	hitignore=false
+	minetest.log("gen_beanstalk-> top minp="..pts(minp).." maxp="..pts(maxp))
 	--we dont want to waste any time in this function if the chunk doesnt have
 	--a beanstalk in it.
 	--so first we loop through the levels, if our chunk is not on a level where beanstalks
@@ -792,6 +888,7 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 		if bnst[chklv].bot<=maxp.y and bnst[chklv].top>=minp.y then lv=chklv end
 	until chklv==bnst.level_max or lv>0  or bnst[chklv+1].bot>maxp.y
 	if lv<1 then return end  --quit, we didn't match any level
+	minetest.log("gen_beanstalk-> inside lv="..lv)
 
 	--now we know we are on a level with beanstalks, so we now need to check each beanstalk to
 	--see if they intersect this chunk, if not, we return and waste no more cpu.
@@ -814,11 +911,34 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 		until chkb==bnst[lv].count or b>0
 		if b<1 then lv=lv+1 end --try next level, in case of lv overlap (not beanstalk overlap)
 	until b>0 or lv>bnst.level_max or bnst[lv].bot>maxp.y
+	minetest.log("gen_beanstalk-> b="..b)
 
 	if b<1 then return end --quit; otherwise, you'd have wasted resources
 
 	--ok, now we know we are in a chunk that has beanstalk in it, so we need to do the work
 	--required to generate the beanstalk
+
+	--minetest.log("bnst [beanstalk_gen] BEGIN chunk minp ("..x0..","..y0..","..z0..") maxp ("..x1..","..y1..","..z1..")") --tell people you are generating a chunk
+	--if realms==nil then --removing realms functionality for now, better to run independant
+	--This actually initializes the LVM
+	if seed==nil then --if this was called from magic bean
+		vm         = minetest.get_voxel_manip()
+		emin, emax = vm:read_from_map(minp, maxp)
+		minetest.log("gen_beanstalk-> get_voxel_manip minp="..pts(minp).." maxp="..pts(maxp).." emin="..pts(emin).." emax="..pts(emax)) --debug*!*
+		--minp=emin
+		--maxp=emax
+	else 
+		vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
+		minetest.log("gen_beanstalk-> get_mapgen_object  minp="..pts(minp).." maxp="..pts(maxp).." emin="..pts(emin).." emax="..pts(emax)) --debug*!*
+	end --if seed==nil
+	area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
+	vm:get_data(vm_data)
+	vm:get_param2_data(vm_param2)
+--	else
+--		vm=parms.vm
+--		area=parms.area
+--		vm_data=parms.data
+--	end--if realms
 
 	--easy reference to commonly used values
 	local t1 = os.clock()
@@ -830,20 +950,6 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 	local y0 = minp.y
 	local ymin=minp.y
 	local z0 = minp.z
-
-	--minetest.log("bnst [beanstalk_gen] BEGIN chunk minp ("..x0..","..y0..","..z0..") maxp ("..x1..","..y1..","..z1..")") --tell people you are generating a chunk
-	local vm,emin,emax,area
-	--if realms==nil then --removing realms functionality for now, better to run independant
-		--This actually initializes the LVM
-		vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
-		area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
-		vm:get_data(vm_data)
---	else
---		vm=parms.vm
---		area=parms.area
---		vm_data=parms.data
---	end--if realms
-
 
 	local changedany=false
 	local stemx={ } --initializing the variable so we can use it for an array later
@@ -869,7 +975,7 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 	stemthiny=bnst[lv].top-(bnst[lv][b].stemradius*4) --for the "taper off" logic below
 
 	repeat  --this top repeat is where we loop through the chunk based on y
-
+		--minetest.log("gen_beanstalk-> yloop top y="..y)
 		--the purpose of this bit of code is to "taper off" the end of the beanstalk at the very top
 		stemradius=bnst[lv][b].stemradius  --default
 		if y>stemthiny then
@@ -940,7 +1046,7 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 			stemz[v]=cz+rot1radius*math.sin(a1*math.pi/180)
 		end --for v
 
-		--we are inside the repeat loop that loops through the chunc based on y (from bottom up)
+		--we are inside the repeat loop that loops through the chunk based on y (from bottom up)
 		--these two for loops loop through the chunk based x and z
 		--changedthis says if there was a change in the z loop.  changedany says if there was a change in the whole chunk
 		for x=x0, x1 do
@@ -951,7 +1057,10 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 				repeat  --loops through the vines until we set the node or run out of vines
 					local dist=math.sqrt((x-stemx[v])^2+(z-stemz[v])^2)
 					if dist <= stemradius then  --inside stalk
+						local bfr=vm_data[vi]
+						if vm_data[vi]==127 then hitignore=true end
 						vm_data[vi]=bnst[lv].snode
+						minetest.log("gen_beanstalk-> wrote vi="..vi.." x="..x.." y="..y.." z="..z.." data[vi] bfr="..bfr.." after="..vm_data[vi])
 						changedany=true
 						changedthis=true
 						--minetest.log("--- -- stalk placed at x="..x.." y="..y.." z="..z.." (v="..v..")")
@@ -967,12 +1076,14 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 					v=v+1 --next vine
 				until v > bnst[lv][b].stemtot or changedthis==true
 				--add air around the stalk.  (so if we drill through a floating island or another level of land, the beanstalk will have room to climb)
-				if changedthis==false and (math.sqrt((x-cx)^2+(z-cz)^2) <= bnst[lv][b].totradius)
-						and (y > bnst[lv][b].pos.y+100) and (vm_data[vi]~=c_air) then
-					--minetest.log("bnstR setting air=false dist="..math.sqrt((x-cx)^2+(z-cz)^2).." totradius="..bnst[lv][b].totradius.." cx="..cx.." cz="..cz.." y="..y)
-					vm_data[vi]=c_air
-					changedany=true
-				end --if changedthis=false
+--				if changedthis==false and (math.sqrt((x-cx)^2+(z-cz)^2) <= bnst[lv][b].totradius)
+--						and (y > bnst[lv][b].pos.y+100) and (vm_data[vi]~=c_air) then
+--					--minetest.log("bnstR setting air=false dist="..math.sqrt((x-cx)^2+(z-cz)^2).." totradius="..bnst[lv][b].totradius.." cx="..cx.." cz="..cz.." y="..y)
+--					local bfr=vm_data[vi]
+--					vm_data[vi]=c_air
+--					minetest.log("gen_beanstalk-> wrote air vi="..vi.." x="..x.." y="..y.." z="..z.." data[vi] bfr="..bfr.." after="..vm_data[vi])
+--					changedany=true
+--				end --if changedthis=false
 			end --for z
 		end --for x
 
@@ -985,6 +1096,7 @@ function beanstalk.gen_beanstalk(minp, maxp, seed, parms)
 		-- Wrap things up and write back to map
 		--send data back to voxelmanip
 		vm:set_data(vm_data)
+		vm:set_param2_data(vm_param2)
 		--calc lighting
 		vm:set_lighting({day=0, night=0})
 		vm:calc_lighting()
@@ -1072,6 +1184,7 @@ beanstalk.read_beanstalks()
 --else minetest.register_on_generated(beanstalk.gen_beanstalk)
 --end 
 minetest.register_on_generated(beanstalk.gen_beanstalk)
+
 
 
 
