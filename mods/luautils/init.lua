@@ -481,9 +481,10 @@ end
 
 --just changes a two line entry into a one line entry
 --********************************
-function luautils.place_node(x,y,z, area, data, node)
+function luautils.place_node(x,y,z, area, vm_data, node, vmparam2,param2)
 	local vi = area:index(x, y, z)
-	data[vi] = node
+	vm_data[vi] = node
+	if vmparam2~=nil and param2~=nil then vmparam2[vi]=param2 end
 end --place node
 
 

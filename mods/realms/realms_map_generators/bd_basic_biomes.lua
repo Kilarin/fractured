@@ -211,6 +211,7 @@ realms.register_biome({
 			{chance=.5, node="default:dry_grass_4"},
 			{chance=.5, node="default:dry_grass_5"},
 			{chance=.3, node="default:dry_shrub"},
+			{chance=.002, node="realms:cow_skull",rotate="random"},
 			}
 		})
 

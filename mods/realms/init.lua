@@ -29,7 +29,12 @@ realms.undefined_underwater_biome={
 	}
 
 
+local data = {}   --define buffers up here to save memory
+local vmparam2 = {}
 
+local pts=luautils.pos_to_str
+local von=luautils.var_or_nil
+local placenode=luautils.place_node
 
 realm={}
 
@@ -194,8 +199,8 @@ function realms.read_realms_config()
 					else realm[r].parms[misc]=true --if no equals found, then treat it as a flag and set true
 					end --if peq~=nil
 				end --while p~=nil
-				minetest.log("realms->   r="..r.." minp="..luautils.pos_to_str(realm[r].parms.realm_minp)..
-						" maxp="..luautils.pos_to_str(realm[r].parms.realm_maxp).." sealevel="..realm[r].parms.sealevel)
+				minetest.log("realms->   r="..r.." minp="..pts(realm[r].parms.realm_minp)..
+						" maxp="..pts(realm[r].parms.realm_maxp).." sealevel="..realm[r].parms.sealevel)
 			end --if p~=nil
 		end --for str
 		minetest.log("realms-> all realms loaded, count="..realm.count)
@@ -211,6 +216,7 @@ function realms.decorate(x,y,z, biome, parms)
 	if dec==nil then return end --no decorations!
 	local area=parms.area
 	local data=parms.data
+	local vmparam2=parms.vmparam2
 	local d=1
 	local r=math.random()*100
 	--minetest.log("    r="..r)
@@ -235,9 +241,20 @@ function realms.decorate(x,y,z, biome, parms)
 		if dec[d].offset_x ~= nil then px=px+dec[d].offset_x end
 		if dec[d].offset_y ~= nil then py=py+dec[d].offset_y end
 		if dec[d].offset_z ~= nil then pz=pz+dec[d].offset_z end
-
+		--this is only used in type=node for right now
+		local rotate=nil
+		if dec[d].rotate~=nil then
+			if type(dec[d].rotate)=="table" then rotate=dec[d].rotate[math.random(1,#dec[d].rotate)]
+			elseif dec[d].rotate=="random" then rotate=math.random(0,3)
+			elseif dec[d].rotate=="random3d" then rotate=math.random(0,11)
+			else rotate=dec[d].rotate
+			end --if dec[d].rotate==random
+		end --if dec[d].rotate~=nil
 		if dec[d].node~=nil then
-			luautils.place_node(px,py,pz,area,data,dec[d].node)
+
+			--note that rotate will be nil unless they sent a rotate value, and if it is nil, it will be ignored
+			placenode(px,py,pz,area,data,dec[d].node, vmparam2,rotate)
+			
 			if dec[d].height~=nil then
 				local height_max=dec[d].height_max
 				if height_max==nil then height_max=dec[d].height end
@@ -245,14 +262,15 @@ function realms.decorate(x,y,z, biome, parms)
 				--minetest.log("heighttest-> height="..dec[d].height.." height_max="..height_max.." r="..r)
 				for i=2,r do --start at 2 because we already placed 1
 					--minetest.log(" i="..i.." y-i+1="..(y-i)+1)
-					luautils.place_node(px,py+i-1,pz,area,data,dec[d].node)
+					placenode(px,py+i-1,pz,area,data,dec[d].node, vmparam2,rotate)
+					
 				end --for
 			end --if dec[d].node.height
 		elseif dec[d].func~=nil then
 			dec[d].func(px, py, pz, area, data)
 		elseif dec[d].schematic~=nil then
 			--minetest.log("  realms.decorate-> schematic "..luautils.pos_to_str_xyz(x,y,z).." biome="..biome.name)
-			--luautils.place_node(x,y+1,z,area,data,c_mese)
+			--placenode(x,y+1,z,area,data,c_mese)
 			--minetest.place_schematic({x=x,y=y,z=z}, dec[d].schema, "random", nil, true)
 			--minetest.place_schematic_on_vmanip(parms.vm,{x=x,y=y,z=z}, dec[d].schema, "random", nil, true)
 			--can't add schematics to the area properly, so they get added to the parms.mts table, then placed at the end just before the vm is saved
@@ -479,7 +497,8 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 	--passing it to each rmg (realms map gen) as it runs, and saving after
 	local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
 	local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
-	local data = vm:get_data()
+	vm:get_data(data)
+	vm:get_param2_data(vmparam2)
 	local mts = {} --mts array stores schematics
 	--add a schematic to this table with: table.insert(parms.mts,{pos,schematic})  (shouldnt matter if table or file, but dont forget the position!)
 	--the schematics will be written to the chunk after all other manipulation is done
@@ -499,12 +518,12 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 		local parms=realm[r].parms
 		if luautils.check_overlap(parms.realm_minp, parms.realm_maxp, chunk_minp,chunk_maxp)==true then
 			if first==0 then
-				minetest.log("======== realms-> gen_realms chunk minp="..luautils.pos_to_str(chunk_minp).." maxp="..luautils.pos_to_str(chunk_maxp))
+				minetest.log("======== realms-> gen_realms chunk minp="..pts(chunk_minp).." maxp="..pts(chunk_maxp))
 				first=1
 			end --first
 			--minetest.log("realms-> gen_realms r="..r.." rmg="..luautils.var_or_nil(realm[r].rmg)..
-			--		" realm minp="..luautils.pos_to_str(parms.realm_minp).." maxp="..luautils.pos_to_str(parms.realm_maxp))
-			--minetest.log("     sealevel="..parms.sealevel.." chunk minp="..luautils.pos_to_str(chunk_minp).." maxp="..luautils.pos_to_str(chunk_maxp))
+			--		" realm minp="..pts(parms.realm_minp).." maxp="..pts(parms.realm_maxp))
+			--minetest.log("     sealevel="..parms.sealevel.." chunk minp="..pts(chunk_minp).." maxp="..pts(chunk_maxp))
 
 			--rmg[realm[r].rmg](realm[r].parms.realm_minp,realm[r].parms.realm_maxp, realm[r].parms.sealevel, chunk_minp,chunk_maxp, 0)
 			parms.chunk_minp=chunk_minp
@@ -516,11 +535,12 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 			parms.share=share
 			parms.area=area
 			parms.data=data
+			parms.vmparam2=vmparam2
 			parms.vm=vm  --I dont know if the map gen needs this, but just in case, there it is.
 			parms.mts=mts --for storing schematics to be written before vm is saved to map
 			parms.chunk_seed=seed --the seed that was passed to realms for this chunk
 			--minetest.log("realms-> r="..r)
-			minetest.log("  >>>realms-> gen_realms r="..r.." rmg="..luautils.var_or_nil(realm[r].rmg).." isect "..luautils.pos_to_str(parms.isect_minp).."-"..luautils.pos_to_str(parms.isect_maxp))
+			minetest.log("  >>>realms-> gen_realms r="..r.." rmg="..luautils.var_or_nil(realm[r].rmg).." isect "..pts(parms.isect_minp).."-"..pts(parms.isect_maxp))
 			realms.rmg[realm[r].rmg](parms)
 			if parms.area~=area then minetest.log("***realms.init-> WARNING parms.area~=area!!!") end
 			share=parms.share --save share to be used in next parms (user might have changed pointer)
@@ -539,11 +559,13 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 		minetest.place_schematic_on_vmanip(vm, mts[i][1], mts[i][2], "random", nil, true)  --true means force replace other nodes
 	end
 
+	vm:set_data(data)
+	vm:set_param2_data(vmparam2)
 	--calc lighting
 	vm:set_lighting({day=0, night=0})
 	vm:calc_lighting()
-	--write it to world
-	vm:write_to_map(data)
+	--write it to world	
+	vm:write_to_map()
 
 end -- gen_realms
 

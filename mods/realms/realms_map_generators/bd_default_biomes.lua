@@ -364,6 +364,7 @@ realms.register_biome({
 			{chance=0.05,schematic = minetest.get_modpath("default").."/schematics/large_cactus.mts",offset_x=-3,offset_z=-3},
 			{chance=0.1,node="default:cactus",height=2,height_max=5},
 			{chance=0.1,node="default:dry_shrub"},
+			{chance=.002, node="realms:cow_skull",rotate="random"},
 			}
 	})
 
@@ -400,6 +401,7 @@ realms.register_biome({
 		y_min = 4,
 		dec={
 			{chance=0.2,node="default:dry_shrub"},
+			{chance=.001, node="realms:cow_skull",rotate="random"},
 			}
 	})
 
@@ -434,6 +436,7 @@ realms.register_biome({
 		y_min = 4,
 		dec={
 			{chance=0.2,node="default:dry_shrub"},
+			{chance=.001, node="realms:cow_skull",rotate="random"},
 			}
 	})
 
@@ -476,6 +479,7 @@ realms.register_biome({
 			{chance=0.50, node="default:dry_grass_3"},
 			{chance=0.50, node="default:dry_grass_4"},
 			{chance=0.50, node="default:dry_grass_5"},
+			{chance=.001, node="realms:cow_skull",rotate="random"},
 		}
 	})
 

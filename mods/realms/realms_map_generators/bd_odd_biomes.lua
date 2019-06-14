@@ -76,7 +76,8 @@ realms.register_biome({
 			{chance=.05, node="default:dry_grass_3"},
 			{chance=.05, node="default:dry_grass_4"},
 			{chance=.05, node="default:dry_grass_5"},
-			{chance=.1, node="default:dry_shrub"}
+			{chance=.1, node="default:dry_shrub"},
+			{chance=.001, node="realms:cow_skull",rotate="random"},
 			}
 		})
 
@@ -143,6 +144,7 @@ realms.register_biome({
 		{chance=0.02,schematic=defaultschematics.."/jungle_log.mts"},
 		{chance=0.5,node="default:stone",height=1,height_max=2,offset_y=-1},
 		{chance=0.5,node="default:gravel",height=1,height_max=2,offset_y=-1},
+		{chance=.001, node="realms:cow_skull",rotate="random"},
 		}
 	})
 
