@@ -551,6 +551,7 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 	--(by saving here we avoid multiple save and pulls in overlapping realm map gens)
 	minetest.log("  ---realms-> saving area "..luautils.range_to_str(chunk_minp,chunk_maxp))
 	vm:set_data(data)
+	vm:set_param2_data(vmparam2)
 	--apply any schematics that were set (see comments above where parms.mts is defined)
 	--generator should have placed schematics using: table.insert(parms.mts,{pos,schematic})
 	--now we loop through them and know that mts[i][i]=pos and mts[i][2]=schematic
@@ -559,8 +560,7 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 		minetest.place_schematic_on_vmanip(vm, mts[i][1], mts[i][2], "random", nil, true)  --true means force replace other nodes
 	end
 
-	vm:set_data(data)
-	vm:set_param2_data(vmparam2)
+
 	--calc lighting
 	vm:set_lighting({day=0, night=0})
 	vm:calc_lighting()
