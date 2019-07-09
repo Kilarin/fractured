@@ -74,3 +74,130 @@ minetest.register_node("realms:cow_skull", {
 })
 
 
+--this is from Piezo_ mushrooms_redo license code: MIT, art CC BY-SA 3.0
+minetest.register_node("realms:mushroom_white", { --Amanita Smithiana (Smith's Amanita)
+	description = "White Mushroom",
+	tiles = {"mushroom_white.png"},
+	inventory_image = "mushroom_white.png",
+	drawtype = "plantlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = false,
+	buildable_to = true,
+	groups = {snappy = 3, attached_node = 1, flammable = 1, mushroom = 1, toxic_mushroom = 3},
+	sounds = default.node_sound_leaves_defaults(),
+	on_use = function(itemstack, player)
+		if not poisoned[player:get_player_name()] then
+			minetest.after(10,
+			function(player)
+				if player and player:is_player() then
+					player:set_hp(0)
+				end
+			end, player)
+			poisoned[player:get_player_name()] = true
+		end
+		return minetest.item_eat(5)(itemstack, player)
+	end,
+	selection_box = {
+		type = "fixed",
+		fixed = {-4 / 16, -0.5, -4 / 16, 4 / 16, 3 / 16, 4 / 16},
+	}
+})
+
+
+minetest.register_node("realms:mushroom_milkcap", {
+	description = "Mushroom Milkcap",
+	tiles = {"mushroom_milkcap_64.png"},
+	inventory_image = "mushroom_milkcap_64.png",
+	wield_image = "mushroom_milkcap_64.png",
+	drawtype = "plantlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = false,
+	buildable_to = true,
+	groups = {snappy = 3, attached_node = 1, flammable = 1},
+	sounds = default.node_sound_leaves_defaults(),
+	on_use = minetest.item_eat(-5),
+	selection_box = {
+		type = "fixed",
+		fixed = {-3 / 16, -0.5, -3 / 16, 3 / 16,  0, 3 / 16},
+	}
+})
+
+
+minetest.register_node("realms:mushroom_shaggy_mane", {
+	description = "Mushroom Shaggy Mane",
+	tiles = {"mushroom_shaggy_mane_64.png"},
+	inventory_image = "mushroom_shaggy_mane_64.png",
+	wield_image = "mushroom_shaggy_mane_64.png",
+	drawtype = "plantlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = false,
+	buildable_to = true,
+	groups = {snappy = 3, attached_node = 1, flammable = 1},
+	sounds = default.node_sound_leaves_defaults(),
+	on_use = minetest.item_eat(-5),
+	selection_box = {
+		type = "fixed",
+		fixed = {-2 / 16, -0.5, -2 / 16, 2 / 16,  2 / 16, 2 / 16},
+	}
+})
+
+minetest.register_node("realms:mushroom_parasol", {
+	description = "Mushroom parasol",
+	tiles = {"mushroom_parasol_64.png"},
+	inventory_image = "mushroom_parasol_64.png",
+	wield_image = "mushroom_parasol_64.png",
+	drawtype = "plantlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = false,
+	buildable_to = true,
+	groups = {snappy = 3, attached_node = 1, flammable = 1},
+	sounds = default.node_sound_leaves_defaults(),
+	on_use = minetest.item_eat(-5),
+	selection_box = {
+		type = "fixed",
+		fixed = {-3 / 16, -0.5, -3 / 16, 3 / 16, 5 / 16, 3 / 16},
+	}
+})
+
+minetest.register_node("realms:mushroom_sulfer_tuft", {
+	description = "Mushroom Sulfer Tuft",
+	tiles = {"mushroom_sulfer_tuft_64.png"},
+	inventory_image = "mushroom_sulfer_tuft_64.png",
+	wield_image = "mushroom_sulfer_tuft_64.png",
+	drawtype = "plantlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = false,
+	buildable_to = true,
+	groups = {snappy = 3, attached_node = 1, flammable = 1},
+	sounds = default.node_sound_leaves_defaults(),
+	on_use = minetest.item_eat(-5),
+	selection_box = {
+		type = "fixed",
+		fixed = {-3 / 16, -0.5, -3 / 16, 3 / 16,  0, 3 / 16},
+	}
+})
+
+minetest.register_node("realms:mushroom_sulfer_tuft_128", {
+	description = "Mushroom Sulfer Tuft 128",
+	tiles = {"mushroom_sulfer_tuft_128.png"},
+	inventory_image = "mushroom_sulfer_tuft_128.png",
+	wield_image = "mushroom_sulfer_tuft_128.png",
+	drawtype = "plantlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = false,
+	buildable_to = true,
+	groups = {snappy = 3, attached_node = 1, flammable = 1},
+	sounds = default.node_sound_leaves_defaults(),
+	on_use = minetest.item_eat(-5),
+	selection_box = {
+		type = "fixed",
+		fixed = {-3 / 16, -0.5, -3 / 16, 3 / 16,  0, 3 / 16},
+	}
+})
+

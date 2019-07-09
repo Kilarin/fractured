@@ -1,11 +1,11 @@
---lifted straight from ethereal
+--lifted mostly straight from ethereal
 
 local _ = {name = "air", prob = 0}
 local M = {name = "realms:mushroom_cap", prob = 255}
 local T = {name = "realms:mushroom_trunk", prob = 255}
 local P = {name = "realms:mushroom_pore", prob = 255}
 
-bd_odd_biomes.mushroomone = {
+bd_odd_biomes.mushroom_giant_fly = {
 
 	size = {x = 8, y = 11, z = 8},
 

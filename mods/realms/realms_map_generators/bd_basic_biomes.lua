@@ -143,6 +143,13 @@ realms.register_biome({
 			{chance=.1,node="default:fern_1"},
 			{chance=.1,node="default:fern_2"},
 			{chance=.1,node="default:fern_3"},
+			{chance=0.005, node="flowers:mushroom_brown"},
+			{chance=0.005, node="flowers:mushroom_red"},
+			{chance=0.005,node="realms:mushroom_white"},
+			{chance=0.001,node="realms:mushroom_milkcap"},
+			{chance=0.001,node="realms:mushroom_shaggy_mane"},
+			{chance=0.001,node="realms:mushroom_parasol"},
+			{chance=0.0003,node="realms:mushroom_sulfer_tuft"},
 			}
 		})
 
@@ -168,6 +175,22 @@ realms.register_biome({
 			{chance=5, node="default:grass_3"},
 			{chance=5, node="default:grass_4"},
 			{chance=5, node="default:grass_5"},
+			--{chance=0.25, lsystem="moretrees.sequoia_model"}, lsystem trees dont work a mapgen time
+			{chance=0.25, node="flowers:rose"},
+			{chance=0.25, node="flowers:tulip"},
+			{chance=0.25, node="flowers:dandelion_yellow"},
+			{chance=0.25, node="flowers:chrysanthemum_green"},
+			{chance=0.25, node="flowers:geranium"},
+			{chance=0.25, node="flowers:viola"},
+			{chance=0.25, node="flowers:dandelion_white"},
+			{chance=0.25, node="flowers:tulip_black"},
+			{chance=0.05, node="flowers:mushroom_brown"},
+			{chance=0.05, node="flowers:mushroom_red"},
+			{chance=0.05,node="realms:mushroom_white"},
+			{chance=0.01,node="realms:mushroom_milkcap"},
+			{chance=0.01,node="realms:mushroom_shaggy_mane"},
+			{chance=0.01,node="realms:mushroom_parasol"},
+			{chance=0.003,node="realms:mushroom_sulfer_tuft"},
 			}
 		})
 
@@ -188,6 +211,13 @@ realms.register_biome({
 			{chance=0.1,schematic=defaultschematics.."/emergent_jungle_tree.mts",offset_x=-4,offset_y=-4,offset_z=-4},
 			{chance=0.5,schematic=defaultschematics.."/jungle_log.mts"}, --offset_x=-3,offset_z=-3},
 			{chance=5,node="default:junglegrass"},
+			{chance=0.05, node="flowers:mushroom_brown"},
+			{chance=0.05, node="flowers:mushroom_red"},
+			{chance=0.05,node="realms:mushroom_white"},
+			{chance=0.01,node="realms:mushroom_milkcap"},
+			{chance=0.01,node="realms:mushroom_shaggy_mane"},
+			{chance=0.01,node="realms:mushroom_parasol"},
+			{chance=0.003,node="realms:mushroom_sulfer_tuft"},
 			}
 		})
 

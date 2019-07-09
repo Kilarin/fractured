@@ -1,0 +1,3 @@
+#comments
+realms_configpathmod2 (Realms Config Path 2) string "fractured"
+realms_config (Realms Config File) string realmsfrac2.conf

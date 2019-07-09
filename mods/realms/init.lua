@@ -139,17 +139,23 @@ function realms.read_realms_config()
 	realm.count=0
 	local p
 	local cmnt
-	--first we look to see if there is a realms.conf file in the world path
-	local file = io.open(minetest.get_worldpath().."/realms.conf", "r")
-	--if its not in the worldpath, try for the modpath
-	if file then
-		minetest.log("realms-> loading realms.config from worldpath:")
-	else
-		file = io.open(minetest.get_modpath("realms").."/realms.conf", "r")
-		if file then minetest.log("realms-> loading realms.conf from modpath")
-		else minetest.log("realms-> unable to find realms file in worldpath or modpath.  This is bad")
-		end --if file (modpath)
-	end --if file (worldpath)
+	--realms_configpathmod is set in minetest.conf in the games path, OR defaults to just realms
+	--this is the NAME of the mod where we will get the config file.  I would rather use the game path,
+	--but there is no way to get that in minetest.
+	local configpathmod=minetest.settings:get("realms_configpathmod") or "realms"
+	minetest.log("realms.read_realms_config -> configpathmod="..configpathmod)
+	--using the mod name from configpathmod, we now get the path
+	local configpath=minetest.get_modpath(configpathmod)
+	minetest.log("realms.read_realms_config -> configpath="..configpath)
+	--realms_config is set in minetest.conf in the game path, OR defaults to just realms.conf
+	local filename = minetest.settings:get("realms_config") or "realms.conf"
+	minetest.log("realms.read_realms_config -> filename="..filename)
+	--open the file so we can load the config
+	local file = io.open(configpath.."/"..filename, "r")
+	if file then minetest.log("realms.read_realms_config -> loading realms config file: <"..filename.."> from "..configpath)
+	else minetest.log("realms.read_realms_config -> ERROR!!! unable to find realms config file <"..filename.."> in "..configpath..".  This is bad")
+	end --if file (modpath)
+	
 	if file then
 		for str in file:lines() do
 			str=luautils.trim(str)
@@ -251,10 +257,9 @@ function realms.decorate(x,y,z, biome, parms)
 			end --if dec[d].rotate==random
 		end --if dec[d].rotate~=nil
 		if dec[d].node~=nil then
-
+			--minetest.log("decorate:placing node="..dec[d].node.." biomename="..biome.name.." d="..d)
 			--note that rotate will be nil unless they sent a rotate value, and if it is nil, it will be ignored
 			placenode(px,py,pz,area,data,dec[d].node, vmparam2,rotate)
-			
 			if dec[d].height~=nil then
 				local height_max=dec[d].height_max
 				if height_max==nil then height_max=dec[d].height end
@@ -263,7 +268,6 @@ function realms.decorate(x,y,z, biome, parms)
 				for i=2,r do --start at 2 because we already placed 1
 					--minetest.log(" i="..i.." y-i+1="..(y-i)+1)
 					placenode(px,py+i-1,pz,area,data,dec[d].node, vmparam2,rotate)
-					
 				end --for
 			end --if dec[d].node.height
 		elseif dec[d].func~=nil then
@@ -277,6 +281,10 @@ function realms.decorate(x,y,z, biome, parms)
 			--I'm using offset instead of center so I dont have to worry about whether the schematic is a table or mts file
 			--I dont know how to send flags for mts file schematics, flags dont seem to be working well for me anyway
 			table.insert(parms.mts,{{x=px,y=py,z=pz},dec[d].schematic})
+		elseif dec[d].lsystem~=nil then
+			--minetest.spawn_tree({x=px,y=py,z=pz},dec[d].lsystem)
+			--cant add it here, so treating the same as schematic
+			table.insert(parms.lsys,{{x=px,y=py,z=pz},dec[d].lsys})
 		end --if dec[d].node~=nil
 	end --if (dec[d]~=nil)
 
@@ -296,6 +304,114 @@ function realms.get_content_id(nodename)
 	end --if
 end --realms.get_content_id
 
+
+
+--calculate biomes decoration percentages
+--(this is different from the way minetest does its biome decorations)
+--********************************
+function realms.calc_biome_dec(biome)
+	--minetest.log("realms calc_biome_dec-> biome="..von(biome.name))
+	local d=1
+	if biome.dec~=nil then --there are decorations!
+		--# gets the length of an array
+		--putting it in biome.dec.max is probably not really needed, but I find it easy to use and understand
+		biome.dec.max=#biome.dec
+		local chancetop=0
+		local chancebot=0
+		--loop BACKWARDS from last decoration to first setting our chances.
+		--the point here is that we dont want to roll each chance individually.  We want to roll ONE chance,
+		--and then determine which decoration, if any, was selected.  So this process sets up the chancetop and chancebot
+		--for each dec element so that we can easily (and quickly) go through them when decorating.
+		--example:  dec[1].chance=3 dec[2].chance=5 dec 3.chance=2
+		--after this runs
+		--dec[1].chancebot=7  dec[1].chancetop=9
+		--dec[2].chancebot=2  dec[2].chancetop=7
+		--dec[3].chancebot=0  dec[3].chancetop=2
+		for d=biome.dec.max, 1, -1 do
+			--minetest.log("realms calc_biome_dec->   decoration["..d.."] =")
+			luautils.log_table(biome.dec[d])
+			if biome.dec[d].chance~=nil then  --check this because intend to incorporate noise option in future.
+				chancebot=chancetop
+				chancetop=chancetop+biome.dec[d].chance
+				biome.dec[d].chancetop=chancetop
+				biome.dec[d].chancebot=chancebot
+				--turn node entries from strings into numbers
+				biome.dec[d].node=realms.get_content_id(biome.dec[d].node) --will return nil if passed nil
+				--minetest.log("realms calc_biome_dec->  content_id="..von(biome.dec[d].node))
+			end --if dec.chance~=nil
+		end --for d
+		--this is the default function for realms defined biomes, no need to have to specify it every time
+		if biome.decorate==nil then biome.decorate=realms.decorate end
+	end --if biome.dec~=nil
+end --calc_biome_dec
+
+
+
+--********************************
+--untested, probably needs to be modified so you could add multiple decorations
+function realms.add_decoration(biome,newdec)
+	--minetest.log("add_decoration-> #newdec="..#newdec)
+	if biome.dec==nil then biome.dec=newdec
+	else 
+		for _,v in pairs(newdec) do
+			table.insert(biome.dec, v)
+		end--for
+	--biome.dec[#biome.dec+1]=newdec
+	end --if
+	realms.calc_biome_dec(biome)
+	--minetest.log("  add_decoration -> #biome.dec="..#biome.dec)
+end --add_decoration
+
+
+
+
+--********************************
+function realms.add_dec_flowers(biomein,modifier,cat)
+	local biome
+	if type(biomein)=="string" then biome=realms.biome[biomein]
+	else biome=biomein
+	end --if type(biomein)
+	if modifer==nil or modifier==0 then modifier=1 end 
+	if flowers then --if the flowers mod is available
+		--the category parm may not be needed, since I'm just adding all flowers the same right now
+		if cat==nil or cat=="all" then  
+			realms.add_decoration(biome,
+				{
+					{chance=0.30*modifier, node="flowers:dandelion_yellow"},
+					{chance=0.30*modifier, node="flowers:dandelion_white"},
+					{chance=0.25*modifier, node="flowers:rose"},
+					{chance=0.25*modifier, node="flowers:tulip"},
+					{chance=0.20*modifier, node="flowers:chrysanthemum_green"},
+					{chance=0.20*modifier, node="flowers:geranium"},
+					{chance=0.20*modifier, node="flowers:viola"},
+					{chance=0.05*modifier, node="flowers:tulip_black"},
+				})
+		end --if cat==all
+	end --if flowers
+end --add_dec_flowers
+
+
+function realms.add_dec_mushrooms(biomein,modifier) --can add a cat to this later if needed
+	if type(biomein)=="string" then biome=realms.biome[biomein]
+	else biome=biomein
+	end --if type(biomein)
+	if modifer==nil or modifier==0 then modifier=1 end 
+	realms.add_decoration(biome,
+		{
+			{chance=0.05*modifier,node="realms:mushroom_white"},
+			{chance=0.01*modifier,node="realms:mushroom_milkcap"},
+			{chance=0.01*modifier,node="realms:mushroom_shaggy_mane"},
+			{chance=0.01*modifier,node="realms:mushroom_parasol"},
+			{chance=0.005*modifier,node="realms:mushroom_sulfer_tuft"},
+		})
+	if flowers then --if the flowers mod is available
+		realms.add_decoration(biome,
+			{
+				{chance=0.05*modifier, node="flowers:mushroom_brown"},
+				{chance=0.05*modifier, node="flowers:mushroom_red"},
+			})
+	end --if flowers
+end --add_dec_flowers
 
 
 --********************************
@@ -323,33 +439,7 @@ function realms.register_biome(biome)
 	--will have to do the same thing for the dec.node entries, but we do that below
 
 	--now deal with the decorations (this is different from the way minetest does its biomes)
-	local d=1
-	if biome.dec~=nil then --there are decorations!
-		--# gets the length of an array
-		--putting it in biome.dec.max is probably not really needed, but I find it easy to use and understand
-		biome.dec.max=#biome.dec
-		local chancetop=0
-		local chancebot=0
-		--loop BACKWARDS from last decoration to first setting our chances.
-		--the point here is that we dont want to roll each chance individually.  We want to roll ONE chance,
-		--and then determine which decoration, if any, was selected.  So this process sets up the chancetop and chancebot
-		--for each dec element so that we can easily (and quickly) go through them when decorating.
-		--example:  dec[1].chance=3 dec[2].chance=5 dec 3.chance=2
-		--after this runs
-		--dec[1].chancebot=7  dec[1].chancetop=9
-		--dec[2].chancebot=2  dec[2].chancetop=7
-		--dec[3].chancebot=0  dec[3].chancetop=2
-		for d=biome.dec.max, 1, -1 do
-			chancebot=chancetop
-			chancetop=chancetop+biome.dec[d].chance
-			biome.dec[d].chancetop=chancetop
-			biome.dec[d].chancebot=chancebot
-			--turn node entries from strings into numbers
-			biome.dec[d].node=realms.get_content_id(biome.dec[d].node) --will return nil if passed nil
-		end --for d
-		--this is the default function for realms defined biomes, no need to have to specify it every time
-		if biome.decorate==nil then biome.decorate=realms.decorate end
-	end --if biome.dec~=nil
+	realms.calc_biome_dec(biome)
 	minetest.log("realms-> biome registered for: "..biome.name)
 end --register_biome
 
@@ -507,6 +597,7 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 	--and place_schematic_vmanip does nothing if you are writing to the area, it has to be run after 'set data' and before any of: 'set lighting', 'calc lighting', 'write to map'.
 	--https://minetest.org/forum/viewtopic.php?f=47&t=4668&start=2340
 	--idea for using table from https://forum.minetest.net/viewtopic.php?f=47&t=18259
+	local lsys = {} --lsys array stores lsystem entries same as mts stores schematics, and for the same reason
 
 	--share is used to pass data between rmgs working on the same chunk
 	local share={}
@@ -538,6 +629,7 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 			parms.vmparam2=vmparam2
 			parms.vm=vm  --I dont know if the map gen needs this, but just in case, there it is.
 			parms.mts=mts --for storing schematics to be written before vm is saved to map
+			parms.lsys=lsys
 			parms.chunk_seed=seed --the seed that was passed to realms for this chunk
 			--minetest.log("realms-> r="..r)
 			minetest.log("  >>>realms-> gen_realms r="..r.." rmg="..luautils.var_or_nil(realm[r].rmg).." isect "..pts(parms.isect_minp).."-"..pts(parms.isect_maxp))
@@ -566,6 +658,11 @@ function realms.gen_realms(chunk_minp, chunk_maxp, seed)
 	vm:calc_lighting()
 	--write it to world	
 	vm:write_to_map()
+
+	for i = 1, #lsys do
+		minetest.log("decorate->spawning lsystem tree at ("..pts(lsys[i][1])..")")
+		minetest.spawn_tree(lsys[i][1],lsys[i][2])
+	end --for
 
 end -- gen_realms
 

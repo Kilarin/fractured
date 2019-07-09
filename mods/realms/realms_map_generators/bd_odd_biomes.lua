@@ -39,7 +39,9 @@ realms.register_biome({
 
 -- ---------------------------------------------------------------
 
-dofile(realmsschematics.."/mushroomone.lua")
+dofile(realmsschematics.."/mushroom_giant_fly.lua")
+dofile(realmsschematics.."/mushroom_giant_morel.lua")
+dofile(realmsschematics.."/mushroom_giant_tall.lua")
 
 realms.register_biome({
 		name="odd_mushroom",
@@ -51,9 +53,17 @@ realms.register_biome({
 		y_min = 1,
 		alternates={"basic_shore","basic_ocean"},
 		dec={
-			{chance=1, schematic=bd_odd_biomes.mushroomone, offset_x=-3, offset_z=-3, offset_y=-1}, --center and one underground
+			{chance=0.75, schematic=bd_odd_biomes.mushroom_giant_fly, offset_x=-3, offset_z=-3, offset_y=-1}, --center and one underground
+			{chance=0.15, schematic=bd_odd_biomes.mushroom_giant_morel, offset_x=-3, offset_z=-3, offset_y=-1}, --center and one underground
+			{chance=0.05, schematic=bd_odd_biomes.mushroom_giant_tall, offset_x=-9, offset_z=-9, offset_y=-2}, --center and two underground
 			{chance=2,node="flowers:mushroom_brown"},
-			{chance=2,node="flowers:mushroom_red"}
+			{chance=2,node="flowers:mushroom_red"},
+			{chance=0.5,node="realms:mushroom_white"},
+			{chance=1,node="realms:mushroom_milkcap"},
+			{chance=1,node="realms:mushroom_shaggy_mane"},
+			{chance=1,node="realms:mushroom_parasol"},
+			{chance=0.3,node="realms:mushroom_sulfer_tuft"},
+--			{chance=2,node="realms:mushroom_sulfer_tuft_128"},
 			}
 		})
 

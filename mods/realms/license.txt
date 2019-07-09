@@ -18,6 +18,7 @@ BORROWED CODE
 bf_basic_biomes.lua inspired by and takes some code from https://github.com/SmallJoker/noisetest WTFPL License
 gen_appletree and gen_jungletree function in bf_basic_biomes, bg_basic_biomes, and bd_basic biomes
       from https://github.com/SmallJoker/noisetest WTFPL License
+mushroom_white by Piezo_ (from mushrooms_redo) license code: MIT, art CC BY-SA 3.0
 
 
 ======================================================
@@ -25,7 +26,7 @@ BORROWED SCHEMATICS
 
 frost_tree.lua  from ethereal (license MIT TenPlus1) with very slight modifications by Kilarin (license MIT)
 golden_tree.lua  from ethereal (license MIT TenPlus1) with very slight modifications by Kilarin (license MIT)
-mushroomone.lua  from ethereal (license MIT TenPlus1) with very slight modifications by Kilarin (license MIT)
+mushroom_giant_fly.lua  from ethereal (license MIT TenPlus1) with very slight modifications by Kilarin (license MIT)
 pine_tree.lua  from ethereal (license MIT TenPlus1) with slight modifications by Kilarin (license MIT)
 rainbow_willow_tree.lua from ethereal (license MIT TenPlus1) with very slight modifications by Kilarin (license MIT)
 
@@ -40,6 +41,7 @@ rainbow_willow_leaves.png (modified from ethereal willow_twig.png license MIT Te
 rainbow_willow_trunk.png (modified from ethereal willow_trunk.png license MIT TenPlus1)
 rainbow_willow_trunk_top.png (modified from ethereal willow_trunk_top.png license MIT TenPlus1)
 realms_golden_grass_1 through 5.png (modified from default default_dry_grass_*.png)
+mushroom_white.png by Piezo_ (from mushrooms_redo) license code: MIT, art CC BY-SA 3.0
 
 
 ---images copied from ethereal (license MIT TenPlus1)

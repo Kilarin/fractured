@@ -9,7 +9,7 @@ There are two primary biome map types.  "MATRIX" and "VORONOI"  this is an examp
 MATRIX is very simple to implement, you just build a matrix and populate it with the biomes you
 want.  It gives you complete and easy control over what percentage of the world will be what biome.
 The disadvantage is that it does not create as natural of a distribution as VORONOI, and your biomes
-have to set up "alternate" lists of repalcement biomes if the primary biome is outside of its y 
+have to set up "alternate" lists of repalcement biomes if the primary biome is outside of its y
 range.
 
 this biome map combines biomes from bd_basic and bd_odd
