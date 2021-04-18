@@ -48,12 +48,14 @@ local c_coal = minetest.get_content_id("default:stone_with_coal")
 local c_copper = minetest.get_content_id("default:stone_with_copper")
 local c_mese = minetest.get_content_id("default:stone_with_mese")
 local c_meseblock = minetest.get_content_id("default:mese")
-local c_esem = minetest.get_content_id("default:stone_with_esem")
-local c_esemblock = minetest.get_content_id("default:esem")
+local c_esem = minetest.get_content_id("fractured:stone_with_esem")
+local c_esemblock = minetest.get_content_id("fractured:esem")
 local c_diamond = minetest.get_content_id("default:stone_with_diamond")
 local c_goldblock = minetest.get_content_id("default:goldblock")
 local c_diamondblock = minetest.get_content_id("default:diamondblock")
-local c_drydirt =  minetest.get_content_id("default:dry_dirt")
+--local c_drydirt =  minetest.get_content_id("realms:dry_dirt")
+--dry dirt is registered in both realms and fractured?  that seems like a very bad idea! *!*
+local c_drydirt =  minetest.get_content_id("fractured:dry_dirt")
 
 --I would love to do these as const arrays, but I'm afraid
 --it would slow the logic down.
@@ -62,8 +64,8 @@ local orethin_thinlist={minetest.get_content_id("default:stone_with_iron"),
 	                     minetest.get_content_id("default:stone_with_copper"),
 	                     minetest.get_content_id("default:stone_with_mese"),
 	                     minetest.get_content_id("default:mese"),
-	                     minetest.get_content_id("default:stone_with_esem"),
-	                     minetest.get_content_id("default:esem"),
+	                     minetest.get_content_id("fractured:stone_with_esem"),
+	                     minetest.get_content_id("fractured:esem"),
 	                     minetest.get_content_id("default:stone_with_diamond"),
 	                     minetest.get_content_id("default:goldblock"),
 	                     minetest.get_content_id("default:diamondblock")
@@ -73,8 +75,8 @@ local orethin_thinlist={minetest.get_content_id("default:stone_with_iron"),
 --the list of ores that will appear in the west only
 local orethin_westlist={minetest.get_content_id("default:stone_with_mese"),
 	                     minetest.get_content_id("default:mese"),
-	                     minetest.get_content_id("default:stone_with_esem"),
-	                     minetest.get_content_id("default:esem")
+	                     minetest.get_content_id("fractured:stone_with_esem"),
+	                     minetest.get_content_id("fractured:esem")
 	                     }
 --print("westlist="..dump(orethin_westlist))
 

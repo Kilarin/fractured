@@ -22,30 +22,12 @@ fractured.wilddist = function(pos)
 end --wilddist
 
 
+local fractured_path = minetest.get_modpath("fractured")
+dofile(fractured_path.."/nodes.lua")
+dofile(fractured_path.."/craftitems.lua")
+dofile(fractured_path.."/crafting.lua")
+dofile(fractured_path.."/mapgen.lua")
 
--- Dry Dirt  (copied from ethereal)
-minetest.register_node("fractured:dry_dirt", {
-description = "Dried Dirt",
-tiles = {"ethereal_dry_dirt.png"},
-is_ground_content = false,
-groups = {crumbly=3} --,
---sounds = default.node_sound_dirt_defaults()
-})
-
-
--- scorched trunk  copied from ethereal
-minetest.register_node("fractured:scorched_tree", {
-	description = "Scorched Tree",
-	tiles = {
-		"scorched_tree_top.png",
-		"scorched_tree_top.png",
-		"scorched_tree.png"
-	},
-	groups = {tree = 1, choppy = 2, oddly_breakable_by_hand = 1, flammable = 1},
-	--sounds = default.node_sound_wood_defaults(),
-	paramtype2 = "facedir",
-	on_place = minetest.rotate_node,
-})
 
 
 --local player=minetest.get_player_by_name("singleplayer")
