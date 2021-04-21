@@ -23,6 +23,9 @@ LIGHT_MAX = default.LIGHT_MAX
 
 -- Formspecs
 default.gui_suvival_form = default.gui_survival_form
+default.gui_bg     = ""
+default.gui_bg_img = ""
+default.gui_slots  = ""
 
 -- Players
 if minetest.get_modpath("player_api") then
@@ -42,5 +45,5 @@ default.register_chest = default.chest.register_chest
 function default.intersects_protection(minp, maxp, player_name, interval)
 	minetest.log("warning", "default.intersects_protection() is " ..
 		"deprecated, use minetest.is_area_protected() instead.")
-	minetest.is_area_protected(minp, maxp, player_name, interval)
+	return minetest.is_area_protected(minp, maxp, player_name, interval)
 end

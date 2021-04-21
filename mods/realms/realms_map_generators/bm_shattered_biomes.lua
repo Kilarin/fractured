@@ -16,6 +16,8 @@ it detects if the noise comes near the edge of a biome, and changes top to turn 
 a chasm.  This creates a strange looking world of isolated biomes separated by deep chasms,
 somewhat remenicent of Sanderson's "Shattered Plains"  (only very somewhat)
 
+so, this is a biome map that cheats and acts partially as a terrain generator?
+
 My first approach at making a shatterds plane generator was tg_mesas.  Which I thought
 looked pretty cool.  My son looked at it, said, "yes, it does look cool, but it would look a lot
 more like the shattered plains if you did..." and described this functionality.  I said, "Nah, that
@@ -128,7 +130,7 @@ function bm_shattered_biomes.bm_shattered_biomes(parms)
 			local n_humid = math.floor(noisehu*biomemap.humidrange)+1
 			--minetest.log("shattered->>> heat="..heat_map[nixz].." humd="..humid_map[nixz].." n_heat="..n_heat.." n_humid="..n_humid)
 
-			--if we are close to the edge, then make this 
+			--if we are close to the edge, then make this a canyon
 			if math.floor((noisehe+edgehe)*biomemap.heatrange)+1~=n_heat or math.floor((noisehe-edgehe)*biomemap.heatrange)+1~=n_heat
 					or math.floor((noisehu+edgehu)*biomemap.humidrange)+1~=n_humid or math.floor((noisehu-edgehu)*biomemap.humidrange)+1~=n_humid then
 				srfc.biome=realms.biome.odd_chasm_bottom
